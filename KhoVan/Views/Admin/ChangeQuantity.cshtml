@@ -1,0 +1,47 @@
+﻿@{
+
+    Layout = "~/Views/Shared/_ChangePasswordLayout.cshtml";
+}
+<script src ="/Scripts/jquery-1.9.1.min.js" ></script>
+
+<style>
+    .txt{
+        width:200px;
+    }
+</style>
+@using (Html.BeginForm())
+{<h1>Đổi số lượng</h1>
+    <table border="0" cellpadding="10" cellspacing="0">
+
+        <tr>
+            <td colspan="2">
+                <span style="color: green" id="tc">
+                    @ViewBag.MessageSuccess
+                </span>
+                <span style="color: red" id="tb">
+                    @ViewBag.MessageError
+                </span>
+
+            </td>
+        </tr>
+        <tr>
+            <td align="right">
+                Số mới
+            </td>
+            <td>
+
+                @Html.TextBox("Quantity", null, new { @class = "txt", @autocomplete = "off" })<input type="submit" name="name" value="Đổi" />
+            </td>
+        </tr>
+
+
+    </table>
+}
+<script>
+
+    $(document).ready(function () {
+        if ($.trim($("#tc").html()) != "")
+            parent.location = parent.location;
+
+    })
+</script>

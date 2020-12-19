@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Nhập danh sách vị trí";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+@using (Html.BeginForm())
+{
+
+    <textarea id="ItemID" style="width:100%;height:300px;text-align:center"
+              placeholder="Vị trí | lẻ | tạm | độ ưu tiên | sức chứa | Rack"></textarea>
+    <p id="message" style="text-align:center">
+
+    </p>
+
+    <p style="text-align: center">
+        <input type="button" id="choosebutton" name="name" value="Cập nhật" onclick="doreport()" />
+        <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+    </p>
+
+}
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function doreport() {
+        $("#choosebutton").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/UpdateLocation', { sList: $("#ItemID").val() }, function (result) {
+
+            if (result.success) {
+                playSound();
+                $("#choosebutton").show();
+                alert(result.msg);
+                $("#message").html(result.msg);
+                $("#message").css("color", "green");
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#choosebutton").show();
+                $("#ms").html("");
+                $("#message").html(result.errorMsg);
+                $("#message").css("color", "red");
+            }
+        }, 'json');
+
+
+    }
+</script>

@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = "Tra cứu tồn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#tracuuton").addClass("menuselect");
+
+    })
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+</div>
+<div style="margin: 20px 0;"></div>
+<div class="easyui-panel" style="width: 100%; max-width: 400px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" class="easyui-searchbox keyword" data-options="prompt:'Mã hàng/vị trí/barcode',searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch(value) {
+
+        location = "/admin/TraCuuTon?key=" + value;
+    }
+
+</script>
+<div class="clear">
+</div>
+
+<table id="dg" title="Danh sách tồn: @ViewBag.Count - SL:@ViewBag.TSL  " nowrap="False" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/chitietton?key=@Request.QueryString["key"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="ItemID" width="150">Mã hàng</th>
+            @if (Global.Commons.fBrowserIsMobile() == false)
+            {
+                <th field="ItemName" width="150">Tên hàng</th>
+
+            }
+            <th field="Location" width="150" align="center">Vị trí</th>
+            @if (Global.Commons.fBrowserIsMobile() == false)
+            {
+                <th field="Quantity" width="50" data-options="align:'right'">SL tồn kho</th>
+                <th field="Waiting" width="50" data-options="align:'right'">SL treo chưa xác nhận xuất</th>
+            }
+            <th field="Remain" width="50" data-options="align:'right'">SL tồn kho sẳn bán</th>
+
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportitem()">Xuất sang excel </a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+<script>
+    function exportitem() {
+        var l = "/admin/ExportPalletLocation";
+        open(l);
+    }
+    function showwaiting(itemid, locationid) {
+        var url = "/admin/showwaiting?id=" + itemid + "&location=" + locationid;
+        showtc(url, 400, 400);
+    }
+</script>
+<script src="~/Scripts/paging.js"></script>
+<script>
+    fixpagingcontent('@Request.QueryString["page"]')
+</script>

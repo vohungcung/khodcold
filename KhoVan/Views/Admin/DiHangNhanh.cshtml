@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "Di hàng nhanh";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<link href="~/css/dihang.css" rel="stylesheet" />
+<style>
+    #txt, #location1, #location2, #BarCode {
+        text-transform: uppercase;
+        font-size: 16px;
+    }
+
+    .datagrid-cell, .datagrid-cell-group, .datagrid-header-rownumber, .datagrid-cell-rownumber {
+        font-size: 16px;
+        line-height: 30px;
+    }
+</style>
+<div style="padding-left:20px">
+
+
+    <h1>
+        Di hàng nhanh
+    </h1>
+    <p>
+        <input class="txt" id="location1" type="text" placeholder="Vị trí cần di" style="width:200px" autocomplete="off" value="" />
+    </p>
+    <p>
+        <input class="txt" id="BarCode" type="text" placeholder="BarCode" style="width:200px" autocomplete="off" value="" />
+    </p>
+    <div id="info">
+
+
+
+    </div>
+    <p>
+        <input class="txt" id="location2" type="text" placeholder="Vị trí cần đến" style="width:200px" autocomplete="off" value="" />
+    </p>
+    <div id="info2">
+
+
+
+    </div>
+</div>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    $(document).ready(function () {
+        $('#BarCode,#location1,#location2').focus(function () {
+            $(this).select();
+        });
+        $("#location1").focus();
+
+
+        $('#location1').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+
+                $.post('/admin/CheckSLocation', { Location: $("#location1").val() }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        $("#BarCode").focus();
+                    } else {
+                        playSound1();
+                        alert(result.errorMsg);
+                        $("#location1").focus();
+
+                    }
+                }, 'json');
+            }
+        });
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                getinfo();
+            }
+        });
+        $('#location2').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                batdauchuyen();
+            }
+        });
+
+    })
+
+    function getinfo() {
+        $.post('/admin/getinfo', {
+            Location: $("#location1").val(),
+            BarCode: $("#BarCode").val()
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                $("#info").html(result.Info);
+                $("#BarCode").blur();
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+
+               
+
+            }
+        }, 'json');
+    }
+    function getinfo2(VoucherID) {
+        $.post('/admin/getinfo2', {
+            VoucherID: VoucherID
+        }, function (result) {
+            if (result.success) {
+             
+                $("#info2").html(result.Info);
+               
+                getinfo();
+            } else {
+               
+
+
+            }
+        }, 'json');
+    }
+    function dihang() {
+        $("#location2").focus();
+    }
+    function batdauchuyen() {
+        var Quantity = $(".quantity:first").val();
+        if (Quantity == null) {
+            $("#BarCode").focus();
+            return;
+        }
+        if (Quantity == "") {
+            $("#BarCode").focus();
+            return;
+        }
+        if (isNaN(Quantity) == true) {
+            $("#BarCode").focus();
+            return;
+        }
+        if (parseInt(Quantity) < 1) {
+            playSound1();
+            alert('Số lượng không hợp lệ')
+            return;
+        }
+        var locationto = $("#location2").val();
+       
+
+        if (locationto != null) {
+            if (locationto != "") {
+                $("#location2").hide();
+
+                $.post('/admin/QuetDiHang', {
+                    BarCode: $.trim($('#BarCode').val()),
+                    VoucherID: '',
+                    LocationFrom: $("#location1").val().toUpperCase(),
+                    LocationTo: locationto.toUpperCase(),
+                    Quantity: Quantity,
+                    Description: "di hàng nhanh",
+
+                }, function (result) {
+
+                    if (result.success) {
+                        playSound();
+                        $("#BarCode").focus();
+                        getinfo2(result.VoucherID);
+
+                    } else {
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                        playSound1();
+
+
+                    }
+                    $("#location2").show();
+                }, 'json');
+
+            }
+        }
+    }
+</script>

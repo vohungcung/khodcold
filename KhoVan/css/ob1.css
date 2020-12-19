@@ -1,0 +1,170 @@
+﻿html {
+    background-color: #FFF;
+}
+
+body {
+    margin: 0 auto;
+    font-family: Arial;
+    font-size: 16px;
+}
+
+h2 {
+     margin: 0 auto;
+   text-align:center;
+   border-top:1px solid #000;
+    color: #000;
+    font-size: 22pt;
+}
+
+h3 {
+    font-weight: bold;
+    font-size: 19pt;
+    font-family: Calibri;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    text-transform:uppercase;
+}
+
+h4 {
+    font-weight: bold;
+    font-weight: bold;
+    font-size: 18pt;
+    font-family: Calibri;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.tem {
+    height: 9cm;
+    width: 8.5cm;
+    margin-top: 0;
+    clear: both;
+    overflow: hidden;
+    border: 1px solid #41719c;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    page-break-inside: avoid;
+    page-break-after: always;
+}
+
+.ob {
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    margin-left: 10px;
+}
+
+.trai {
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.phai {
+    width: 228px;
+    float: right;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding-left: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+    .phai p {
+        margin-bottom: 0;
+        margin-top: 2px;
+    }
+
+.bottom {
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top: 1px solid #000;
+}
+
+
+
+.countob {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+.ngayquet {
+    position: absolute;
+    top: 24px;
+    right: 5px;
+    font-size: 10pt;
+}
+
+.nvquet {
+    position: absolute;
+    top: 44px;
+    right: 5px;
+    font-size: 10pt;
+}
+
+    .nvquet strong {
+        text-transform: capitalize;
+    }
+
+.trai p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.clear {
+    clear: both
+}
+
+.moreinfo {
+    font-size: 11pt;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.customerinfo {
+    font-size: 19pt;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #000;
+    font-weight: bold;
+    padding-bottom: 0px;
+    text-align:center;
+}
+
+.customerinfo-address {
+    font-size: 14pt;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-top: 1px solid #000;
+    padding-top: 5px;
+    line-height: 25px;
+    font-weight: bold;
+}
+
+.newsize {
+    font-size: 18pt;
+    line-height: 25px;
+}
+
+.sl {
+    float: right;
+}
+
+.note {
+     width: 100%;
+    text-align: center;
+    display: block;
+    line-height: 20px;
+    font-weight: bold;
+    font-size: 15pt;
+}
+@media print {
+    .tem {
+        page-break-after: always;
+    }
+}

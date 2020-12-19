@@ -1,0 +1,174 @@
+﻿@{
+
+    Layout = "~/Views/Shared/_SingleLayout2.cshtml";
+
+
+
+}
+
+<style>
+    body {
+        width: 100%;
+    }
+
+    .bando {
+        width: 100%;
+        height: 200px;
+    }
+</style>
+
+<script src="~/Scripts/jquery-2.1.4.min.js"></script>
+
+
+
+
+
+<style>
+    #right-panel {
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+    }
+
+        #right-panel select, #right-panel input {
+            font-size: 15px;
+        }
+
+        #right-panel select {
+            width: 100%;
+        }
+
+        #right-panel i {
+            font-size: 12px;
+        }
+
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #map {
+        height: 100%;
+        float: left;
+        width: 100%;
+        height: 700px;
+    }
+
+    #right-panel {
+       width: 100%;
+       
+        text-align: left;
+        padding-top: 0;
+    }
+
+    #directions-panel {
+        /*margin-top: 10px;*/
+        /*background-color: #FFEE77;*/
+        /*padding: 10px;*/
+        overflow: auto;
+        /*height: 274px;*/
+    }
+    #start, #end, #submit {
+        display: none;
+    }
+    .dd{
+        page-break-inside:avoid;
+    }
+</style>
+
+<div id="map"></div>
+
+<div id="right-panel">
+    <div>
+        <h1>
+            Phiếu ra cổng: @Request.QueryString["id"] 
+        </h1>
+        
+        <select id="start">
+            <option value="@Global.GlobalVariables.Address">@Global.GlobalVariables.Address</option>
+           
+        </select>
+       
+      
+        <select id="end">
+            @foreach (System.Data.DataRow item in ViewBag.data)
+            {
+                <option value="@item["Address"]">@item["CustomerName"]</option>
+
+            }
+        </select>
+      
+        <input type="submit" id="submit" value="Xem lộ trình">
+    </div>
+    <div id="directions-panel"></div>
+</div>
+<script>   
+  
+
+    function initMap() {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+          var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 17,
+            center: { lat: 10.7374365, lng: 106.6298837 }
+            
+        });
+        directionsDisplay.setMap(map);
+
+        document.getElementById('submit').addEventListener('click', function () {
+            calculateAndDisplayRoute(directionsService, directionsDisplay);
+        });
+    }
+    function getroad() {
+        $("#submit").click();
+
+    }
+    function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        var waypts = [];
+        var checkboxArray = document.getElementById('end');
+        for (var i = 0; i < checkboxArray.length; i++) {
+            if (!checkboxArray.options[i].selected) {
+                waypts.push({
+                    location: checkboxArray[i].value,
+                    stopover: true
+                });
+            }
+        }
+
+        directionsService.route({
+            origin: document.getElementById('start').value,
+            destination: document.getElementById('end').value,
+            waypoints: waypts,
+            optimizeWaypoints: true,
+            travelMode: 'DRIVING'
+        }, function (response, status) {
+            if (status === 'OK') {
+                directionsDisplay.setDirections(response);
+                var route = response.routes[0];
+                var summaryPanel = document.getElementById('directions-panel');
+                summaryPanel.innerHTML = '';
+                var content = "";
+                // For each route, display summary information.
+                for (var i = 0; i < route.legs.length; i++) {
+                    var routeSegment = i + 1;
+                    content += "<div class='dd'>";
+                    content += '<b>Điểm đến: ' + routeSegment + '</b><br/>';
+                    content +=  route.legs[i].start_address + ' to ';
+                    content +=  route.legs[i].end_address + '<br/>';
+                    content += route.legs[i].distance.text + '<hr/>';
+                    content += "</div>";
+                }
+                summaryPanel.innerHTML = content;
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
+    }
+    $(window).load(function () {
+        setTimeout(getroad, 2000);
+    })
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=@Global.GlobalVariables.GoogleAPIKey&callback=initMap">
+</script>

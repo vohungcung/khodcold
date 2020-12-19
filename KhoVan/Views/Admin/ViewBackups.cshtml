@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "Danh sách backup";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(window).load(function () {
+        $("#backup").addClass("menuselect");
+
+    })
+
+</script>
+<h1>
+  Backup dữ liệu
+</h1>
+
+<div style="margin: 10px 0;"></div>
+<div class="clear">
+</div>
+<div class="clear">
+    <br />
+
+</div>
+<table id="dg" title="Danh sách backup: @ViewBag.Count" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 550px; margin: 0 auto" url="/admin/get_backup" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="CreateDate" width="130" data-options="align:'center'">Ngày</th>
+
+            <th field="File" width="130" data-options="align:'center'">File</th>
+            <th field="URL" width="130" data-options="align:'center'">Link</th>
+            <th field="Length" width="130" data-options="align:'center'">Kích thước</th>
+
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" id="bk" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="addItem()">Backup</a>
+
+    <a href="javascript:void(0)" id="dl" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+
+<script type="text/javascript">
+
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+      
+    }
+    function playSound1()
+    {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+       
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+       
+
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa phiếu này?', function (r) {
+                if (r) {
+                    $("#bk,#dl").hide();
+                    $.post('/admin/DeleteBackup', { File: row.ID }, function (result) {
+                        if (result.success) {
+                            playSound();
+                            alert('Đã xóa thành công');
+                          
+                            $('#dg').datagrid('reload');
+                            $("#bk,#dl").show();
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                            $("#bk,#dl").show();
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+
+
+    var url;
+
+    
+    function addItem() {
+        $("#bk,#dl").hide();
+        $.post('/admin/Backup', null, function (result) {
+            if (result.success) {
+                playSound();
+                alert('Thành công');
+              
+                $('#dg').datagrid('reload');
+                $("#bk,#dl").show();
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $("#bk,#dl").show();
+            }
+        }, 'json');
+    }
+    $(document).ready(function () {
+     
+
+    });
+   
+</script>

@@ -1,0 +1,252 @@
+﻿@{
+    ViewBag.Title = "So sánh nhập kho";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .palletid {
+        width: 200px;
+        float: left;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+
+    label {
+        cursor: pointer;
+    }
+
+    .button {
+        width: 100px;
+    }
+</style>
+<script>
+
+
+    $(window).load(function () {
+        $("#ssnk").addClass("menuselect");
+        $('.fromdate,.todate').datebox({
+            onSelect: function (date) {
+                setTimeout(doSearch, 500);
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        checkssnk();
+    })
+
+    function doSearch() {
+        var s1 = $(".fromdate").val().split('/');
+        var s2 = $(".todate").val().split('/');
+
+        var fromdate = "", todate = "";
+        if (s1.length == 3)
+            fromdate = s1[2] + "." + s1[1] + "." + s1[0];
+
+        if (s2.length == 3)
+            todate = s2[2] + "." + s2[1] + "." + s2[0];
+
+        location = "/admin/gotopallet?fromdate=" + fromdate + "&todate=" + s2;
+    }
+
+</script>
+<h1>
+    So sánh nhập kho với SAP
+</h1>
+
+<div style="margin: 10px 0;"></div>
+<table>
+    <tr>
+        <td>
+            <div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+                <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@ViewBag.fromdate">
+            </div>
+
+        </td>
+        <td>
+            <div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+                <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@ViewBag.todate">
+            </div>
+
+        </td>
+
+    </tr>
+</table>
+
+<table style="width:100%" cellpadding="5" cellspacing="0">
+    <tr>
+        <td width="40%">
+            <p>Chưa chọn</p>
+            <select multiple="true" size="10" id="cbo1" style="width:100%">
+                @foreach (System.Data.DataRow item in ViewBag.data)
+                {
+                    <option value="@item["PalletID"]">@item["PalletID"]</option>
+                }
+
+
+            </select>
+        </td>
+        <td width="20%" align="center">
+            <p>
+                <input type="button" class="button" name="name" value=">" onclick="moveone()" />
+
+            </p>
+
+            <p>
+                <input type="button" class="button" name="name" value=">>" onclick="moveall()" />
+
+            </p>
+            <p>
+                <input type="button" class="button" name="name" value="<" onclick="removeone()" />
+
+            </p>
+            <p>
+                <input type="button" class="button" name="name" value="<<" onclick="removeall()" />
+
+            </p>
+            <p>
+                <input type="button" class="button" onclick="doichieu()" name="name" value="Đối chiếu" />
+            </p>
+        </td>
+        <td width="40%">
+            <p>Đã chọn</p>
+            <select multiple="true" id="cbo2" size="10" style="width:100%">
+                @foreach (System.Data.DataRow item in ViewBag.data1)
+                {
+                    <option value="@item["PalletID"]">@item["PalletID"]</option>
+                }
+
+
+            </select>
+        </td>
+    </tr>
+</table>
+<script>
+
+    function moveone() {
+        try {
+            var arr = $('#cbo1').val();
+            var th = "";
+            for (var i = 0; i < arr.length; i++) {
+                if (i > 0)
+                    th += "," + arr[i]
+                else
+                    th += arr[i];
+            }
+
+            $.post('/admin/moveone', { PalletID: th }, function (result) {
+                if (result.success) {
+
+                    location = location;
+
+                } else {
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                }
+            }, 'json');
+        } catch (e) {
+            alert(e);
+        }
+
+    }
+    function moveall() {
+        var arr = $('#cbo1').find("option").get();
+
+        var th = "";
+        for (var i = 0; i < arr.length; i++) {
+            if (i > 0)
+                th += "," + $.trim($(arr[i]).html());
+            else
+                th += $.trim($(arr[i]).html());
+        }
+
+        $.post('/admin/moveone', { PalletID: th }, function (result) {
+            if (result.success) {
+
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function removeone() {
+        try {
+            var arr = $('#cbo2').val();
+            var th = "";
+            for (var i = 0; i < arr.length; i++) {
+                if (i > 0)
+                    th += "," + arr[i]
+                else
+                    th += arr[i];
+            }
+
+            $.post('/admin/removeone', { PalletID: th }, function (result) {
+                if (result.success) {
+
+                    location = location;
+
+                } else {
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                }
+            }, 'json');
+        } catch (e) {
+            alert(e);
+        }
+
+    }
+    function removeall() {
+        var arr = $('#cbo2').find("option").get();
+
+        var th = "";
+        for (var i = 0; i < arr.length; i++) {
+            if (i > 0)
+                th += "," + $.trim($(arr[i]).html());
+            else
+                th += $.trim($(arr[i]).html());
+        }
+
+        $.post('/admin/removeone', { PalletID: th }, function (result) {
+            if (result.success) {
+
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function doichieu() {
+        location = "/admin/compare";
+    }
+</script>

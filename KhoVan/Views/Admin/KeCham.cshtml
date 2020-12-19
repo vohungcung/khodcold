@@ -1,0 +1,163 @@
+﻿@{
+    ViewBag.Title = "Vị trí để xét châm hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<h1>
+    Danh sách vị trí để xét châm hàng
+</h1>
+
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" labelWidth="150" class="keyword easyui-searchbox" label="Từ khóa" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+        var key = $(".keyword").val();
+        location = "/admin/KeCham?key=" + key;
+    }
+    $('.date').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 500);
+        }
+    });
+
+
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+    <br />
+</div>
+<table id="dg" title="Danh sách vị trí để xét châm hàng: @ViewBag.Count" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/LayKeCham?key=@Request.QueryString["key"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="Location" width="150">Vị trí</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="newItem()">Thêm</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+<div id="dlg" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttons">
+    <form id="fm" method="post" novalidate style="margin: 0; padding: 20px 50px">
+        <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Thông tin vị trí</div>
+
+        <div style="margin-bottom: 10px">
+            <input name="Location" class="easyui-textbox" required="true" label="Vị trí:" style="width: 100%">
+        </div>
+
+
+
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="saveItem()" style="width: 90px">Cập nhật</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width: 90px">Bỏ qua</a>
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+<script>
+    $(window).load(function () {
+        $("#kecham").addClass("menuselect");
+
+    })
+    var url;
+    function newItem() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Thêm vị trí');
+        $('#fm').form('clear');
+        var row;
+
+        url = '/admin/ThemKeCham';
+    }
+
+    function saveItem() {
+
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa vị trí này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/XoaKeCham', { Location: row.Location }, function (result) {
+                        if (result.success) {
+                            alert('Đã xóa thành công');
+                            location = location;
+
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+</script>

@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "Xem nhanh kiểm kê";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text], textarea {
+        text-transform: uppercase;
+    }
+    textarea{
+        color:red;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#xkkn").addClass("menuselect");
+
+    })
+
+</script>
+<style>
+    .v {
+        width: 30px;
+        height: 20px;
+    }
+</style>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none;">
+    <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["from"]">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["to"]">
+</div>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["fromk"])" labelWidth="150" class="fromk easyui-searchbox" label="Từ vị trí" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["tok"])" labelWidth="150" class="tok easyui-searchbox" label="Đến vị trí" data-options="searcher:doSearch" style="width: 100%">
+</div>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["note"])" labelWidth="150" class="note easyui-searchbox" label="Ghi chú" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" labelWidth="150" class="key easyui-searchbox" label="Mã hàng" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+        var fromk = $(".fromk").val();
+        var note = $(".note").val();
+        var key = $(".key").val();
+        var tok = $(".tok").val();
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        location = "/admin/ViewKKN?fromk=" + fromk + "&tok=" + tok + "&from=" + fromdate + "&to=" + todate + "&note=" + note + "&key=" + key;
+
+    }
+    $('.fromdate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+    $('.todate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+    <br />
+</div>
+<table id="dg" title="Danh sách kiểm kê: @ViewBag.Count - tổng số lượng: @ViewBag.Sum" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/get_kksn?fromk=@Request.QueryString["fromk"]&tok=@Request.QueryString["tok"]&from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&page=@Request.QueryString["page"]&key=@Request.QueryString["key"]&note=@Request.QueryString["note"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+           <th field="Location1" width="150">Thông tin</th>
+            <th field="Quantity" width="50" data-options="align:'right'">Số lượng</th>
+           
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+
+<script>
+    function exportExcel() {
+        var l = "/admin/exportkk?fromk=@Request.QueryString["fromk"]&tok=@Request.QueryString["tok"]&from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&note=@Request.QueryString["note"]";
+        location = l;
+    }
+    function exportText() {
+
+        var l = "/admin/exportkktext?fromk=@Request.QueryString["fromk"]&tok=@Request.QueryString["tok"]&from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&note=@Request.QueryString["note"]";
+        location = l;
+    }
+  
+  
+</script>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    var url;
+
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            playSound();
+            url = '/admin/KK?d=' + row.D;
+            url += '&l=' + row.Location;
+            url += '&note=' + row.SubLocation;
+            location = url;
+        }
+    }
+</script>

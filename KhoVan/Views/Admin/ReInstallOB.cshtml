@@ -1,0 +1,303 @@
+﻿@{
+
+    Layout = "~/Views/Shared/_SingleLayout2.cshtml";
+
+
+
+}
+<style>
+    body {
+        width: 100%;
+        font-family: Arial;
+        font-size: 14px;
+    }
+
+
+    th {
+        font-weight: bold;
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .data {
+        width: 95%;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+
+    a {
+        text-decoration: none;
+    }
+</style>
+<script src="~/Scripts/jquery-2.1.4.min.js"></script>
+<audio id="vet" src="/sound/vet.mp3" autostart="false"></audio>
+
+<script>
+    function warningsound() {
+        var sound = document.getElementById("vet");
+        sound.play();
+    }
+</script>
+<h1>
+    Phân bổ lại picking list @Request.QueryString["id"]
+</h1>
+<p style="text-align:center">
+    <input type="button" id="tachle" name="name" value="Tách toàn bộ vị trí lẻ" onclick="tachoble()" />
+    <input type="button" id="tachhet" name="name" value="Tách toàn bộ không phân biệt" onclick="tachhet()" />
+
+    <input type="button" name="XuatOB" value="Xuất outbound ra file" onclick="xuatob()" />
+    <input type="button" name="PrintVoucher" value="In ra vị trí" onclick="printposition()" />
+</p>
+<table cellpadding="5" cellspacing="0" class="data" border="1">
+    <tr>
+        <th>Outbound</th>
+        <th>
+            Loại
+        </th>
+        <th id="task">
+            Tác vụ
+        </th>
+    </tr>
+    @foreach (System.Data.DataRow item in ViewBag.data)
+    {
+        <tr class="row">
+            <td align="center">
+                @item["OB"]
+            </td>
+            <td align="center" style="font-weight:bold" class="ob" id="@item["OB"]">
+                @Html.Raw(item["OBType"])
+            </td>
+            <td align="center" class="task">
+                @if (item["U"].ToString() == "0")
+                {
+                    <a href="javascript:void(0)" onclick="tachoblect('@item["OB"]')" class="tachle">
+                        Tách lẻ
+                    </a>
+                }
+                else
+                {
+                  
+                        <a href="javascript:void(0)" onclick="tachoblect('@item["OB"]')" class="tachchan" >
+                            Tách 
+                        </a>
+                    
+                }
+                @if (item["U"].ToString() != "0")
+                {
+<span class="xoaob">
+    |
+</span>
+
+                  <a href="javascript:void(0)" onclick="deleteob('@item["OB"]')" class="xoaob">
+                        Xoá
+                    </a>
+                }
+
+
+            </td>
+        </tr>
+    }
+</table>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<p style="text-align:center;font-weight:bold;color:red">
+    @ViewBag.message
+</p>
+<script type="text/javascript">
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function sodong() {
+        var arr = $(document).find(".row").get();
+        return arr.length;
+    }
+    function sodongle() {
+        var arr = $(document).find(".ob").get();
+        var c = 0;
+
+        for (var i = 0; i < arr.length; i++) {
+            var text = $.trim($(arr[i]).text());
+            if (text == "Vị trí lẻ") {
+                c++;
+            }
+        }
+        return c;
+    }
+    $(document).ready(function () {
+        var arr =new Array();
+        var sdl = sodongle();
+        var sd = sodong();
+       
+        if (sd == sdl && sd == 1) {
+            $(".task,#task").remove();
+            $("#tachle,.tachle,.tachhet,.tachchan,#tachhet,.xoaob").remove();
+        }
+
+        var cotv = false;
+
+        arr = $(document).find(".task").get();
+        for (var i = 0; i < arr.length; i++) {
+            var text = $.trim($(arr[i]).text());
+            if ($.trim(text) != "") {
+                cotv = true;
+                break;
+            }
+        }
+        if (cotv == false) {
+            $(".task,#task").remove();
+        }
+    });
+    function tachoblect(e) {
+        if (confirm('Bạn có chắc là bạn muốn tách outbound ' + e + ' không?') == false) return;
+
+        $("#tachle,.tachle,.tachchan,.tachhet").hide();
+
+        $.post('/admin/TachLe', {
+            OBList: e,
+            OldVoucher: '@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                location = location;
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+            }
+
+            $("#tachle,.tachle,.tachchan,.tachhet").show();
+
+        }, 'json');
+
+    }
+
+    function tachoble() {
+        if (confirm('Bạn có chắc là bạn muốn tách toàn bộ outbound ở vị trí lẻ không?' ) == false) return;
+
+
+        var arr = $(document).find(".ob").get();
+        var n = arr.length;
+        if (sodong() == sodongle())
+            n--;
+
+        var ob = "";
+        for (var i = 0; i < n; i++) {
+            var text =$.trim( $(arr[i]).text());
+            if (text == "Vị trí lẻ") {
+                ob += $(arr[i]).attr("id") + ",";
+            }
+        }
+        $("#tachle,.tachle,.tachchan,#tachhet").hide();
+        $.post('/admin/TachLe', {
+            OBList:ob,
+            OldVoucher:'@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                parent.location = parent.location;
+            }
+            else {
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+            $("#tachle,.tachle,.tachchan,#tachhet").show();
+
+            }, 'json');
+
+    }
+
+    function tachhet() {
+        if (confirm('Bạn có chắc là bạn muốn tách toàn bộ outbound không?') == false) return;
+
+
+        var arr = $(document).find(".ob").get();
+        var n = arr.length;
+        if (sodong() == sodongle())
+            n--;
+
+        var ob = "";
+        for (var i = 0; i < n-1; i++) {
+            var text = $.trim($(arr[i]).text());
+            ob += $(arr[i]).attr("id") + ",";
+        }
+        $("#tachle,.tachle,.tachchan,#tachhet").hide();
+        $.post('/admin/TachLe', {
+            OBList: ob,
+            OldVoucher: '@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                parent.location = parent.location;
+            }
+            else {
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+            $("#tachle,.tachle,.tachchan,#tachhet").show();
+
+        }, 'json');
+
+    }
+
+    function xuatob() {
+        open('/admin/ExportOBToText?id=@Request.QueryString["id"]');
+    }
+    function deleteob(ob) {
+        if (confirm('Bạn có chắc là bạn muốn xoá outbound ' + ob+' không') == false) return;
+
+        $.post('/admin/DeleteVoucherXK', {
+            OB:ob,
+            VoucherID:'@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                parent.location = parent.location;
+            }
+            else {
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+            $("#tachle,.tachle,.tachchan,#tachhet").show();
+
+            }, 'json');
+    }
+    function printposition() {
+
+
+        $.post('/admin/CheckPrintCount', {
+            VoucherID: '@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+
+                if (result.PrintCount > 0) {
+                    warningsound();
+                    if (confirm("Phiếu này đã từng in " + result.PrintCount + " lần rồi. Bạn có chắc là muốn in lại nó không?") == false) return;
+                }
+                playSound();
+                open('/admin/printoutput?id=@Request.QueryString["id"]');
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+            }
+        }, 'json');
+
+
+    }
+</script>

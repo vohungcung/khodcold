@@ -1,0 +1,325 @@
+﻿@{
+    ViewBag.Title = "Danh sách vị trí";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text], textarea {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#location").addClass("menuselect");
+
+    })
+    function printoption() {
+        $.post('/admin/SaveDataLocationToPrint', { L: $("#pos").val(),DivisionID:'@Request.QueryString["type"]' }, function (result) {
+            if (result.success) {
+
+                open("printl");
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+
+    function exportexcel() {
+        $.post('/admin/SaveDataLocationToExport', { L: $("#pos").val(),DivisionID:'@Request.QueryString["type"]' }, function (result) {
+            if (result.success) {
+
+                location = "ExportL";
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function exportexcelall() {
+        $.post('/admin/SaveDataLocationToExportAll', { DivisionID: '@Request.QueryString["type"]', Keyword:'@Request.QueryString["key"]' }, function (result) {
+            if (result.success) {
+
+                location = "ExportL";
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+</script>
+<br />
+<div class="clear">
+    <br />
+</div>
+<div class="onleft">
+
+    <div style="margin-bottom: 10px">
+        <select id="DivisionID" name="DivisionID" valuefield="DivisionID" textfield="DivisionName" class="easyui-combobox division"
+                label="Đơn vị:" style="width: 100%" data-options="onSelect: function(rec){if('@Request.QueryString["type"]'!=rec.DivisionID) {setTimeout(searchss,200);}}">
+
+            @foreach (System.Data.DataRow item in Global.Commons.GetDivision().Rows)
+            {
+                if (Request.QueryString["type"] == item["DivisionID"].ToString())
+                {
+                    <option value="@item["DivisionID"]" selected="selected">@item["DivisionName"]</option>
+                }
+                else
+                {
+                    <option value="@item["DivisionID"]">@item["DivisionName"]</option>
+
+                }
+            }
+
+        </select>
+    </div>
+
+    <div style="margin-bottom: 10px">
+        <input type="text" class="easyui-searchbox keyword" label="Từ khóa:" style="width: 100%" name="Keyword" value="@Request.QueryString["key"]" data-options="searcher:searchss" />
+    </div>
+
+    <div style="width:100%;text-align:right">
+
+        <input type="button" name="name" value="Tìm kiếm" onclick="searchss()" />
+    </div>
+    <div class="clear">
+        <br />
+    </div>
+    <h1>
+        In tùy chọn vị trí
+    </h1>
+    <p>
+        <textarea id="pos" style="width:100%;height:100px"></textarea>
+
+    </p>
+    <p>
+        <input type="button" name="name" value="In" onclick="printoption()" />
+        <input type="button" name="name" value="Tải về" onclick="exportexcel()" />
+    </p>
+
+
+</div>
+<div class="onright">
+    <table id="dg" title="Danh sách vị trí: @ViewBag.Count" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/get_locations?type=@Request.QueryString["type"]&key=@Request.QueryString["key"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+        <thead>
+            <tr>
+
+                <th field="Location" width="60">Vị trí</th>
+                <th field="Volume" data-options="align:'right'" width="60">Sức chứa</th>
+                <th field="VolumeUsed" data-options="align:'right'" width="60">Đã xài</th>
+                <th field="MinVolume" data-options="align:'right'" width="60">Tồn tối tiểu</th>
+                <th field="LockedForIn" data-options="align:'right'" width="70">Khóa nhập</th>
+                <th field="LockedForOut" data-options="align:'right'" width="70">Khóa xuất</th>
+                <th field="Status" width="150">Loại </th>
+                <th field="UuTien" width="150">Xêp loại ưu tiên </th>
+                <th field="NotAuto" width="150">Không hỗ trợ tự động lấy </th>
+                <th field="Rack" width="50">Rack </th>
+
+            </tr>
+        </thead>
+    </table>
+    <div id="toolbar">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="printitem()">In toàn bộ vị trí</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportexcelall()">Tải về</a>
+        @if (Global.Commons.CheckPermit("adelocation"))
+        {
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="newItem()">Thêm</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editList()">Cập nhật hàng loạt</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="lockList()">Khoá mở danh sách</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+        }
+    </div>
+
+    <div id="dlg" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttons">
+        <form id="fm" method="post" novalidate style="margin: 0; padding: 20px 50px">
+            <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Thông tin vị trí</div>
+
+
+
+            <div style="margin-bottom: 10px">
+                <input name="Location" class="easyui-textbox" required="true" label="Vị trí:" style="width: 100%">
+            </div>
+            <div style="margin-bottom: 10px">
+
+                <select name="Temp" id="Temp" class="easyui-combobox" required="true" label="Vị trí tạm:" style="width: 100%">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px">
+
+                <select name="Odd" id="Odd" class="easyui-combobox" required="true" label="Kệ lẻ:" style="width: 100%">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px">
+
+                <select name="LockedForIn" id="LockedForIn" class="easyui-combobox" required="true" label="Khóa nhập:" style="width: 100%">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px">
+
+                <select name="LockedForOut" id="LockedForOut" class="easyui-combobox" required="true" label="Khóa xuất:" style="width: 100%">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px">
+
+                <select name="NotAuto" id="NotAuto" class="easyui-combobox" required="true" label="Không TĐ:" style="width: 100%">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px">
+
+                <select name="Rack" id="Rack" class="easyui-combobox" required="true" label="Rack:" style="width: 100%">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px">
+                <input name="Volume" class="easyui-numberbox" data-options="min:0,precision:2" required="true" label="Sức chứa:" style="width: 100%">
+            </div>
+
+            <div style="margin-bottom: 10px">
+                <input name="MinVolume" class="easyui-numberbox" data-options="min:0,precision:2" required="true" label="Tồn tối tiểu:" style="width: 100%">
+            </div>
+
+            <div style="margin-bottom: 10px">
+                <input name="UuTien" class="easyui-numberbox" data-options="min:0" required="true" label="Xếp loại ưu tiên:" style="width: 100%">
+            </div>
+
+        </form>
+    </div>
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="saveItem()" style="width: 90px">Cập nhật</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width: 90px">Bỏ qua</a>
+    </div>
+
+
+
+
+
+    <div class="clear">
+        <br />
+    </div>
+
+    <center>
+        Trang :
+        @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+        {
+            <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+        }
+
+    </center>
+</div>
+
+
+
+
+<script type="text/javascript">
+
+
+    var url;
+    function newItem() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Thêm vị trí');
+        $('#fm').form('clear');
+        var row;
+
+        url = '/admin/add_location?type=@Request.QueryString["type"]';
+    }
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Sửa vị trí');
+            $('#dlg').form('load', row);
+            url = '/admin/update_location?type=@Request.QueryString["type"]';
+        }
+    }
+
+     function editList() {
+         var url = "/admin/UpdateLocation";
+         showtc(url,600,400)
+    }
+    function lockList() {
+        var url = "/admin/LockLocation";
+        showtc(url, 600, 400)
+    }
+
+
+    function saveItem() {
+
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa tài khoản này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/deletelocation', { Location: row.Location ,Line:row.Line,Floor:row.Floor,DivisionID:'@Request.QueryString["type"]'}, function (result) {
+                        if (result.success) {
+                            alert('Đã xóa thành công');
+                            location = location;
+
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+    function searchss() {
+        location = "/admin/viewlocations?key="+$(".keyword").val()+"&type="+$(".division").val();
+
+    }
+       function printitem() {
+           url = "/admin/printlocation?key=@Request.QueryString["key"]&id=" + $("#DivisionID").val();
+        open(url);
+    }
+</script>
+<script src="~/Scripts/paging.js"></script>
+<script>
+    fixpagingcontent('@Request.QueryString["page"]')
+</script>

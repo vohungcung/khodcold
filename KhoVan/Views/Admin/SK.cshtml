@@ -1,0 +1,257 @@
+﻿@{
+    ViewBag.Title = "Sửa phiếu nhập kho";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .txtl {
+        width: 250px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#nk").addClass("menuselect");
+        var arr = $(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+        arr = $(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+    })
+    function saveinfo() {
+        $.post('/admin/SaveTT', {
+            IW: $("#WareHouseID").val(), VoucherDate: $("#VoucherDate").val(),AddNew:0
+        }, function (result) {
+            location = location;
+
+        }, 'json');
+
+    }
+    function additem() {
+        if ($.trim($("#ItemID").val()) == "") {
+            alert('Bạn chưa nhập mã hàng');
+            $("#ItemID").focus();
+            return;
+        }
+        $.post('/admin/addnk', { ItemID: $("#ItemID").val(), Quantity: $("#Quantity").val(),AddNew:0 }, function (result) {
+            if (result.success) {
+
+                saveinfo();
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function deleteitem(id) {
+        if (confirm("Bạn có chắc là muốn xóa dòng này?") == false) {
+            return;
+        }
+        $.post('/admin/deletenkd', { ItemID: id,AddNew:0 }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                saveinfo();
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function deletepallet(id) {
+        $.post('/admin/RemovePalletFromList', { PalletID: id,AddNew:0 }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                saveinfo();
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function savedata() {
+        $.post('/admin/updatew', {
+            VoucherDate: $("#VoucherDate").val(),
+            WareHouseID: $("#WareHouseID").val(),
+          VoucherID:'@Request.QueryString["id"]'
+
+        }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function restore() {
+        $.post('/admin/restorevoucher', null, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+</script>
+<h1>
+    Sửa phiếu nhập kho
+</h1>
+
+
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>Số phiếu</td>
+        <td>
+            @ViewBag.VoucherID
+        </td>
+
+        <td></td>
+        <td></td>
+
+    </tr>
+    <tr>
+        <td>Ngày</td>
+        <td>
+            <input type="text" class="txtdate" id="VoucherDate" name="VoucherDate" value="@ViewBag.VoucherDate" />
+        </td>
+
+        <td>Kho</td>
+        <td>
+            <input type="text" class="txtdate" id="WareHouseID" name="WareHouseID" value="@ViewBag.WareHouseID" />
+        </td>
+
+    </tr>
+
+</table>
+
+
+<div class="clear"></div>
+<table cellpadding="5" cellspacing="0">
+    <tr class="theader">
+        <th>TT</th>
+        <th>Mã hàng</th>
+        <th>Tên hàng</th>
+        <th>ĐVT</th>
+        <th>
+            Số lượng
+        </th>
+        <th></th>
+    </tr>
+    @foreach (MvcApplication5.Controllers.WD item in ViewBag.data)
+    {
+        <tr class="row">
+            <td class="tt"></td>
+            <td>
+                @item.ItemID
+            </td>
+            <td>
+                @item.ItemName
+            </td>
+
+            <td>
+                @item.UnitID
+            </td>
+            <td style="text-align:right">
+                @item.Quantity.ToString("N0")
+            </td>
+            <td style="text-align:center">
+                <a href="javascript:void(0)" onclick="deleteitem('@item.ItemID')">Xóa</a>
+            </td>
+        </tr>
+
+    }
+    <tr>
+        <td colspan="4">
+            <input type="text" name="ItemID" placeholder="Mã hàng hoặc mã pallet" id="ItemID" value="" class="txtl" />
+        </td>
+        <td>
+            <input type="text" name="Quantity" id="Quantity" value="1" class="txtdate" />
+        </td>
+        <td style="text-align:center">
+            <input type="button" name="add" value="Thêm" onclick="additem()" />
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="6">
+            Pallet:
+
+
+            @foreach (string item in ViewBag.palletlist)
+            {
+                <span>
+                    @item
+                </span>
+                <a href="javascript:void(0)" title="xóa pallet này trong danh sách" onclick="deletepallet('@item')">Xóa</a>
+
+            }
+
+
+
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align:center" colspan="6">
+            <input type="button" name="name" value="Lưu" onclick="savedata()" />
+          
+            <input type="button" name="name" value="Phục hồi nguyên trạng" onclick="restore()" />
+            <input type="button" name="name" value="Trở về" onclick="location='/admin/viewnk'" />
+        </td>
+    </tr>
+</table>
+
+<script>
+    function myfunction() {
+
+    }
+</script>

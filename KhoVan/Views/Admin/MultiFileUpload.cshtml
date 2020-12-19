@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "Chọn ảnh";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<link href="/css/photo.css?v=3" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/Scripts/jquery-1.4.1.min.js">
+</script>
+<style>
+    html {
+        background-color: #FFF;
+    }
+</style>
+@using (Html.BeginForm("MultiFileUpload", "admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="FileUpload" id="FileUpload" value="" multiple />
+    <input type="submit" name="submit" id="submit" value="Upload" />
+    <input type="button" name="close" id="close" value="Close" onclick="closew()" />
+    <br />
+    <p>
+        @ViewBag.Message
+    </p>
+    <table>
+        <tr>
+            <td>Thư mục</td>
+            <td>
+                <select id="dir" name="dir">
+                    @foreach (System.Data.DataRow item in Global.Commons.GetAllDir().Rows)
+                    {
+                        if (Request.QueryString["id"] == @item["DirID"].ToString())
+                        {
+                            <option value="@item["DirID"]" selected="selected">@item["DirName"]</option>
+                        }
+                        else
+                        {
+                            <option value="@item["DirID"]">@item["DirName"]</option>
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Tiêu đề</td>
+            <td>
+                <input type="text" name="Title" id="Title" value="" style="width:100%" />
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $("form").attr({ "action": location });
+        })
+
+        function closew() {
+            parent.location = parent.location;
+        }
+    </script>
+}

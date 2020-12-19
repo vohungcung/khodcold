@@ -1,0 +1,281 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Pallet";
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+
+<link href="~/css/tv.css?v=1" rel="stylesheet" />
+<style>
+    html {
+        background-color: #FFF;
+    }
+
+    body {
+        width: 21cm;
+        margin: 0 auto;
+        font-family: Arial;
+        font-size: 12pt;
+    }
+    table {
+        page-break-after: auto;
+        counter-increment: page;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto
+    }
+
+    td {
+        page-break-inside: avoid;
+        page-break-after: auto
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-footer-group
+    }
+    h2 {
+        text-align: center;
+    }
+
+    .mauin {
+        width: 96%;
+        float: left;
+        overflow: hidden;
+        border: 1px solid #333;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        margin-top: 0.1cm;
+        margin-left: 2%;
+        margin-right: 2%;
+        font-size: 8px;
+    }
+
+    .mauinl {
+        width: 96%;
+        float: left;
+        overflow: hidden;
+        height: auto;
+        border: 1px solid #333;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        margin-left: 2%;
+        margin-right: 2%;
+        font-size: 8px;
+    }
+
+    .clear {
+        clear: both
+    }
+
+    .smf {
+        font-size: 8px;
+    }
+
+    .pallet {
+        width: 121px;
+        height: 80px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .page-break {
+        display: block;
+        page-break-before: always;
+        page-break-after: always;
+        height: 1px;
+    }
+    .rdata td {
+        border-top: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        border-collapse:collapse;
+    }
+    th {
+        border-top: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        border-collapse: collapse;
+    }
+</style>
+@foreach (System.Data.DataRow item in ViewBag.data)
+{
+
+
+    <div class="mauin">
+
+        <h2 style="font-size:30px">
+            @item["OrderNo"]
+        </h2>
+        <table cellpadding="5" cellspacing="0" style="width:90%;margin-left:5%;margin-bottom:10px;border-collapse:collapse">
+            <tr style="font-weight:bold;font-size:18px">
+                <td>
+                    Ngày tạo
+                </td>
+                <td colspan="2">
+                    @Convert.ToDateTime(item["CreateDate"]).ToString("dd/MM/yyyy")
+                </td>
+
+            </tr>
+            <tr style="font-weight:bold;font-size:30px">
+                <td>
+                    Vị trí
+                </td>
+                <td colspan="2">
+                    @item["Location"]
+
+                </td>
+
+            </tr>
+
+            <tr style="font-weight:bold;display:none">
+                <td>
+                    OutBound
+                </td>
+                <td colspan="2">
+                    @foreach (System.Data.DataRow outbound in Global.Commons.GetPalletOutBound(item["PalletID"].ToString()).Rows)
+                    {
+                        @outbound["OutBound"] <span class="dp">,</span>
+
+                    }
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td colspan="4">
+                    <div class="pallet" id="@item["PalletID"]"></div>
+
+                </td>
+
+            </tr>
+            <tr >
+                <th >Mã hàng</th>
+                <th>Diễn giải</th>
+                <th>ĐVT</th>
+
+                <th style="border-right:1px solid #ddd">Số lượng</th>
+
+            </tr>
+            @foreach (System.Data.DataRow pallet in Global.Commons.GetPalletDetail(item["PalletID"].ToString()).Rows)
+            {
+                <tr class="rdata">
+                    <td>
+                        @pallet["ItemID"]
+                    </td>
+                    <td>
+                        @pallet["ItemName"]
+                    </td>
+                    <td align="center">
+                        @pallet["UnitID"]
+
+                    </td>
+                    <td style="text-align:right;border-right:1px solid #DDD" class="sl" q="@Global.Commons.ConvertToInt(pallet["Quantity"]).ToString("0")">
+                        @Global.Commons.ConvertToInt(pallet["Quantity"]).ToString("N0")
+                    </td>
+                </tr>
+            }
+            <tr style="font-weight:bold;">
+                <td colspan="3" style="text-align:right;border-bottom:1px solid #ddd;border-left:1px solid #ddd;border-top:1px solid #ddd;">
+                    Tổng cộng
+                </td>
+
+                <td style="text-align:right;border-bottom:1px solid #ddd;border-left:1px solid #ddd;border-top:1px solid #ddd;border-right:1px solid #DDD" class="total"></td>
+            </tr>
+
+        </table>
+    </div>
+}
+<div class="footer">
+
+</div>
+<script>
+
+    $(document).ready(function () {
+        var arr = $(".pallet").get();
+        for (var i = 0; i < arr.length; i++) {
+            //$(arr[i]).EAN13($(arr[i]).attr("id"));
+
+            $(arr[i]).barcode(
+                $(arr[i]).attr("id"), // Value barcode (dependent on the type of barcode)
+                "code128" // type (string)
+            );
+
+        }
+        arr = $(".mauin").get();
+        var lon = 0;
+        var p = 0;
+        for (var i = 0; i < arr.length; i++) {
+            tinhtong($(arr[i]));
+            if (islarge($(arr[i]))) {
+                fixsize($(arr[i]));
+                if (i > 0)
+                    $("<div class='page-break'></div>").insertBefore($(arr[i]));
+                //$("<div class='page-break'></div>").insertAfter($(arr[i]));
+                p = 0;
+                lon = 1;
+            } else {
+                if (lon == 1)
+                    $("<div class='page-break'></div>").insertBefore($(arr[i]));
+
+
+                if (p % 2 == 0 && p > 0) {
+                    $("<div class='page-break'></div>").insertBefore($(arr[i]));
+
+                }
+
+                lon = 0;
+                p++;
+            }
+
+        }
+
+
+    })
+    function tinhtong(e) {
+        var arr = $(e).find(".sl").get();
+        var tc = 0;
+        for (var i = 0; i < arr.length; ++i) {
+            tc += parseInt($(arr[i]).attr("q"));
+        }
+        var ar2 = $(e).find(".total").get();
+
+        $(ar2[0]).html(tc);
+    }
+    var tiemcan = '@ViewBag.rc';
+    function islarge(e) {
+        var arr = $(e).find(".rdata").get();
+        if (arr.length >parseInt( tiemcan))
+            return true;
+        return false;
+    }
+    function fixsize(e) {
+
+        var arr = $(e).find(".rdata").get();
+        if (arr.length > parseInt(tiemcan)) {
+            for (var i = 0; i < arr.length; i++) {
+                $(arr[i]).addClass("smf");
+            }
+            $(e).addClass("mauinl");
+
+        }
+
+
+        arr = $(e).find(".dp").get();
+        if (arr.length > 0)
+            $(arr[arr.length - 1]).remove();
+
+
+    }
+</script>
+

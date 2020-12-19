@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Chi tiết";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+
+    th {
+        background-color: navy;
+        color: white;
+    }
+
+    .row1 {
+        background-color: #ddd;
+    }
+
+    h1, p {
+        text-align: center;
+    }
+
+    * {
+        font-size: 14px;
+    }
+</style>
+<h1>Chi tiết nhóm @Request.QueryString["id"]</h1>
+<p>
+    <strong>
+        Ngày:
+    </strong>    @ViewBag.CreateDate
+</p>
+<p>
+    <strong>
+        Diễn giải:
+    </strong>
+    @ViewBag.Description
+</p>
+<p>
+    <strong>
+        Người lập:
+    </strong>
+    @ViewBag.UserName
+</p>
+<div>
+    <table style="width:100%" cellpadding="5" cellspacing="0" class="data">
+        <tbody>
+            <tr>
+                <th>TT</th>
+                <th>
+                    Mã hàng
+                </th>
+                <th>
+                    Tên hàng
+                </th>
+                <th>
+                    Số lượng
+                </th>
+                <th>
+                    Từ vị trí
+                </th>
+                <th>
+                    Đến vị trí
+                </th>
+            </tr>
+
+            @foreach (System.Data.DataRow item in ViewBag.data)
+            {
+                <tr class="row">
+                    <td class="tt"></td>
+                    <td>
+                        @item["ItemID"]
+                    </td>
+                    <td>
+                        @item["ItemName"]
+                    </td>
+                    <td align="right">
+                        @item["Quantity"]
+                    </td>
+                    <td align="center">
+                        @item["FromLocation"]
+                    </td>
+                    <td align="center">
+                        @item["ToLocation"]
+                    </td>
+                </tr>
+            }
+            <tr>
+                <th></th>
+                <th>
+
+                </th>
+                <th>
+                    <strong>
+                        Tổng cộng
+                    </strong>
+                </th>
+                <th align="right">
+                    <strong>
+                        @ViewBag.Total
+                    </strong>
+
+                </th>
+                <th>
+
+                </th>
+                <th>
+
+                </th>
+            </tr>
+
+        </tbody>
+
+    </table>
+</div>
+<script>
+
+    $(document).ready(function () {
+        var arr = $(".data").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(".data").find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+    })
+</script>

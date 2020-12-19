@@ -1,0 +1,1 @@
+Data Source=3PARSVRWMC;Initial Catalog=WMS;Persist Security Info=True;User ID=sa;Password=Bitis@123

@@ -1,0 +1,249 @@
+﻿@{
+    ViewBag.Title = "Danh sách khách hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#viewcustomers").addClass("menuselect");
+
+    })
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+</div>
+<div style="margin: 20px 0;"></div>
+<div class="easyui-panel" style="width: 100%; max-width: 400px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" class="easyui-searchbox keyword" data-options="prompt:'Mã khách/tên khách',searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch(value) {
+
+        location = "/admin/ViewCustomers?key=" + value;
+    }
+    function exporttoexcel() {
+
+        open("/admin/ExportCustomersToExcel?key=" + $(".keyword").val());
+    }
+</script>
+<div class="clear">
+</div>
+<p id="divmessage">
+
+</p>
+<div class="clear">
+
+</div>
+<table id="dg" title="Danh sách khách hàng: @ViewBag.Count" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/Get_Customers?key=@Request.QueryString["key"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="CustomerID" width="100">Mã khách</th>
+            <th field="CustomerName" width="230">Tên khách</th>
+            <th field="Address" width="150">Địa chỉ</th>
+            <th field="Street" width="150">Nhà/đường</th>
+            <th field="Ward" width="100">Phường/xã</th>
+            <th field="District" width="150">Quận/huyện</th>
+            <th field="City" width="100">Tỉnh / TP</th>
+            <th field="Country" width="100">Quốc gia</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exporttoexcel()">Xuất qua file excel</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="downloadItem()">Download từ SAP</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="newItem()">Thêm</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="importItem()">Import</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+
+<div id="dlg" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttons">
+    <form id="fm" method="post" novalidate style="margin: 0; padding: 20px 50px">
+        <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Thông tin hàng hóa</div>
+        <div style="margin-bottom: 10px">
+            <input name="CustomerID" class="easyui-textbox" required="true" label="Mã khách:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="CustomerName" class="easyui-textbox" required="true" label="Tên khách:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="Address" class="easyui-textbox" required="true" label="Địa chỉ:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="CustomerLine" class="easyui-textbox" label="Mã tuyến:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="CustomerLineName" class="easyui-textbox" label="Tên tuyến:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="Street" class="easyui-textbox" label="Đường:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="Ward" class="easyui-textbox" label="Xã/phường:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="District" class="easyui-textbox" label="Quận/huyện:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="City" class="easyui-textbox" label="Tỉnh/TP:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="Country" class="easyui-textbox" label="Quốc gia:" style="width: 100%">
+        </div>
+
+
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="saveItem()" style="width: 90px">Cập nhật</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width: 90px">Bỏ qua</a>
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<script type="text/javascript">
+
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    var url;
+    function newItem() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Thêm số khối');
+        $('#fm').form('clear');
+        var row;
+
+        url = '/admin/Update_Customer';
+    }
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Sửa số khối');
+            $('#dlg').form('load', row);
+            url = '/admin/Update_Customer?id=' + row.CustomerID;
+        }
+    }
+
+
+
+    function saveItem() {
+
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa hàng này?', function (r) {
+                if (r) {
+                    showwaiting();
+                    $.post('/admin/DeleteCustomer', { CustomerID: row.CustomerID }, function (result) {
+                        if (result.success) {
+                            playSound();
+                            alert('Đã xóa thành công');
+                            location = location;
+                            hidewaiting();
+                        } else {
+                            playSound1();
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            hidewaiting();
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+    function importItem() {
+        showtc('/Admin/ImportCustomers', 1000, 400);
+    }
+    function showwaiting() {
+        $("#toolbar").hide();
+        var h = $(window).height();
+        var w = $(window).width();
+        var p = h / 2 - 128;
+        var p1 = w / 2 - 128;
+
+        $("#divmessage").html("<img style='z-index:9999;position:absolute;left:" + p1 + "px;top:" + p + "px' src='/images/giphy.gif'/>");
+    }
+    function hidewaiting() {
+        $("#divmessage").html("");
+        $("#toolbar").show();
+    }
+    function downloadItem() {
+      
+        showwaiting();
+        $.post('/GetAndPost/DownloadCustomer', null, function (result) {
+          
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+              
+                hidewaiting();
+                location = location;
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#toolbar").show();
+                hidewaiting();
+            }
+        }, 'json');
+    }
+</script>

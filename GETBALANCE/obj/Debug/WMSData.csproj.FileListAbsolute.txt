@@ -1,0 +1,14 @@
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.csprojAssemblyReference.cache
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.Form1.resources
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.Properties.Resources.resources
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.csproj.GenerateResource.cache
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.csproj.CoreCompileInputs.cache
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.exe
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.pdb
+D:\WMSData.exe.config
+D:\WMSData.exe
+D:\WMSData.pdb
+D:\kho\WMSData\WMSData\WMSData\WMSData.exe.config
+D:\kho\WMSData\WMSData\WMSData\WMSData.exe
+D:\kho\WMSData\WMSData\WMSData\WMSData.pdb
+D:\kho\WMSData\WMSData\WMSData\obj\Debug\WMSData.csproj.CopyComplete

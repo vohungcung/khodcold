@@ -1,0 +1,352 @@
+﻿@{
+    ViewBag.Title = "Danh sách tài khoản";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        $("#account").addClass("menuselect");
+
+    })
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+</div>
+<div style="margin: 20px 0;"></div>
+<div class="easyui-panel" style="width: 100%; max-width: 400px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" class="easyui-searchbox" data-options="prompt:'Tên hoặc hoặc tên đăng nhập',searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch(value) {
+
+        location = "/admin/ViewUsers?key=" + value;
+    }
+</script>
+<div class="clear">
+</div>
+
+<table id="dg" title="Danh sách tài khoản" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/get_users?key=@Request.QueryString["key"]" toolbar="#toolbar" pagination="true" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="FullName" width="150">Họ tên</th>
+            @if (Global.Commons.fBrowserIsMobile() == false)
+            {
+                <th field="Email" width="150">Email</th>
+            } @if (Global.Commons.fBrowserIsMobile() == false)
+             {
+               <th field="Phone" width="50">Điện thoại</th>
+             }
+            <th field="UserName" width="150">Tên đăng nhập</th>
+            <th field="IsAdmin" width="50">Là quản trị</th>
+            @if (Global.Commons.fBrowserIsMobile() == false)
+            {
+                <th field="DivisionID" width="50">Đơn vị</th>}
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="newUser()">Thêm</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editUser()">Sửa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="changepass()">Đổi pass</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="setpermit()">Phân quyền</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="destroyUser()">Xóa</a>
+
+</div>
+
+<div id="dlg" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttons">
+    <form id="fm" method="post" novalidate style="margin: 0; padding: 20px 50px">
+        <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Thông tin tài khoản</div>
+        <div style="margin-bottom: 10px">
+            <input name="FullName" class="easyui-textbox" required="true"  label="Họ tên:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="Phone" class="easyui-textbox"   label="Điện thoại:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="Email" class="easyui-textbox"  validtype="email" label="Email:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+           
+            <select name="DivisionID" valuefield="DivisionID" textfield="DivisionName" class="easyui-combobox" required="true" label="Đơn vị:" style="width: 100%">
+
+                @foreach (System.Data.DataRow item in Global.Commons.GetDivision().Rows)
+                {
+                    <option value="@item["DivisionID"]">@item["DivisionName"]</option>
+                }
+
+            </select>
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="UserName" class="easyui-textbox" required="true"  label="Tên TK:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="PassWord" class="easyui-passwordbox" required="true"  label="Password:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="RePassword" class="easyui-passwordbox" required="true"  label="Confirm password:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px;text-align:right" >
+            Là quản trị   
+            <input type="checkbox" name="Z" value="IsAdmin" />
+        </div>
+
+
+
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="addUser()" style="width: 90px">Thêm</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width: 90px">Bỏ qua</a>
+</div>
+
+
+
+
+<div id="dlgedit" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttonsforedit">
+    <form id="fmedit" method="post" novalidate style="margin: 0; padding: 20px 50px">
+        <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Thông tin tài khoản</div>
+        <div style="margin-bottom: 10px">
+            <input name="FullName" class="easyui-textbox" required="true"  label="Họ tên:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="Phone" class="easyui-textbox"  label="Điện thoại:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="Email" class="easyui-textbox" disabled="true"  required="true" validtype="email" label="Email:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <select name="DivisionID" valuefield="DivisionID" textfield="DivisionName" class="easyui-combobox" required="true" label="Đơn vị:" style="width: 100%">
+
+                @foreach (System.Data.DataRow item in Global.Commons.GetDivision().Rows)
+                {
+                    <option value="@item["DivisionID"]">@item["DivisionName"]</option>
+                }
+
+            </select>
+        </div>
+
+        <div style="margin-bottom: 10px">
+            <input name="UserName" disabled="true" class="easyui-textbox"  required="true" label="Tên TK:" style="width: 100%">
+        </div>
+
+        <div style="margin-bottom: 10px;text-align:right">
+            Là quản trị
+            <input type="checkbox" name="Z" value="IsAdmin" />
+
+
+        </div>
+
+
+    </form>
+</div>
+
+<div id="dlg-buttonsforedit">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="saveUser()" style="width: 90px">Lưu</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlgedit').dialog('close')" style="width: 90px">Bỏ qua</a>
+</div>
+
+
+
+
+
+
+<div id="dlgpass" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttonspass">
+    <form id="fmpass" method="post" novalidate style="margin: 0; padding: 20px 50px">
+        <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Đổi mật khẩu</div>
+        <div style="margin-bottom: 10px">
+            <input id="password" name="password" class="easyui-passwordbox"  required="true" label="Mật khẩu:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input id="repassword" name="repassword" class="easyui-passwordbox"  required="true" validtype="confirmPass['#password']" label="Xác nhận lại mật khẩu:" style="width: 100%">
+        </div>
+
+
+    </form>
+</div>
+
+<div id="dlg-buttonspass">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="savePassword()" style="width: 90px">Lưu</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlgpass').dialog('close')" style="width: 90px">Bỏ qua</a>
+</div>
+
+
+
+<div class="clear">
+</div>
+
+<script type="text/javascript">
+
+
+    var url;
+    function newUser() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Thêm tài khoản');
+        $('#fm').form('clear');
+        var row;
+
+        url = '/admin/add_user';
+    }
+    function editUser() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $('#dlgedit').dialog('open').dialog('center').dialog('setTitle', 'Sửa tài khoản');
+            $('#dlgedit').form('load', row);
+            url = '/admin/update_user?id=' + row.AdminID;
+        }
+    }
+    function changepass() {
+        $('#fmpassB').form('clear');
+
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $('#dlgpass').dialog('open').dialog('center').dialog('setTitle', 'Đổi mật khẩu');
+            $('#dlgpass').form('load', row);
+            url = '/admin/ChangePasswordA?id=' + row.AdminID;
+        }
+    }
+    function saveUser() {
+
+        $('#fmedit').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+                    $('#dlgedit').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+
+    function savePassword() {
+
+        $('#fmpass').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+                    $('#dlgpassword').dialog('close');
+                    $('#dlgpass').dialog('close');   
+                    // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+
+    function addUser() {
+
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+    function destroyUser() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa tài khoản này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/deleteuser', { aid: row.AdminID }, function (result) {
+                        if (result.success) {
+                            alert('Đã xóa thành công');
+                            $('#dg').datagrid('reload');    // reload the user data
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+    function setpermit() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            var url = "/admin/SetPermit?id=" + row.AdminID;
+            var title = "Phân quyền";
+            var h = 400;
+            var w = 600;
+            var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+            var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+
+            var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+            var top = ((height / 2) - (h / 2)) + dualScreenTop;
+            var newWindow = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+        }
+
+    }
+    $.extend($.fn.validatebox.defaults.rules, {
+        confirmPass: {
+            validator: function (value, param) {
+                var pass = $(param[0]).passwordbox('getValue');
+                return value == pass;
+            },
+            message: 'Mật khẩu xác nhận lại không khớp.'
+        }
+    })
+    $(document).ready(function () {
+        $("#account").addClass("menuselect");
+    })
+</script>

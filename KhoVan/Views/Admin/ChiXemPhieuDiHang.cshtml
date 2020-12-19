@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "Phiếu di hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<link href="~/css/dihang.css" rel="stylesheet" />
+<h1>
+    Chi tiết phiếu di hàng @Request.QueryString["id"]
+</h1>
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>Ngày</td>
+        <td>
+            :
+            @ViewBag.n
+        </td>
+    </tr>
+    <tr>
+        <td> Diễn giải</td>
+        <td>
+            :
+            @if (ViewBag.allowedit == 1)
+            {
+                <input type="text" id="Description" maxlength="250" value="@ViewBag.dd" class="txt" style="width:200px;font-size:14px" />
+
+                <input type="button" id="btnUpdate" value="Cập nhật" />
+                <script type="text/javascript">
+
+                $(document).ready(function () {
+                    $("#btnUpdate").click(function () {
+                        $("#btnUpdate").hide();
+                        $.post('/admin/ChiXemPhieuDiHang', {
+                            VoucherID: '@Request.QueryString["id"]',
+                            Description: $("#Description").val()
+                        }, function (result) {
+                            $("#btnUpdate").show();
+
+                            if (result.success) {
+                                playSound();
+                                alert(result.msg);
+
+                            } else {
+                                playSound1();
+                                alert(result.errorMsg);
+
+                            }
+                        }, 'json');
+                    })
+                })
+                </script>
+            }
+            else
+            {
+                @ViewBag.dd
+        }
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Vị trí cần di
+        </td>
+        <td>
+            : @Request.QueryString["from"]
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Vị trí cần đến
+        </td>
+        <td>
+            : @Request.QueryString["to"]
+        </td>
+    </tr>
+</table>
+
+<div class="clear">
+
+</div>
+
+
+<div>
+
+
+    <table id="dgto" title="Danh sách hàng" nowrap="False" class="easyui-datagrid" ctrlSelect="true" scrollOnSelect="true" showFooter="true" style="width: 100%; height: 250px; margin: 0 auto" url="/admin/get_moveitems?id=@Request.QueryString["id"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true">
+        <thead>
+            <tr>
+
+                <th field="ItemID" width="100">Mã hàng</th>
+                <th field="ItemName" width="150">Tên hàng</th>
+
+                <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+
+            </tr>
+        </thead>
+
+
+    </table>
+
+
+</div>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function closew() {
+        parent.tcboxclose();
+
+    }
+
+</script>

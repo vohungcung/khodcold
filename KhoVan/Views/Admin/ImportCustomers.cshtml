@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "Import";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+@using (Html.BeginForm())
+{<h1>    Import khách hàng </h1>
+  
+ <textarea id="ItemID" style="width:100%;height:300px;text-align:center" placeholder="Mã khách | Tên khách | Số nhà/đường | Phường/xã | Quận/huyện | Tỉnh/tp | Quốc gia"></textarea>
+    <p style="text-align: center">
+        <input type="button" id="choosebutton" name="name" value="Nhập" onclick="doreport()" />
+        <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+    </p>
+
+}
+<script>
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function doreport() {
+        $("#choosebutton").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/ImportCustomers', { sList: $("#ItemID").val() }, function (result) {
+
+            if (result.success) {
+               
+                parent.location = parent.location;
+
+            } else {
+
+                alert(result.errorMsg);
+                $("#choosebutton").show();
+                $("#ms").html("");
+
+            }
+        }, 'json');
+
+
+    }
+</script>

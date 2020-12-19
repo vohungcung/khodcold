@@ -1,0 +1,399 @@
+﻿@{
+    ViewBag.Title = "Cập nhật scanner";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<link href="/CSS/admin.css?v=5" rel="stylesheet" type="text/css" />
+
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+        text-align: right;
+    }
+
+    .txtl {
+        width: 500px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .smallt {
+        width: 100px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+
+    .benphai {
+        float: left;
+        width: 500px;
+    }
+
+    .bentrai {
+        float: left;
+        clear: both;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#updatescanner").addClass("menuselect");
+          var winform = '@Request.QueryString["f"]';
+        if (winform == '1')
+            $(".header,.footer").hide();
+       var arr= $(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+
+    })
+
+
+
+
+    function nhanhang() {
+        if ($("#M3").val() == "") {
+            alert('Bạn chưa nhập số khối')
+             return;
+        }
+        if (isNaN( $("#M3").val()) ==true) {
+            alert('Số khối không hợp lệ')
+            return;
+        }
+
+        if ($("#Bag").val() == "") {
+            alert('Bạn chưa nhập số bao')
+            return;
+        }
+        if (isNaN($("#Bag").val()) == true) {
+            alert('Số bao không hợp lệ')
+            return;
+        }
+        if ($("#Box").val() == "") {
+            alert('Bạn chưa nhập số thùng')
+            return;
+        }
+        if (isNaN($("#Box").val()) == true) {
+            alert('Số thùng không hợp lệ')
+            return;
+        }
+        $("#nhanhangbutton").hide();
+
+
+
+        $.post('/admin/UpdateScanner1', {
+            OutBound: '@Request.QueryString["id"]',
+            Bag: $("#Bag").val(),
+            Box: $("#Box").val(),
+            ScannerID: $("#ScannerID").val(),
+            EmployeeName: $("#EmployeeName").val(),
+            Address: $("#Address").val(),
+            CustomerID: $("#CustomerID").val(),
+            CustomerName: $("#CustomerName").val(),
+            ThreadID: $("#ThreadID").val(),
+            ThreadName: $("#ThreadName").val(),
+            Status: $("#Status").val(),
+            M3: $("#M3").val(),
+
+
+        }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $("#nhanhangbutton").show();
+
+            }
+        }, 'json');
+    }
+
+</script>
+<h1>
+    Nhập scanner
+</h1>
+
+<table cellpadding="5" cellspacing="0" class="bentrai">
+    <tr>
+        <td> Số outbound </td>
+        <td>
+            @Request.QueryString["id"]
+        </td>
+    </tr>
+    <tr>
+        <td>  Mã khách </td>
+        <td>
+            <input type="text" id="CustomerID" class="txtl smallt" name="name" value="@ViewBag.CustomerID" />
+
+        </td>
+    </tr>
+    <tr>
+        <td> Tên khách  </td>
+        <td>
+            <input type="text" id="CustomerName" class="txtl" name="name" value="@ViewBag.CustomerName" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Địa chỉ
+        </td>
+        <td>
+            <input type="text" id="Address" class="txtl" name="name" value="@ViewBag.Address" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Mã tuyến
+        </td>
+        <td>
+            <input type="text" id="ThreadID" class="txtl smallt" name="name" value="@ViewBag.ThreadID" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Tên tuyến
+        </td>
+        <td>
+            <input type="text" id="ThreadName" class="txtl" name="name" value="@ViewBag.ThreadName" />
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            Tổng số lượng
+        </td>
+        <td>
+            @ViewBag.TotalQuantity
+        </td>
+    </tr>
+    <tr>
+        <td>
+
+            Số bao
+        </td>
+        <td>
+            <input type="number" id="Bag" class="txtdate" name="name" value="@ViewBag.Bag" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Số thùng
+        </td>
+        <td>
+            <input type="number" id="Box" class="txtdate" name="name" value="@ViewBag.Box" />
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            Tổng số tiền
+        </td>
+        <td>
+            @ViewBag.TotalAmount
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Máy quét
+        </td>
+        <td>
+            <input type="text" id="ScannerID" class="txtl" name="name" value="@ViewBag.ScannerID" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Nv quét
+
+        </td>
+        <td>
+            <input type="text" id="EmployeeName" class="txtl" name="name" value="@ViewBag.EmployeeName" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Trạng thái
+
+        </td>
+        <td>
+            <input type="text" id="Status" class="txtl" name="name" value="@ViewBag.Status" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Thể tích
+
+        </td>
+        <td>
+            <input type="text" id="M3" class="txtl" name="name" value="@ViewBag.M3" />
+
+        </td>
+    </tr>
+</table>
+
+
+<div class="benphai">
+
+    <table style="width:100%" cellpadding="5" cellspacing="0">
+        <tr class="theader">
+            <th style="width:200px">
+                Quy cách
+            </th>
+
+            <th>
+                Số lượng quy cách
+            </th>
+            <th>
+                Số lượng sản phẩm
+            </th>
+            <th>
+                tác vụ
+            </th>
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+            <tr class="row">
+                <td>
+                    @item["Style"]
+                </td>
+                <td style="text-align:right">
+                    @item["Q1"]
+                </td>
+                <td style="text-align:right">
+                    @item["Q2"]
+                </td>
+                <td style="text-align:center">
+                    <a href="javascript:void(0)" onclick="deleteitem('@item["Style"]',' @item["Q1"]')">Xóa</a>
+                </td>
+            </tr>
+        }
+        <tr style="font-weight:bold">
+            <td>Tổng cộng</td>
+            <td style="text-align:right">
+                @ViewBag.Q1
+            </td>
+            <td style="text-align:right">
+                @ViewBag.Q2
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <select id="cbostyle">
+                    <option value="Thung">Thùng</option>
+                    <option value="Bao">Bao</option>
+                    <option value="Kien">Kiện</option>
+                </select>
+            </td>
+            <td>
+
+                <input type="number" style="text-align:right;width:100px" name="name" id="q1" value="0" />
+            </td>
+            <td>
+
+                <input type="number" style="text-align:right;width:100px" name="name" id="q2" value="0" />
+            </td>
+            <td>
+                <input type="button" name="name" value="Thêm" id="add" onclick="addmore()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="clear">
+</div><p>
+    <input type="button" id="nhanhangbutton" name="name" value="Cập nhật" onclick="nhanhang()" />
+
+</p>
+
+<script>
+    function addmore() {
+        var OutBound = '@Request.QueryString["id"]';
+        if (OutBound == "") {
+            alert("Outbound không hợp lệ");
+            location = "/admin/UpdateScanner1";
+            return;
+        }
+        if ($.trim($("#cbostyle").val()) == "") {
+            alert("Quy cách không hợp lệ");
+            $("#cbostyle").focus();
+            return;
+        }
+        if ($.trim($("#q1").val()) == "") {
+            alert("Số lượng quy cách không hợp lệ");
+            $("#q1").focus();
+            return;
+        }
+        if (isNaN($("#q1").val())==true) {
+            alert("Số lượng quy cách không hợp lệ");
+            $("#q1").focus();
+            return;
+        }
+        if ($.trim($("#q2").val()) == "") {
+            alert("Số lượng hàng không hợp lệ");
+            $("#q2").focus();
+            return;
+        }
+        if (isNaN($("#q2").val()) == true) {
+            alert("Số lượng hàng không hợp lệ");
+            $("#q2").focus();
+            return;
+        }
+              $("#add").hide();
+
+        $.post('/admin/AddOBD', {
+            OutBound: OutBound,Style: $("#cbostyle").val(),Q1: $("#q1").val(),Q2:$("#q2").val()
+         }, function (result) {
+            if (result.success) {
+                location = location;
+
+            } else {alert(result.errorMsg)
+                $("#add").show();}
+        }, 'json');
+    }
+    function deleteitem(style, q1) {
+        if (confirm("Bạn có chắc là bạn muốn xóa") == false) return;
+
+        var ob = '@Request.QueryString["id"]';
+        $.post('/admin/DeleteOBD', {
+            OutBound: ob, Style: style, Q1:q1
+        }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                alert(result.errorMsg)
+
+            }
+        }, 'json');
+    }
+</script>

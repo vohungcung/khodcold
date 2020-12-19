@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "Pallet chưa có vị trí";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        width: 100%;
+        height: 25px;
+        text-align: center;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        text-align: center;
+    }
+
+    th {
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .row1 {
+        background-color: #DDD;
+    }
+
+    a {
+        text-decoration: none;
+    }
+</style>
+<h1>
+   Pallet chưa có vị trí
+</h1>
+<div style="max-height:300px;overflow:auto">
+
+
+    <table cellpadding="5" cellspacing="0" style="width:100%" class="data">
+        <tr>
+            <th>TT</th>
+            <th>
+                Ngày
+
+            </th>
+            <th>
+                Pallet
+
+            </th>
+            <th align="right">
+                Số lượng
+
+            </th>
+           
+            <th>Nhân viên</th>
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+        <tr class="row" sl="@item["TotalQuantity"]">
+            <td align="center" class="tt"></td>
+            <td align="center">
+                @Global.Commons.ConvertToDateTime(item["CreateDate"]).ToString("dd/MM/yyyy HH:mm")
+            </td>
+            <td align="center">
+                <a target="_blank" href="/admin/inputw?id=@item["PalletID"]">@item["PalletID"]</a>
+
+            </td>
+            <td align="right">
+                <a target="_blank" href="/admin/inputw?id=@item["PalletID"]">@Global.Commons.ConvertToInt(item["TotalQuantity"]).ToString("N0")</a>
+
+            </td>
+           
+            <td align="center">
+                @item["FullName"]
+            </td>
+        </tr>
+        }
+        <tr>
+            <th colspan="3">
+                Tổng cộng
+            </th>
+
+            <th align="right">
+                <span id="sl"></span>
+            </th>
+            <th>
+
+            </th>
+            
+        </tr>
+    </table>
+</div>
+<p style="text-align:center">
+    <input type="button" name="export" value="Export"onclick="exportdata()" />
+</p>
+<script>
+    function exportdata() {
+        open('/admin/ExportPalletDataNoPosition')
+    }
+    function formatNumber(num) {
+        return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+    $(document).ready(function () {
+        var sl = 0;
+        var arr = $(".data").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+            sl += parseInt($(arr[i]).attr("sl"));
+        }
+        $("#sl").html(formatNumber(sl));
+        arr = $(".data").find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+    })
+</script>

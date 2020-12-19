@@ -1,0 +1,100 @@
+﻿*
+{
+    font-family: Tahoma;
+    font-size: 12px;
+}
+
+body
+{
+    width: 500px;
+    margin: 0 auto;
+}
+
+.photoitem1
+{
+    width: 105px;
+    height: 130px;
+    float: left;
+    text-align: center;
+    border: 1px solid #DDD;
+    margin: 5px;
+    text-align: center;
+}
+
+    .photoitem1 a
+    {
+        text-decoration: none;
+        font-size: 11px;
+        color: #666;
+        font-weight: bold;
+        margin: 0;
+    }
+
+.photoitem
+{
+    width: 100%;
+    height: 105px;
+    float: left;
+    text-align: center;
+    overflow: hidden;
+     background-size: cover;
+    background-repeat: no-repeat;
+}
+
+    .photoitem img
+    {
+        max-width: 100px;
+        max-height: 100px;
+    }
+
+.clear
+{
+    clear: both;
+}
+
+a
+{
+    margin: 3px;
+    text-decoration: none;
+}
+
+td
+{
+    cursor: pointer;
+}
+
+.paging
+{
+    width: 100%;
+    text-align: center;
+}
+
+    .paging a
+    {
+        margin-left: 3px;
+        margin-right: 3px;
+    }
+
+.page
+{
+    color: #fff;
+    padding: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #000;
+    border-radius: 5px;
+}
+
+.selectedpage
+{
+    color: yellow;
+    background-color: #000;
+    padding: 3px;
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.file {
+    font-size: 90px;
+}

@@ -1,0 +1,47 @@
+﻿ body {
+        font-family: Arial;
+        font-size: 16px;
+        width: 8.27in;
+        height: 11.69in;
+        margin: 0 auto;
+    }
+ *{
+       font-size: 16px;
+ }
+    .clear {
+        clear: both;
+    }
+      .QR1 {
+        width: 2.7566in;
+        height: 120px;
+        border: 1px solid #000;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        float: left;
+    }
+    .QR {
+        width: 8cm;
+        height: 6cm;
+        border: 1px solid #000;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        overflow:hidden;
+        float: left;
+    }
+     .boxqr {
+        width: 150px;
+        height: 150px;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .boxqr img {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+        }
+    .pagebreak {
+        page-break-before: always;
+    }

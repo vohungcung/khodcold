@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Chọn ngày";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="/easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="/easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="/easyui/themes/color.css">
+<link rel="stylesheet" type="text/css" href="/easyui/demo/demo.css">
+<script type="text/javascript" src="/scripts/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/easyui/jquery.easyui.min.js"></script>
+<h1>
+    Chọn ngày giao hàng kế hoạch
+</h1>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none;">
+    <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@DateTime.Now.ToString("dd/MM/yyyy")">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@DateTime.Now.AddDays(3).ToString("dd/MM/yyyy")">
+</div>
+<p style="text-align: center">
+    <input type="button" id="choosebutton" name="name" value="Xuất excel" onclick="doreport()" />
+    <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+</p>
+<script>
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function doreport() {
+        $("#choosebutton").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+      
+        try {
+            $.post('/admin/CHTN', { FromDate: fromdate, ToDate: todate }, function (result) {
+
+                if (result.success) {
+                    $("#choosebutton").show();
+                    location = "/admin/bcchamhangbidong";
+                } else {
+
+                    alert(result.errorMsg);
+                    $("#choosebutton").show();
+                    $("#ms").html("");
+
+                }
+            }, 'json');
+        } catch (e) {
+            alert(e);
+            $("#choosebutton").show();
+            $("#ms").html("");
+        }
+        
+
+
+    }
+</script>
+<script>
+    function converttodate(value) {
+        var ss = (value.split('/'));
+        var y = parseInt(ss[2], 10);
+        var m = parseInt(ss[1], 10);
+        var d = parseInt(ss[0], 10);
+        return y + "." + (m < 10 ? ('0' + m) : m) + "." + (d < 10 ? ('0' + d) : d);
+    }
+    function myformatter(date) {
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        var d = date.getDate();
+        return (d < 10 ? ('0' + d) : d) + "/" + (m < 10 ? ('0' + m) : m) + "/" + y;
+    }
+    function myparser(s) {
+        if (!s) return new Date();
+        var ss = (s.split('/'));
+        var y = parseInt(ss[0], 10);
+        var m = parseInt(ss[1], 10);
+        var d = parseInt(ss[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+            return new Date(d, m - 1, y);
+        } else {
+            return new Date();
+        }
+    }
+
+</script>
+

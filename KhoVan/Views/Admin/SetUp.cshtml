@@ -1,0 +1,393 @@
+﻿@{
+    ViewBag.Title = "Thiết lập hệ thống";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    label {
+        cursor: pointer;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+ var ready = '@ViewBag.ready';
+    $(window).load(function () {
+        $("#setup").addClass("menuselect");
+
+        //if (ready == 1)
+        //    $("#downloadmc,#downloadkh").show();
+        //else {
+        //    $("#downloadmc,#downloadkh").hide();
+
+        //}
+        //setTimeout(getcount, 3000);
+    })
+</script>
+<h1>
+    Thiết lập hệ thống
+</h1>
+
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>   Số dòng tối tiểu để xem như là pallet lớn khi in phải > </td>
+        <td>
+            <input type="number" style="text-align:right" min="1" name="rc" value="@ViewBag.rc" id="rc" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Thể tích 1 thùng (M3)
+        </td>
+        <td>
+            <input type="number" style="text-align:right" min="1" name="ttt" value="@ViewBag.TTT" id="ttt" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Ngày khoá kiểm kê
+        </td>
+        <td>
+            <input type="date" style="text-align:right" value="@ViewBag.LockedDate" id="LockedDate" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Google API key
+        </td>
+        <td>
+            <input type="text" maxlength="500" name="GoogleAPIkey" value="@ViewBag.GoogleAPIkey" id="GoogleAPIkey" />
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            @if (ViewBag.ForOne == "1")
+            {
+                <input type="checkbox" id="forone" name="forone" value="" checked="checked" />
+            }
+            else
+            {
+                <input type="checkbox" id="forone" name="forone" value="" />
+            }
+            <label for="forone">1 phiếu lấy hàng 1 đầu 8</label>
+        </td>
+    </tr>
+    <tr id="ghxt">
+        <td></td>
+        <td>
+            @if (ViewBag.XuatThang == "1")
+            {
+                <input type="checkbox" id="xuatthang" name="xuatthang" value="" checked="checked" />
+            }
+            else
+            {
+                <input type="checkbox" id="xuatthang" name="xuatthang" value="" />
+            }
+            <label for="xuatthang">Giới hạn quyền xuất thẳng</label>
+        </td>
+    </tr>
+    <tr id="kdh">
+        <td></td>
+        <td>
+            @if (ViewBag.AllowNotFull == "1")
+            {
+                <input type="checkbox" id="AllowNotFull" name="AllowNotFull" value="" checked="checked" />
+            }
+            else
+            {
+                <input type="checkbox" id="AllowNotFull" name="AllowNotFull" value="" />
+            }
+            <label for="AllowNotFull">Cho phép xuất không đủ hàng</label>
+        </td>
+    </tr>
+    <tr id="db">
+        <td></td>
+        <td>
+            @if (ViewBag.OpenForOut == "1")
+            {
+                <input type="checkbox" id="openforout" name="openforout" value="" checked="checked" />
+
+            }
+            else
+            {
+                <input type="checkbox" id="openforout" name="openforout" value="" />
+
+            }
+            <label for="openforout">Mở vị trí xuất thẳng cho phép di ngược</label>
+        </td>
+    </tr>
+    <tr >
+        <td></td>
+        <td>
+            @if (ViewBag.thongtintudonhang == "1")
+            {
+                <input type="checkbox" id="thongtintudonhang" name="thongtintudonhang" value="" checked="checked" />
+
+            }
+            else
+            {
+                <input type="checkbox" id="thongtintudonhang" name="thongtintudonhang" value="" />
+
+            }
+            <label for="thongtintudonhang">Lấy thông tin outbound từ đơn hàng</label>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <input type="button" name="name" value="Cập nhật" onclick="capnhat()" id="ud" />
+        </td>
+    </tr>
+</table>
+<p>
+    <span id="result"></span>
+</p>
+<p>
+
+    @*<input type="button" name="name" value="Download MC và mã hàng từ SAP" id="downloadmc" onclick="downloadmc()" />*@
+</p>
+<p id="ms">
+
+</p>
+
+@if (Global.GlobalVariables.IsAdmin)
+{
+    <p>
+        <input type="button" name="name" value="Xoá picking list" id="deletepickinglist" onclick="DeletePickingList()" />
+    </p>
+    <p>
+        <input type="button" name="name" value="Xác nhận outbound"  onclick="xacnhantuquantri()" />
+    </p>
+    <p>
+        <input type="button" name="name" value="Cập nhật lại đơn hàng từ SAP" id="updatepickinglist" onclick="UpdatePickingListFromSAP()" />
+    </p>
+}
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    function downloadmc() {
+        $("#downloadmc,#downloadkh").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/DownloadMC', null, function (result) {
+
+            if (result.success) {
+                $("#downloadmc,#downloadkh").show();
+                alert(result.msg);
+                 $("#ms").html("");
+                location = location;
+            } else {
+
+                alert(result.errorMsg);
+                $("#downloadmc,#downloadkh").show();
+                $("#ms").html("");
+                location = location;
+            }
+        }, 'json');
+
+
+    }
+
+    function capnhat() {
+        if ($("#rc").val() == "") {
+            alert("Số dòng không hợp lệ");
+            $("#rc").focus();
+            return;
+        }
+        if (isNaN($("#rc").val()) == true) {
+            alert("Số dòng không hợp lệ");
+            $("#rc").focus();
+            return;
+        }
+        if ($("#ttt").val() == "") {
+            alert("Thể tích không hợp lệ");
+            $("#ttt").focus();
+            return;
+        }
+        if (isNaN($("#ttt").val()) == true) {
+            alert("Thể tích không hợp lệ");
+            $("#ttt").focus();
+            return;
+        }
+
+        $("#ms").html("Đang cập nhật. Vui lòng chờ trong giây lát....");
+
+        $("#ud").hide();
+
+        $.post('/admin/uprc', {
+            RC: $("#rc").val(),
+            TTT: $("#ttt").val(),
+            ForOne: ($("#forone").is(":checked") ? "1" : "0"),
+            thongtintudonhang: ($("#thongtintudonhang").is(":checked") ? "1" : "0"),
+            OpenForOut: ($("#openforout").is(":checked") ? "1" : "0"),
+            XuatThang: ($("#xuatthang").is(":checked") ? "1" : "0"),
+            AllowNotFull: ($("#AllowNotFull").is(":checked") ? "1" : "0"),
+            LockedDate: $("#LockedDate").val(),
+            GoogleAPIkey: $("#GoogleAPIkey").val()
+
+        }, function (result) {
+
+            if (result.success) {
+                $("#ud").show();
+                alert(result.msg);
+                $("#ms").html("");
+                location = location;
+            } else {
+
+                alert(result.errorMsg);
+                $("#ud").show();
+                $("#ms").html("");
+            }
+        }, 'json');
+    }
+    function getcount() {
+
+        $.post('/admin/GetCountCC', null, function (result) {
+
+            if (result.success) {
+
+                $("#result").html(result.msg);
+                if (result.ss == 1)
+                    $("#downloadmc,#downloadkh").show();
+                else {
+                    $("#downloadmc,#downloadkh").hide();
+
+                }
+                setTimeout(getcount, 10000);
+            } else {
+
+            }
+        }, 'json');
+    }
+    function DeletePickingList() {
+        var value = prompt("Nhập pickinglist cần xoá", "");
+
+        if (value == null || value == "") {
+            playSound1();
+            alert('Bạn chưa nhập pickinglist');
+            return;
+        }
+
+        $.post('/admin/DeleteVoucherXKForAdmin', {
+            VoucherID: value
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                $.messager.show({    // show error message
+                    title: 'Note',
+                    msg: result.msg
+                });
+                alert(result.msg);
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                alert(result.errorMsg);
+
+            }
+            }, 'json');
+
+
+    }
+    function xacnhantuquantri() {
+        var value = prompt("Nhập ob cần xác nhận", "");
+
+        if (value == null || value == "") {
+            playSound1();
+            alert('Bạn chưa nhập ob');
+            return;
+        }
+
+        $.post('/admin/xacnhantuquantri', {
+            OB: value
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                $.messager.show({    // show error message
+                    title: 'Note',
+                    msg: result.msg
+                });
+                alert(result.msg);
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+
+
+    }
+    $(document).ready(function () {
+        var ad = '@((Global.GlobalVariables.IsAdmin?1:0))';
+        if (ad != "1")
+            $("#db,#kdh,#ghxt").hide();
+    })
+        ;
+    function UpdatePickingListFromSAP() {
+        var value = prompt("Nhập pickinglist cần update", "");
+
+        if (value == null || value == "") {
+            playSound1();
+            alert('Bạn chưa nhập pickinglist');
+            return;
+        }
+        $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn cập nhật lại phiếu ' + value+'?', function (r) {
+            if (r) {
+                $(".updatepickinglist").hide();
+
+                $.post('/admin/UpdateNewDataFromSAP', { VoucherID: value }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+                        
+                        $(".updatepickinglist").show();
+                    } else {
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                        playSound1();
+                        $(".updatepickinglist").show();
+                    }
+                }, 'json');
+            }
+        });
+
+    }
+</script>

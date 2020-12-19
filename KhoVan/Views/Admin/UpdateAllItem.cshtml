@@ -1,0 +1,49 @@
+﻿@{
+    ViewBag.Title = "Cập nhật mã hàng";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<script src="~/Scripts/lib.js?v=1"></script>
+<h2>
+    Cập nhật mã hàng 
+</h2>
+@using (Html.BeginForm())
+{
+
+    <textarea id="ItemID" style="width:100%;height:300px;text-align:center" placeholder="Mã hàng | dài | rộng | cao | số khối | sl/thùng"></textarea>
+    <p style="text-align: center">
+        <input type="button" id="choosebutton" name="name" value="Cập nhật" onclick="doreport()" />
+    
+        <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+    </p>
+
+}
+<script>
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function doreport() {
+        if (checkdulicaterow($("#ItemID").val()) == false)
+            return;
+
+        $("#choosebutton,#choosebutton2").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/updateallitem', { sList: $("#ItemID").val() }, function (result) {
+            $("#choosebutton,#choosebutton2").show();
+            if (result.success) {
+            
+                parent.location = parent.location;
+            } else {
+
+                alert(result.errorMsg);
+                  $("#ms").html("");
+
+            }
+        }, 'json');
+
+
+    }
+   
+</script>

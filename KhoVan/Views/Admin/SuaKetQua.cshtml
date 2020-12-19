@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Sửa kết quả";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<h1>
+    Sửa kết quả nhận hàng cho phiếu: @Request.QueryString["id"]
+</h1>
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>Outbound</td>
+        <td>
+            <select id="outbound">
+                @foreach (System.Data.DataRow item in ViewBag.ob)
+                {
+                    <option value="@item["OB"]">@item["OB"]</option>
+
+                }
+
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Mã hàng
+        </td>
+        <td>
+            <input type="text" id="itemid" name="itemid" value="" />
+
+        </td>
+    </tr>
+    <tr>
+
+        <td>
+            Số lượng đã nhận
+        </td>
+        <td>
+            <input type="number" name="quantity" value="" id="quantity" min="0" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" id="ms"></td>
+    </tr>
+    <tr>
+        <td colspan="2" style="text-align:center">
+
+            <input type="button" id="save" name="aaa" value="Cập nhật" onclick="savedata()" />
+            <input type="button" name="cancel" value="Đóng" onclick="closew()" />
+        </td>
+    </tr>
+</table>
+
+<script>
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function savedata() {
+        if ($("#quantity").val() == "") {
+            alert('Bạn chưa nhập số lượng nhận');
+            $("#quantity").focus();
+            return;
+        }
+        if (isNaN($("#quantity").val()) == true) {
+            alert('Số lượng phải là số');
+            $("#quantity").focus();
+            return;
+        }
+        if ($("#outbound").val() == "") {
+            alert('Bạn chưa nhập outbound');
+            $("#outbound").focus();
+            return;
+        }
+        if ($("#itemid").val() == "") {
+            alert('Bạn chưa nhập mã hàng');
+            $("#itemid").focus();
+            return;
+        }
+        $("#save").hide();
+        $("#ms").html("Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/UpdateChiaHang', {
+            ItemID: $("#itemid").val(), VoucherID: '@Request.QueryString["id"]'
+        ,OB:$("#outbound").val(),Quantity:$("#quantity").val()}, function (result) {
+
+            if (result.success) {
+                $("#save").show();
+                alert(result.msg);
+
+                parent.location = parent.location;
+            } else {
+
+                alert(result.errorMsg);
+                $("#save").show();
+                $("#ms").html("");
+
+            }
+        }, 'json');
+
+
+    }
+</script>

@@ -1,0 +1,78 @@
+﻿@{
+    ViewBag.Title = "Thiết lập";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        $("#setting").addClass("menuselect");
+
+    })
+</script>
+<div class="clear">
+</div>
+<div style="margin: 20px 0;"></div>
+<div class="easyui-panel" title="Cập nhật thiết lập hệ thống" style="width: 100%; max-width: 400px; padding: 30px 60px;">
+    <form id="ff" class="easyui-form" method="post" data-options="novalidate:true" action="/admin/SaveSetting">
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" value="@ViewBag.SMTP" name="SMTP" labelposition="top" style="width: 100%" data-options="label:'SMTP server:',required:true">
+        </div>
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" labelposition="top" value="@ViewBag.EmailSender" name="EmailSender" validtype="email" style="width: 100%" data-options="label:'Email gởi:',required:true,validType:'email'">
+        </div>
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" labelposition="top" value="@ViewBag.Password" name="Password" style="width: 100%" data-options="label:'Password:',required:true">
+        </div>
+        <div style="margin-bottom: 20px">
+            <input class="easyui-numberbox" labelposition="top" value="@ViewBag.Port" name="Port" style="width: 100%; height: 60px" data-options="label:'Cổng:'">
+        </div>
+
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" labelposition="top" value="@ViewBag.EmailReceiver" name="EmailReceiver" validtype="email" style="width: 100%" data-options="label:'Email nhận:',required:true,validType:'email'">
+        </div>
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" labelposition="top" value="@ViewBag.Domain" name="Domain" style="width: 100%; height: 60px" data-options="label:'Tên miền:'">
+        </div>
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" labelposition="top" value="@ViewBag.SendEmail" name="SendEmail" style="width: 100%; height: 60px" data-options="label:'Gởi email cho đơn hàng(1:Gởi/0:không):'">
+        </div>
+        <div style="margin-bottom: 20px">
+            <input class="easyui-textbox" labelposition="top" value="@ViewBag.SendHN" name="SendHN" style="width: 100%; height: 60px" data-options="label:'Gởi Email cho đơn hàng hội nghị(1:Gởi/0:không):'">
+        </div>
+    </form>
+    <div style="text-align: center; padding: 5px 0">
+        <a href="javascript:void(0)" id="postbutton" class="easyui-linkbutton" onclick="SaveData()" style="width: 80px">Cập nhật</a>
+
+    </div>
+</div>
+<script>
+    function SaveData() {
+        var url = '/admin/SaveSetting';
+        $('#ff').form('submit', {
+            url: url,
+            onSubmit: function () {
+                $("#postbutton").hide();
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.success == false) {
+                    $.messager.show({
+                        title: 'Lỗi',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+
+
+                }
+                $("#postbutton").show();
+            }
+        })
+    }
+
+
+</script>

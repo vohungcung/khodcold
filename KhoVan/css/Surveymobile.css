@@ -1,0 +1,160 @@
+@media (max-width: 1020px) {
+}
+
+.forshowinmobile {
+    display: none;
+}
+
+.forshowinmobile1 {
+    display: none;
+}
+
+.w914 {
+    display: none;
+}
+
+@media (max-width: 914px) {
+    .w914 {
+        display: block;
+    }
+
+    .forshowinmobile1 {
+        display: block;
+    }
+}
+
+@media (max-width: 850px) {
+
+    .profile .col1 {
+        width: 200px;
+    }
+
+    .profile .col2 {
+        width: 400px;
+    }
+
+    .profile .txt {
+        width: 360px;
+    }
+
+    .choose {
+        clear: both;
+    }
+}
+
+@media (max-width: 700px) {
+    .producte {
+        width: 25%;
+    }
+
+    .buttonpos {
+        text-align: center;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 0;
+    }
+
+    .producte-thumb {
+        height: auto;
+    }
+
+    .smallmenu {
+        display: block;
+        width: 230px;
+        text-align: right;
+    }
+
+    .menu-main {
+        display: none;
+    }
+
+    .showm {
+        display: block;
+    }
+
+    .menu-e, .menu-e1 {
+        width: 98%;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+        text-indent: 10px;
+        margin-left: 1%;
+    }
+
+    .info {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .profile .col1 {
+        width: 200px;
+    }
+
+    .profile .col2 {
+        width: 300px;
+    }
+
+    .profile .txt {
+        width: 290px;
+    }
+
+    .forhideinmobile {
+        display: none;
+    }
+
+    .forshowinmobile {
+        display: block;
+    }
+
+    .producte {
+        width: 100%;
+        margin: 0;
+        margin-top: 10px;
+        padding: 0;
+    }
+
+        .producte img {
+            height: auto;
+        }
+
+    .addtocart {
+        width: 95%;
+        display: block;
+        float: left;
+    }
+}
+
+@media (max-width: 400px) {
+    .profile .col1 {
+        width: 150px;
+    }
+
+    .profile .col2 {
+        width: 200px;
+    }
+
+    .profile .txt {
+        width: 200px;
+    }
+}
+
+.percent20 {
+    width: 20%;
+}
+
+.percent30 {
+    width: 20%;
+}
+
+.percent40 {
+    width: 20%;
+}
+
+.percent50 {
+    width: 20%;
+}

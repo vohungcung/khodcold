@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "Danh sách phiếu nhập kho";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(window).load(function () {
+        $("#viewnk").addClass("menuselect");
+
+    })
+
+</script>
+<h1>
+    Xem phiếu nhập
+</h1>
+
+<table id="dg" title="Danh sách pallet @ViewBag.Count" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/get_nk?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="VoucherDate" width="150">Ngày</th>
+            <th field="VoucherID" width="150">Số phiếu</th>
+         
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+
+<script type="text/javascript">
+
+
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa phiếu này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/DeleteVoucherNK', { VoucherID: row.VoucherID }, function (result) {
+                        if (result.success) {
+                            alert('Đã xóa thành công');
+                            location = location;
+
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+
+    var url;
+
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            url = '/admin/SK?id=' + row.VoucherID;
+            location = url;
+        }
+    }
+
+    
+</script>

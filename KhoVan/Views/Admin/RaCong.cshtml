@@ -1,0 +1,904 @@
+﻿@{
+    ViewBag.Title = "Ra cổng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+
+    .txt {
+        width: 200px;
+    }
+
+    .lb {
+    }
+
+    .benphai {
+        background-color: #ddd;
+        padding: 10px;
+        display: none;
+    }
+
+    .bentrai {
+        float: left;
+    }
+
+    .tbb {
+        float: left;
+        margin: 10px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        max-width: 370px;
+    }
+</style>
+
+<div class="bentrai">
+    <h1>
+        Phiếu ra cổng
+    </h1>
+    <div class="clear">
+
+    </div>
+    <table cellpadding="5" cellspacing="0" class="tbb">
+        <tr>
+            <td class="lb">   Số phiếu   </td>
+            <td>
+                @Request.QueryString["id"]
+            </td>
+        </tr>
+        <tr>
+            <td class="lb">   Ngày phiếu   </td>
+            <td>
+                @ViewBag.VoucherDate
+            </td>
+        </tr>
+        <tr>
+            <td class="lb">
+                Giờ ra cổng
+            </td>
+            <td>
+                <input type="time" name="OutputTime" id="OutputTime" value="@ViewBag.OutputTime" />
+
+                <input type="button" id="getroad" value="Xem lộ trình" onclick="caculate_road()" />
+
+
+            </td>
+        </tr>
+        <tr>
+            <td class="lb">  Ghi chú   </td>
+            <td>  <input type="text"  id="Title1" class="txt" value="@ViewBag.Title1" /></td>
+        </tr>
+        <tr>
+            <td class="lb">  Tên user   </td>
+            <td>  <input type="text" disabled="disabled" id="NV" class="txt" value="@ViewBag.NV" /></td>
+        </tr>
+        <tr>
+            <td class="lb">  Số xe   </td>
+            <td>
+                <select id="SX" class="txt">
+
+                    @foreach (System.Data.DataRow item in ViewBag.TruckList)
+                    {
+                        if (Global.Commons.ConvertToString(item["TruckName"]) != "")
+                        {
+                            if (Global.Commons.ConvertToString(ViewBag.SX).ToUpper() == item["TruckID"].ToString().ToUpper())
+                            {
+                                <option selected="selected" value="@item["TruckID"]">@item["TruckID"]</option>
+                            }
+                            else
+                            {
+                                <option value="@item["TruckID"]">@item["TruckID"]</option>
+
+                            }
+                        }
+
+
+                    }
+
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="lb"> Nhân viên giao hàng   </td>
+            <td>  <input type="text" id="NVGH" class="txt" value="@ViewBag.NVGH" /></td>
+        </tr>
+        @if (ViewBag.Locked == false)
+        {
+            <Tr>
+                <td class="lb" valign="top">
+                    Mã vạch
+                </td>
+
+                <td>
+                    <input type="text" id="BarCode" class="txt" value="" />
+                    <p>
+                        <input type="button" name="new" value="Nhập mới" onclick="ImportOB()" />
+                        <input type="button" id="savedatabutton" name="sdata" value="Lưu" onclick="savedata()" />
+                    </p>
+                
+                </td>
+            </Tr>
+
+
+
+            if (ViewBag.Finished == false)
+            {
+                <tr>
+                    <td></td>
+                    <td> <input type="button" id="finished" value="Hoàn thành" onclick="confirm_finished()" /></td>
+                </tr>
+            }
+        }
+        <tr>
+
+            <td id="obtitle" colspan="2"></td>
+        </tr>
+        <tr>
+
+            <td colspan="2">
+                <div class="benphai"></div>
+            </td>
+        </tr>
+    </table>
+    <table cellpadding="5" cellspacing="0" class="tbb" id="t1">
+        <tr>
+            <td>
+                Họ tên người nhận
+
+            </td>
+            <td>
+                <input type="text" name="Receiver" maxlength="250" id="Receiver" class="txt" value="@ViewBag.Receiver" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Nội dung
+            </td>
+            <td>
+                <input type="text" maxlength="200" id="Content" class="txt" name="Content" value="@ViewBag.Content" />
+            </td>
+        </tr>
+        <tr>
+            <td>Nhà vận chuyển</td>
+            <td>
+                <select id="NVCID" name="NVCID" class="txt">
+                    @foreach (System.Data.DataRow item in ViewBag.listnvc)
+                    {
+                        if (Global.Commons.ConvertToString(ViewBag.NVCID) == Global.Commons.ConvertToString(item["NVCID"]))
+                        {
+                            <option selected="selected" value="@item["NVCID"]">@item["NVCName"]</option>
+                        }
+                        else
+                        {
+                            <option value="@item["NVCID"]"> @item["NVCName"] </option>
+
+                        }
+
+                    }
+
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Đơn giá
+            </td>
+            <td>
+                <input type="number" onchange="tinhlai()" style="width:130px;text-align:right" name="Price" id="Price" class="txt" value="@ViewBag.Price" /> VNĐ / M3
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Tổng số <span id="sokhoi">@ViewBag.M3</span> <span style="color:red">M3</span>
+            </td>
+            <td>
+                Tổng số tiền <span id="thanhtien">@ViewBag.TotalAmount</span>
+                <span style="color:red">VNĐ</span>
+            </td>
+        </tr>
+
+
+
+        <tr>
+            <td>
+                Kho hàng
+            </td>
+            <td>
+                <input type="text" class="txt" id="WareHouse" name="WareHouse" value="@ViewBag.WareHouse" />
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" align="center">
+                <input type="button" id="printvoucher" name="printdata" value="In phiếu" onclick="printdata()" />
+               
+            </td>
+        </tr>
+    </table>
+    <table cellpadding="5" cellspacing="0" class="tbb" style="background-color:#ddd" id="t2">
+        <tr>
+            <td>Số bao rớt lại</td>
+            <td>
+                <input type="number" name="MBag1" id="MBag1" class="txt" value="@ViewBag.MBag1" />
+            </td>
+        </tr>
+        <tr>
+            <td>Số thùng rớt lại</td>
+            <td>
+                <input type="number" name="MBox1" id="MBox1" class="txt" value="@ViewBag.MBox1" />
+            </td>
+        </tr>
+        <tr>
+            <td>Số khách rớt lại</td>
+            <td>
+                <input type="number" name="MC" id="MC" class="txt" value="@ViewBag.MC" />
+            </td>
+        </tr>
+        <tr>
+            <td>Biên bản xác nhận </td>
+            <td>
+                <input type="text" name="BB" id="BB" class="txt" value="@ViewBag.BB" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <textarea id="Description" name="Description" style="width:100%;height:70px;text-align:center" placeholder="Thông tin khác">@ViewBag.Description</textarea>
+
+            </td>
+        </tr>
+    </table>
+    <div class="clear">
+
+    </div>
+
+</div>
+
+
+<style>
+    #noise a {
+        color: red;
+    }
+</style>
+
+<div class="clear"></div>
+<p id="noise" style="color:red">
+
+</p>
+@if (Request.QueryString["forsmall"] != "1")
+{
+    <table id="dg" title="Danh sách kiện hàng ra cổng  " nowrap="False" class="easyui-datagrid" style="width: 100%; height: 200px; margin: 0 auto" url="/admin/getprcct?id=@Request.QueryString["id"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+        <thead>
+            <tr>
+                <th field="OB" width="100">OutBound</th>
+                <th field="Style" width="100">Quy cách</th>
+                <th field="TT" width="50">Thứ tự</th>
+                <th field="Q2" width="80" align="right">SL hàng</th>
+                <th field="Q3" width="80" align="right">SL túi xốp</th>
+
+            </tr>
+        </thead>
+
+
+    </table>
+    <div id="toolbar">
+
+        <a href="javascript:void(0)" class="easyui-linkbutton del" iconcls="icon-remove" plain="true" onclick="deleteItem()">xóa</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton del" iconcls="icon-remove" plain="true" onclick="deleteItemtp()">xóa outbound tặng phẩm</a>
+   <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="viewOtherOB()">Xem tất cả</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="viewOtherOBRemain()">Xem outbound còn thiếu</a>
+
+    </div>
+}
+else
+{
+
+    <table id="dg" title="Thông tin outbound" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 250px; margin: 0 auto" url="/admin/GetOBPRCInfo?id=@Request.QueryString["id"]&ob=@Request.QueryString["ob"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+        <thead>
+            <tr>
+                <th field="Style" width="60">Quy cách</th>
+                <th field="TT" width="50">Thứ tự</th>
+                <th field="Q2" width="50" align="right">Hàng</th>
+                <th field="Q3" width="50" align="right">Túi xốp</th>
+
+            </tr>
+        </thead>
+
+
+    </table>
+    <div id="toolbar">
+
+        <a href="javascript:void(0)" class="easyui-linkbutton del" iconcls="icon-remove" plain="true" onclick="deleteItem()">xóa</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton del" iconcls="icon-remove" plain="true" onclick="deleteItemtp()">xóa outbound tặng phẩm</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="viewOtherOBM()">Xem tất cả</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="viewOtherOBRemainM()">Xem outbound còn thiếu</a>
+
+    </div>
+}
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    $(document).ready(function () {
+
+        $("#racong").addClass("menuselect");
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                postbarcode();
+            }
+        });
+        $('#SX').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                $("#NVGH").focus();
+            }
+        });
+        $('#NVGH').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                $("#BarCode").focus();
+            }
+        });
+        setTimeout(tonghop, 1000);
+    });
+    $(window).load(function () {
+        fixcol();
+        if ($('#SX').val() == "")
+            $('#SX').focus();
+        else
+
+            if ($('#NVGH').val() == "")
+                $('#NVGH').focus();
+            else
+                $('#BarCode').focus();
+
+        $('#dg').datagrid({
+            onSelect: function () {
+                setTimeout(showdetail, 100);
+            }
+        });
+        if ($(window).width() < 700) {
+            $("#t1,#t2").hide();
+        }
+    });
+    function showdetail() {
+        //selectRow
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            if (row.OB1.indexOf("Tổng cộng") < 0)
+                showobdetail(row.OB1);
+        }
+    }
+
+    function ImportOB() {
+        if (checkdata() == false) return;
+
+        showtc("/admin/importO_8?id=@Request.QueryString["id"]" , 600, 400);
+    }
+    function postfromiframe(e) {
+        $("#BarCode").val(e);
+        postbarcode();
+        tcboxclose();
+    }
+    function checkdata() {
+        if ($("#SX").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập số xe'
+            });
+            $("#BarCode").val("");
+            $("#SX").focus();
+
+            return false;
+        }
+        if ($("#NVGH").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập nhân viên giao hàng'
+            });
+            $("#BarCode").val("");
+            $("#NVGH").focus();
+
+            return false;
+        }
+        return true;
+    }
+    function postbarcode() {
+        if (checkdata() == false) return;
+
+        if ($("#BarCode").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập barcode'
+            });
+
+            $("#BarCode").focus();
+            $("#BarCode").select();
+            return;
+        }
+        var ob = $.trim($('#BarCode').val().toUpperCase()).substring(0,10);
+        var bc = $.trim($('#BarCode').val().toUpperCase());
+        var From = "Lap";
+
+        if ($(window).width() < 700)
+            From = "mobile";
+
+        $("#BarCode").hide();
+        $.post('/admin/PostPRC', {
+            BarCode: bc
+            , VoucherID: '@Request.QueryString["id"]'
+            , NV: $("#NV").val()
+            , NVGH: $("#NVGH").val()
+            , SX: $("#SX").val(),
+            Receiver: $("#Receiver").val(),
+            VCID: $("#NVCID").val(),
+            Price: val($("#Price").val()),
+            WareHouse: $("#WareHouse").val(),
+            OutputTime: $("#OutputTime").val(),
+            MBag1: val($("#MBag1").val()),
+            MBox1: val($("#MBox1").val()),
+            MC: val($("#MC").val()),
+            BB: $("#BB").val(),
+            Description: $("#Description").val(),
+            From: From,
+            Title1: $("#Title1").val()
+
+        }, function (result) {
+            $("#BarCode").show();
+
+            if (result.success) {
+                playSound();
+                $("#BarCode").focus();
+                if ('@Request.QueryString["forsmall"]' == '1') {
+
+                    $('#dg').datagrid({
+                        url: '/admin/GetOBPRCInfo?id=@Request.QueryString["id"]&ob=' + ob
+
+                    });
+                    getsummaryinfo(ob);
+                    if (ob != '@Request.QueryString["ob"]')
+                        location = "/admin/racong?forsmall=@Request.QueryString["forsmall"]&id=@Request.QueryString["id"]&ob=" + ob;
+                } else
+                    $('#dg').datagrid('reload');
+                $("#BarCode").focus();
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                if ('@Request.QueryString["forsmall"]' == '1') {
+
+                    $('#dg').datagrid({
+                        url: '/admin/GetOBPRCInfo?id=@Request.QueryString["id"]&ob=' + ob
+
+                    });
+                    getsummaryinfo(ob);
+                } else
+                    $('#dg').datagrid('reload');
+                $("#BarCode").focus();
+            }
+            tonghop();
+        }, 'json');
+
+        $('#BarCode').val("");
+        $('#BarCode').focus();
+    }
+
+    function deleteItem() {
+
+        showtc('/admin/DeleteOBFromPRC?id=@Request.QueryString["id"]', 600, 400);
+        return;
+        var barcode = prompt("Nhập barcode cần xoá", "");
+        if (barcode == null || barcode == "") {
+            playSound1();
+            alert('Bạn chưa nhập barcode');
+            return;
+        }
+        if (barcode.length < 24 && barcode.length != 10) {
+            playSound1();
+            alert('Barcode không hợp lệ');
+            return;
+        }
+        $(".del").hide();
+        var ob = barcode.substr(0, 10);
+        var Style = "";
+        var tt = "";
+        if (barcode.length == 10) {
+            tt = 1;
+        }
+        else {
+            Style = barcode.substr(10, 1);
+
+            if (Style == "B")
+                Style = "Bao";
+            else
+            if (Style == "T")
+                Style = "Thung";
+
+            if (Style.length == 1) {
+                playSound1();
+                alert('Barcode không hợp lệ');
+                return;
+            }
+            tt = barcode.substr(11, 3);
+            if (isNaN(tt) == true) {
+                playSound1();
+                alert('Barcode không hợp lệ');
+                return;
+
+            }
+        }
+
+        $.post('/admin/DeletePRCD', {
+            OB: ob,
+            Style: Style,
+            TT: tt,
+            VoucherID: '@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert('Đã xóa thành công');
+                $(".del").show();
+                $('#dg').datagrid('reload');
+                getsummaryinfo(ob);
+                tonghop();
+                $("#BarCode").focus();
+            } else {
+
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+                $(".del").show();
+                getsummaryinfo(ob);
+                tonghop();
+                $("#BarCode").focus();
+            }
+        }, 'json');
+
+    }
+
+
+    function deleteItemtp() {
+
+       
+        var barcode = prompt("Nhập barcode cần xoá", "");
+        if (barcode == null || barcode == "") {
+            playSound1();
+            alert('Bạn chưa nhập barcode');
+            return;
+        }
+        if (barcode.length < 24 && barcode.length != 10) {
+            playSound1();
+            alert('Barcode không hợp lệ');
+            return;
+        }
+        $(".del").hide();
+        var ob = barcode.substr(0, 10);
+        var Style = "";
+        var tt = "";
+        if (barcode.length == 10) {
+            tt = 1;
+        }
+        else {
+            Style = barcode.substr(10, 1);
+
+            if (Style == "B")
+                Style = "Bao";
+            else
+                if (Style == "T")
+                    Style = "Thung";
+
+            if (Style.length == 1) {
+                playSound1();
+                alert('Barcode không hợp lệ');
+                return;
+            }
+            tt = barcode.substr(11, 3);
+            if (isNaN(tt) == true) {
+                playSound1();
+                alert('Barcode không hợp lệ');
+                return;
+
+            }
+        }
+
+        $.post('/admin/DeletePRCD', {
+            OB: ob,
+            Style: Style,
+            TT: tt,
+            VoucherID: '@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert('Đã xóa thành công');
+                $(".del").show();
+                $('#dg').datagrid('reload');
+                getsummaryinfo(ob);
+                tonghop();
+                $("#BarCode").focus();
+            } else {
+
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+                $(".del").show();
+                getsummaryinfo(ob);
+                tonghop();
+                $("#BarCode").focus();
+            }
+        }, 'json');
+
+    }
+    function getsummaryinfo(ob) {
+        $.post('/admin/GetOBPRCSumaryInfo', {
+            OB: ob,
+            VoucherID: '@Request.QueryString["id"]'
+
+        }, function (result) {
+            if (result.success) {
+                $("#obtitle").html(result.msg);
+            } else {
+
+                $("#obtitle").html(result.errorMsg);
+            }
+            }, 'json');
+
+
+
+    }
+    function tonghop() {
+       $.post('/admin/SP_GetSumPRC', {
+            PRCID: '@Request.QueryString["id"]'
+
+        }, function (result) {
+            if (result.success) {
+                $(".panel-title:first").html(result.msg);
+            } else {
+
+                $(".panel-title:first").html(result.errorMsg);
+            }
+            }, 'json');
+        $.post('/admin/PRCDRemainNote', {
+            PRCID: '@Request.QueryString["id"]'
+
+        }, function (result) {
+            if (result.success) {
+                $("#noise").html(result.msg);
+            }
+            }, 'json');
+
+
+    }
+    function confirm_finished() {
+        $.post('/admin/ConfirmFinished', {
+            PRCID: '@Request.QueryString["id"]'
+
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                location = location;
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+            }
+        }, 'json');
+
+    }
+    function fixcol() {
+        if ($(window).width() > 600) {
+              if ('@Request.QueryString["forsmall"]' == "1")
+                location = '/admin/racong?id=@Request.QueryString["id"]&forsmall=0';
+
+        }
+        else {
+            if ('@Request.QueryString["forsmall"]' != "1")
+                location = '/admin/racong?id=@Request.QueryString["id"]&forsmall=1';
+
+        }
+    }
+    function showobdetail(ob) {
+        var forsmall = '@Request.QueryString["forsmall"]';
+        if (forsmall == '1') {
+            ;
+        }
+        else
+          $.post('/admin/GetOBPRCSumaryInfo?all=1', {
+              OB: ob,
+                VoucherID: '@Request.QueryString["id"]'
+
+          }, function (result) {
+              $(".benphai").show();
+            if (result.success) {
+                $(".benphai").html(result.msg);
+            } else {
+
+                $(".benphai").html(result.errorMsg);
+            }
+        }, 'json');
+    }
+    function viewOtherOB() {
+        showtc("/admin/PRCD?id=@Request.QueryString["id"]", 600, 400);
+    }
+     function viewOtherOBM() {
+        showtc("/admin/PRCDM?id=@Request.QueryString["id"]", 600, 400);
+    }
+     function viewOtherOBRemain() {
+         showtc("/admin/PRCDRemain?id=@Request.QueryString["id"]", 600, 400);
+    }
+     function viewOtherOBRemainM() {
+         showtc("/admin/PRCDRemainM?id=@Request.QueryString["id"]", 600, 400);
+    }
+    function caculate_road() {
+        $.post('/admin/caculate_road', {
+
+                VoucherID: '@Request.QueryString["id"]'
+
+          }, function (result) {
+              $(".benphai").show();
+              if (result.success) {
+                  playSound();
+                  open('@Global.Commons.MAP/VC/Map?id=@Request.QueryString["id"]&d=@Global.GlobalVariables.DivisionID&key=@Global.GlobalVariables.GoogleAPIKey');
+            } else {
+                  playSound1();
+               alert(result.errorMsg);
+            }
+            }, 'json');
+
+
+    }
+
+
+    function val(e) {
+
+        while (e.indexOf(",") >= 0) {
+            e = e.replace(",", "");
+
+        }
+
+        if (isNaN(e) == true) return 0;
+        return parseFloat(e);
+    }
+    $(window).resize(function () {
+        if ($(window).width() < 700) {
+            $("#t1,#t2").hide();
+
+        } else {
+            $("#t1,#t2").show();
+        }
+    });
+    function printdata() {
+        $("#printvoucher").hide();
+        var From = "Lap";
+
+
+        $.post('/admin/PostPRCM', {
+             VoucherID: '@Request.QueryString["id"]'
+            , NV: $("#NV").val()
+            , NVGH: $("#NVGH").val()
+            , SX: $("#SX").val(),
+            Receiver: $("#Receiver").val(),
+            VCID: $("#NVCID").val(),
+            Price: val($("#Price").val()),
+            WareHouse: $("#WareHouse").val(),
+            OutputTime: $("#OutputTime").val(),
+            MBag1: val($("#MBag1").val()),
+            MBox1: val($("#MBox1").val()),
+            MC: val($("#MC").val()),
+            BB: $("#BB").val(),
+            Description: $("#Description").val(),
+            Content: $("#Content").val(),
+            From: From,
+            Title1: $("#Title1").val(),
+
+
+        }, function (result) {
+            $("#printvoucher").show();
+            if (result.success) {
+                playSound();
+                open("/admin/printprc?id=@Request.QueryString["id"]");
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+
+
+            }
+
+        }, 'json');
+
+
+    }
+    function savedata() {
+        $("#savedatabutton").hide();
+        var From = "Lap";
+
+
+        $.post('/admin/PostPRCM', {
+            VoucherID: '@Request.QueryString["id"]'
+            , NV: $("#NV").val()
+            , NVGH: $("#NVGH").val()
+            , SX: $("#SX").val(),
+            Receiver: $("#Receiver").val(),
+            VCID: $("#NVCID").val(),
+            Price: val($("#Price").val()),
+            WareHouse: $("#WareHouse").val(),
+            OutputTime: $("#OutputTime").val(),
+            MBag1: val($("#MBag1").val()),
+            MBox1: val($("#MBox1").val()),
+            MC: val($("#MC").val()),
+            BB: $("#BB").val(),
+            Description: $("#Description").val(),
+            Content: $("#Content").val(),
+            From: From,
+            Title1: $("#Title1").val(),
+
+
+        }, function (result) {
+            $("#savedatabutton").show();
+            if (result.success) {
+                playSound();
+                alert('Lưu thành công');
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+
+
+            }
+
+        }, 'json');
+
+
+    }
+
+    function tinhlai() {
+        var gia = val($("#Price").val());
+        var sokhoi = val($("#sokhoi").text());
+        $("#thanhtien").html(gia * sokhoi);
+    }
+</script>

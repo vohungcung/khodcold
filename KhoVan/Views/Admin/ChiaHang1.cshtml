@@ -1,0 +1,484 @@
+﻿@{
+    ViewBag.Title = "Chia hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .thieuhang {
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+
+    .divch {
+        width: 20%;
+        float: left;
+        border: 1px solid #666;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        font-size: 9px;
+    }
+
+        .divch .data {
+            clear: both;
+            width: 100%;
+            overflow: auto;
+        }
+
+    .outbound {
+        text-align: center;
+        font-size: 15px;
+        font-weight: bold;
+        clear: both;
+        cursor: pointer;
+    }
+
+    .stt {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 10px;
+    }
+
+    .k1 {
+        width: 98%;
+        float: left;
+        margin-left: 1%;
+        clear: both;
+    }
+
+    .hl {
+        color: #FFF;
+        background-color: #FE0000;
+    }
+
+    .dh {
+        background-color: green;
+        color: #FFF;
+    }
+
+    .txtq {
+        width: 40%;
+        text-align: right;
+    }
+
+    .sl {
+        font-size: 30px;
+        font-weight: bold;
+        text-align: center
+    }
+
+    .hli {
+        background-color: blue;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    function indau8thieuhang(id) {
+        open("/admin/indau8thieuhang?id=@Request.QueryString["id"]");
+
+    }
+      function indau8(id) {
+          open("/admin/indau81?id=@Request.QueryString["id"]");
+
+    }
+
+    $(window).load(function () {
+        $("#chiahang").addClass("menuselect");
+        $("#BarCode").focus();
+    })
+    $(document).ready(function () {
+        var c = "@Global.Commons.ConvertToInt(Request.QueryString["c"],0)";
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: "Bạn chưa nhập barcode"
+                    });
+
+                    $('#BarCode').focus()
+                    return;
+                }
+                postbarcode();
+            }
+        });
+
+
+
+        $.post('/admin/GetStatusOutBoundForItem', { VoucherID: '@Request.QueryString["id"]'
+
+        }, function (result) {
+
+            if (result.success) {
+                LoadList(result.list);
+                LoadHang1(result.list1);
+
+            }
+            }, 'json');
+
+      var arr= $(".stt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+            $(arr[i]).parent().attr({ "stt":i+1});
+        }
+
+    })
+
+    function postbarcode() {
+        if ($("#BarCode").val() == "") {
+            playSound1();
+            $("#BarCode").focus();
+            $("#BarCode").select();
+            return;
+        }
+
+
+
+        $.post('/admin/CheckOutBoundForItem', {
+            BarCode:$.trim( $('#BarCode').val()), VoucherID: '@Request.QueryString["id"]'
+
+        }, function (result) {
+
+            if (result.success) {
+                docso($("#" + result.ob).attr("stt"));
+                $("#BarCode").focus();
+                LoadList(result.list);
+                LoadHang1(result.list1);
+                $("#" + result.ob).addClass("hl");
+                $(".detail").removeClass("hli");
+                $("#" + result.ob + " ." + result.itemid).addClass("hli");
+                $("#ketqua").html($("#" + result.ob + " ." + result.itemid).html());
+                $("#" + result.ob + " .k1").css({ "background-color": "yellow" });
+                $("#khungketqua").css("color","red")
+                $("#khungketqua").animate({ "color":"yellow"}, 200, function () {
+                    $(this).css({ "color": "#000" });
+                    $("#" + result.ob + " .k1").removeAttr("style");
+
+
+                })
+                scrolltopos(result.ob, result.itemid);
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+            }
+        }, 'json');
+
+        $('#BarCode').val("");
+
+        $('#BarCode').focus();
+    }
+    function scrolltopos(ob,itemid) {
+        $('#' + ob + " .data").animate({
+            scrollTop: $("#" + ob + " ." + itemid).offset().top
+        }, 10, function () {
+
+        });
+    }
+    function LoadHang(e) {
+        $(".divch").removeClass("hl");
+        $(".divch .data").html("");
+        for (var i = 0; i < e.length; i++) {
+            var pt = $(e[i]);
+            var OB = $(pt).attr("OB");
+            var ItemID = $(pt).attr("ItemID");
+            var ItemName = $(pt).attr("ItemName");
+            var Quantity = $(pt).attr("Quantity");
+            var ReceiveQuantity = $(pt).attr("ReceiveQuantity");
+            $("#" + OB).addClass("hl");
+            $("#" + OB + " .data").append("<p>"+ItemID+" - "+ItemName  +"</p>");
+            $("#" + OB + " .data").append("<p class='sl'>SL : " + ReceiveQuantity+"/"+Quantity + "</p>");
+
+        }
+    }
+    function LoadList(e) {
+        //$(".divch .data").html("");
+        $(".divch").removeClass("hl");
+        var ob = "";
+        var oblist = new Array();
+        for (var i = 0; i < e.length; i++) {
+            var pt = $(e[i]);
+            var cobb = $(pt).attr("OB");
+            if (ob != cobb) {
+                oblist[oblist.length] = cobb;
+            }
+        }
+        for (var i = 0; i < oblist.length; i++) {
+            ob = oblist[i];
+            var tc1 = 0,tc2 = 0;
+            var html = "<table cellpadding='0' cellspacing='0' border='0' style='border-collapse:collapse;width:100%'>";
+            for (var j = 0; j < e.length; j++) {
+
+                var pt = $(e[j]);
+                var cobb = $(pt).attr("OB");
+                if (cobb == ob) {
+                    var ItemID = $(pt).attr("ItemID");
+                    var ItemName = $(pt).attr("ItemName");
+                    var Quantity = $(pt).attr("Quantity")+"";
+                    tc1 = tc1 + parseInt(Quantity.replace(",", "").replace(",", ""));
+
+                    var ReceiveQuantity = $(pt).attr("ReceiveQuantity");
+                    tc2 = tc2 + parseInt(ReceiveQuantity.replace(",", "").replace(",", ""));
+                    html += "<tr class='detail " + ItemID+"'>";
+                    html += "<td><p>" + ItemID + "</p> <p>" + ItemName + "</p>";
+                    html += "<p>SL: " + ReceiveQuantity + "/" + Quantity + "</p></td>";
+                    html += "</tr>";
+                }
+
+
+            }
+            html += "<tr style='font-weight:bold'>";
+            html += "<td>Tổng cộng:";
+            html += "" + tc2 + "/" + tc1 + "</td>";
+            html += "</tr>";
+
+            html = html + "</table>";
+            $("#" + ob + " .data").html(html);
+
+        }
+
+    }
+    //load nhung cai nao da xong
+    function LoadHang1(e) {
+         for (var i = 0; i < e.length; i++) {
+            var pt = $(e[i]);
+            var OB = $(pt).attr("OB");
+
+            $("#" + OB).addClass("dh");
+
+        }
+    }
+
+    function receive()
+    {
+            postbarcode();
+    }
+
+</script>
+
+
+<div class="phan1" style="float:left">
+
+    <h1>
+        Chia hàng cho phiếu @Request.QueryString["id"]
+    </h1>
+
+
+    <div class="clear"></div>
+
+
+    <table cellpadding="10" cellspacing="0" style="float:left">
+        <tr>
+            <td class="colable" colspan="2">
+                Ngày
+            </td>
+            <td colspan="4">
+                :
+                @ViewBag.VoucherDate
+            </td>
+
+        </tr>
+        @if (ViewBag.IsLocked == true)
+        {
+            <tr>
+                <td>Tình trạng</td>
+                <td colspan="4">
+                    :
+                    Đã khóa
+                </td>
+            </tr>
+        }
+        else
+        {
+            <tr id="mv">
+                <td class="colable" colspan="2">Mã vạch/mã hàng</td>
+                <td colspan="4">
+                    :
+                    <input type="text" name="BarCode" id="BarCode" value="" class="BarCode" />
+
+                    <input type="button" name="name" value="Nhận" onclick="receive()" />
+
+                </td>
+
+            </tr>
+        }
+
+
+        <tr>
+            <td colspan="6">
+                <input type="button" name="name" value="In phiếu thiếu hàng" onclick="indau8thieuhang()" />
+                <input type="button" name="name" value="In phiếu soạn hàng" onclick="indau8()" />
+                @if (Global.GlobalVariables.IsAdmin)
+                {
+                    <input type="button" id="xacnhan" name="name" onclick="confirmxk()" value="Xác nhận đã lấy hàng" />
+                }
+              
+                @if (Global.Commons.CheckPermit("ql"))
+                {
+                    <input type="button" id="suachia" name="name" onclick="suaketqua()" value="Sửa kết quả nhận" />
+
+                }
+
+            </td>
+        </tr>
+
+
+    </table>
+    <table id="khungketqua" cellpadding="5" cellspacing="0" style="float:left;margin-left:20px;font-family:20px;font-weight:bold">
+        <tr id="ketqua">
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+<div class="clear"></div>
+<table style="width:100%">
+    <tr>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+            <td>
+                <div class="divch" id="@item["OB"]">
+                    <p class="stt">
+
+                    </p>
+                    <div class="k1">
+
+                        <p class="outbound">
+                            @item["OB"]
+                        </p>
+                        <div class="data">
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </td>
+
+        }
+
+    </tr>
+</table>
+
+<div class="clear">
+
+</div>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+<audio id="so1" src="/so/1.mp3" autostart="false"></audio>
+<audio id="so2" src="/so/2.mp3" autostart="false"></audio>
+<audio id="so3" src="/so/3.mp3" autostart="false"></audio>
+<audio id="so4" src="/so/4.mp3" autostart="false"></audio>
+<audio id="so5" src="/so/5.mp3" autostart="false"></audio>
+<audio id="so6" src="/so/6.mp3" autostart="false"></audio>
+<audio id="so7" src="/so/7.mp3" autostart="false"></audio>
+<audio id="so8" src="/so/8.mp3" autostart="false"></audio>
+<audio id="so9" src="/so/9.mp3" autostart="false"></audio>
+<audio id="so10" src="/so/10.mp3" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function docso(so) {
+        var sound = document.getElementById("so" + so);
+        if (sound == null)
+            playSound();
+        else
+            sound.play();
+    }
+    $(document).ready(function () {
+        var h = $(window).height() - $(".phan1").height() - 300;
+        $(".divch .data").css({ "height": h + "px" });
+
+        var arr = $(document).find(".divch").get();
+
+
+
+        if (arr.length > 0) {
+            var w = $(window).width() - 20;
+            var cr = ((1 / arr.length) * 100);
+            cr = cr * w / 100;
+            $(".divch").css({ "width": (cr - 15) + "px" });
+
+        }
+         $(".outbound").click(function () {
+            var l = "/admin/indau8?id=@Request.QueryString["id"]"+"&n=1&ob="+$.trim($(this).html());
+            open(l);
+
+        })
+
+    })
+      function confirmxk() {
+
+        $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xác phiếu này đã xuất để trừ trong báo cáo tồn?', function (r) {
+            if (r) {
+                var dau8 = prompt("Đầu 8",$.trim($(".outbound:first").text()));
+                if (dau8 == null) return;
+                if (dau8 == "") return;
+
+
+                $("#xacnhan").hide();
+
+                $.post('/admin/ConfirmXK', { OB: dau8 }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert('Đã xác nhận thành công');
+                        $("#xacnhan").show();
+
+
+                    } else {
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                        playSound1();
+                        $("#xacnhan").show();
+
+                    }
+                }, 'json');
+            }
+
+            });
+
+
+
+    }
+    function suaketqua() {
+        var url = '/admin/suaketqua?id=@Request.QueryString["id"]';
+        showtc(url, 600, 500);
+    }
+</script>

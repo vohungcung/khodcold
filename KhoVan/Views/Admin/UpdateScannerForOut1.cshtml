@@ -1,0 +1,344 @@
+﻿@{
+    ViewBag.Title = "Cập nhật outbound tặng phẩm";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    #txtcopy1, #txtcopy2 {
+        width: 50px;
+        height: 20px;
+        text-align: right;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .quycach {
+        display: none;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+        text-align: right;
+    }
+
+    .txtl {
+        width: 300px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .smallt {
+        width: 100px;
+    }
+
+    .sl {
+        text-align: right;
+        width: 50px;
+        height: 20px
+    }
+
+    .benphai {
+        float: right;
+        width: 750px;
+    }
+
+    .bentrai {
+        float: left;
+        clear: both;
+    }
+
+    #lastrow, #lastrow1 {
+        background-color: navy;
+        color: #FFF;
+    }
+
+        #lastrow a, #lastrow1 a {
+            color: #FFF;
+        }
+</style>
+
+<h1>
+    Nhập outbound tặng phẩm
+</h1>
+
+<table cellpadding="5" cellspacing="0" class="bentrai">
+
+    <tr>
+        <td>
+            <span id="message"></span>
+        </td>
+
+        <td></td>
+    </tr>
+    <tr>
+        <td> Số outbound </td>
+        <td id="ob">
+            @ViewBag.OB
+        </td>
+    </tr>
+
+    <tr>
+        <td> Ngày kế hoạch xuất hàng  </td>
+        <td>
+            <input type="text" id="PlanDate" class="txtl" name="name" value="@ViewBag.PlanDate" />
+        </td>
+    </tr>
+    <tr>
+        <td> Mã khách  </td>
+        <td>
+            <input type="text" id="CustomerID" class="txtl" name="name" value="@ViewBag.CustomerID" />
+        </td>
+    </tr>
+    <tr>
+        <td> Tên khách  </td>
+        <td>
+            <input type="text" id="CustomerName" class="txtl" name="name" value="@ViewBag.CustomerName" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Địa chỉ
+        </td>
+        <td>
+            <textarea id="Address" style="height:50px" class="txtl">@ViewBag.Address</textarea>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+            Tổng số lượng
+        </td>
+        <td id="totalquantity">
+            @ViewBag.TotalQuantity
+        </td>
+    </tr>
+    <tr>
+        <td>
+
+            Số bao
+        </td>
+        <td>
+            <input id="bao" type="number" min="0" maxlength="6" class="sl" name="bao" value="@ViewBag.Bag" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Số thùng
+        </td>
+        <td>
+
+            <input id="thung" type="number" min="0" class="sl" maxlength="6" name="thung" value="@ViewBag.Box" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Số túi xốp
+        </td>
+        <td id="bxx">
+            @ViewBag.BX
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Tổng số tiền
+        </td>
+        <td id="totalamount">
+            @ViewBag.TotalAmount
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+            Thể tích(m3)
+
+        </td>
+        <td id="m3">
+            @ViewBag.M3
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Ghi chú
+
+        </td>
+        <td>
+            <input type="text" id="note" maxlength="250" class="txtl" name="name" value="@ViewBag.Note" />
+
+        </td>
+    </tr>
+</table>
+
+<div class="clear">
+</div>
+<p id="thongbao">
+
+</p>
+<p style="text-align:center">
+    <input type="button" id="nhanhangbutton" name="name" value="Cập nhật" onclick="updatedata()" />
+    <input type="button" id="trove" name="name" value="Trở về" onclick="trove()" />
+
+</p>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+
+
+<script type="text/javascript">
+    function fc(e) {
+        $(e).select();
+    }
+    function checkrow(e) {
+        //var p = $(e).parent().parent();
+        //var ll = $(p).find("input").get();
+        //if ($(ll[0]) != $(e))
+        //    if ($(ll[0]).val() != "1") {
+        //        $(ll[2]).val("0");
+        //        $(ll[2]).attr("disabled", "disabled");
+        //    } else {
+        //        $(ll[2]).removeAttr("disabled");
+
+        //    }
+
+
+    }
+
+
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1() {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+
+    function trove() {
+
+        location = "/admin/viewscannerforout?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")";
+
+    }
+
+</script>
+
+<script>
+    $(window).load(function () {
+        $("#updatescannerforout").addClass("menuselect");
+
+
+
+    });
+    function fixdata(e) {
+        while (e.indexOf('\n')>-1)
+            e = e.replace("\n", "");
+        while (e.indexOf(' ') > -1)
+            e = e.replace(" ", "");
+
+        return e;
+
+    }
+    function converttonumber(e) {
+        if (e == '') return 0;
+        e = fixdata(e);
+        while (e.indexOf(',') > -1)
+            e = e.replace(",", "");
+        if (isNaN(e) == true)
+            return 0;
+        return parseFloat(e);
+    }
+
+    function updatedata() {
+        try {
+            if ($.trim($("#Address").val()) == "") {
+                playSound1();
+                alert("Bạn chưa nhập địa chỉ");
+                $("#Address").focus();
+                return;
+            }
+            if (converttonumber($("#thung").val()) <= 0 && converttonumber($("#bao").val()) <= 0) {
+                playSound1();
+                alert('Thùng bao không hợp lệ. Nó phải là số nguyên dương và không đồng thời bằng 0 ');
+                if ($("#thung").val() == "") {
+                    $("#thung").focus();
+                    $("#thung").select();
+
+                }
+
+                else {
+                    $("#bao").focus();
+                    $("#bao").select();
+                }
+
+                return;
+            }
+            $.post('/admin/updatescannerForOut1', {
+                OB: fixdata($("#ob").text()),
+                TotalQuantity: converttonumber( $("#totalquantity").text()),
+                TotalAmount: converttonumber($("#totalamount").text()),
+                Bag: converttonumber($("#bao").val()),
+                Box: converttonumber($("#thung").val()),
+                BX: converttonumber($("#bxx").text()),
+                M3: converttonumber($("#m3").text()),
+                CustomerID: $("#CustomerID").val(),
+                CustomerName: $("#CustomerName").val(),
+                Address: $("#Address").val(),
+                PlanDate: $("#PlanDate").val(),
+                Note: $("#note").val()
+
+            }, function (result) {
+                if (result.success) {
+                    $("#thongbao").html('');
+                    playSound();
+                    alert(result.msg);
+                    if ('@Request.QueryString["id"]' == "")
+                        location = "/admin/UpdateScannerForOut1?id=" + fixdata($("#ob").text());
+                } else {
+                    playSound1();
+                    alert(result.errorMsg);
+                    $("#thongbao").html('');
+                    $("#nhanhangbutton").show();
+
+                }
+            }, 'json');
+        } catch (e) {
+
+        }
+
+
+
+    }
+</script>

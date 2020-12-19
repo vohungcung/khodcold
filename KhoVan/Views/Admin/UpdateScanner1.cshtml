@@ -1,0 +1,977 @@
+﻿@{
+    ViewBag.Title = "Cập nhật scanner";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    #txtcopy1, #txtcopy2 {
+        width: 50px;
+        height: 20px;
+        text-align: right;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .quycach {
+        display: none;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+        text-align: right;
+    }
+
+    .txtl {
+        width: 300px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .smallt {
+        width: 100px;
+    }
+
+    .sl {
+        text-align: right;
+        width: 50px;
+        height: 20px
+    }
+
+    .benphai {
+        float: right;
+        width: 700px;
+    }
+
+    .bentrai {
+        float: left;
+        clear: both;
+    }
+
+    #lastrow, #lastrow1 {
+        background-color: navy;
+        color: #FFF;
+    }
+
+        #lastrow a, #lastrow1 a {
+            color: #FFF;
+        }
+</style>
+
+<h1>
+    Nhập scanner
+</h1>
+
+<table cellpadding="5" cellspacing="0" class="bentrai">
+
+    <tr>
+        <td>
+            <span id="message"></span>
+        </td>
+
+        <td></td>
+    </tr>
+    <tr>
+        <td> Số outbound </td>
+        <td id="ob">
+            @ViewBag.OB
+        </td>
+    </tr>
+    @if (Global.Commons.ConvertToString(Request.QueryString["id"]) != "")
+    {
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" id="downloadfromsap" name="name" value="Lấy dữ liệu từ SAP" onclick="downloadfromsap(this)" />
+            </td>
+        </tr>
+    }
+    <tr>
+        <td> Ngày kế hoạch xuất hàng  </td>
+        <td>
+            <input type="text" id="PlanDate" class="txtl" name="name" value="@ViewBag.PlanDate" />
+        </td>
+    </tr>
+    <tr>
+        <td> Mã khách  </td>
+        <td>
+            <input type="text" id="CustomerID" class="txtl" name="name" value="@ViewBag.CustomerID" />
+        </td>
+    </tr>
+    <tr>
+        <td> Tên khách  </td>
+        <td>
+            <input type="text" id="CustomerName" class="txtl" name="name" value="@ViewBag.CustomerName" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Địa chỉ
+        </td>
+        <td>
+            <textarea id="Address" style="height:50px" class="txtl">@ViewBag.Address</textarea>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+            Tổng số lượng
+        </td>
+        <td id="totalquantity">
+            @ViewBag.TotalQuantity
+        </td>
+    </tr>
+    <tr>
+        <td>
+
+            Số bao
+        </td>
+        <td id="bao">
+            @ViewBag.Bag
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Số thùng
+        </td>
+        <td id="thung">
+            @ViewBag.Box
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Số túi xốp
+        </td>
+        <td id="bxx">
+            @ViewBag.BX
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Tổng số tiền
+        </td>
+        <td id="totalamount">
+            @ViewBag.TotalAmount
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Tên user
+        </td>
+        <td>
+            <input type="text" disabled="disabled" id="ScannerID" class="txtl" name="name" value="@ViewBag.ScannerID" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Nv quét
+
+        </td>
+        <td>
+            <input type="text" id="EmployeeName" class="txtl" name="name" value="@ViewBag.EmployeeName" />
+
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            Thể tích(m3)
+
+        </td>
+        <td id="m3">
+            @ViewBag.M3
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+           Ghi chú
+
+        </td>
+        <td >
+            <input type="text" id="note" maxlength="250" class="txtl" name="name" value="@ViewBag.Note" />
+
+        </td>
+    </tr>
+</table>
+
+
+<div class="benphai">
+    <p style="font-weight:bold">
+        Tổng SL: <span id="tsl"></span>  |  Tổng túi xốp: <span id="tsltx"></span>
+    </p>
+    <div class="clear"></div>
+    <table style="width:47%;float:left" cellpadding="5" cellspacing="0" id="gthung">
+        <tr class="theader">
+            <th>TT thùng</th>
+
+            <th class="quycach">
+                Số thùng
+            </th>
+            <th>
+                Số lượng chứa <br />trong thùng
+            </th>
+            <th>
+                Số lượng túi xốp
+            </th>
+            <th class="tacvu">
+                Tác vụ
+            </th>
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+            <tr class="row">
+                <td style="text-align:left" class="thutu">
+                    @item["TT"]
+                </td>
+                <td style="text-align:center" class="quycach">
+
+                    <input type="text" maxlength='5' class="sl" onfocus="fc(this)" onchange="setTimeout(change1,200,this)" value="@item["Q1"]" />
+                </td>
+                <td style="text-align:center">
+
+                    <input type="text"  maxlength='5' class="sl" onfocus="fc(this)" onchange="setTimeout(change1,200,this)" value="@(Global.Commons.ConvertToInt( item["Q2"])>0?item["Q2"]+"":"")" />
+                </td>
+                <td style="text-align:center">
+
+                    <input type="text"  maxlength='5' class="sl" onfocus="fc(this)" onchange="setTimeout(change1,200,this)" value="@(Global.Commons.ConvertToInt( item["Q3"])>0?item["Q3"]+"":"")" />
+                </td>
+                <td class="tacvu" style="cursor:pointer;text-align:center" onclick="deletethisone(this)">
+                    Xóa
+                </td>
+            </tr>
+        }
+        <tr style="font-weight:bold" id="lastrow">
+            <td>
+                <a href="javascript:reset(1)" title="Đánh lại số tt">
+                    <img src="~/Images/reset.png" alt="reset" />
+                </a>
+            </td>
+            <td style="text-align:center" class="quycach">
+                <div id="totalq1" style="width:35px;padding-right:15px;margin:0 auto;text-align:right"> @ViewBag.Q1</div>
+
+            </td>
+            <td style="text-align:center">
+                <div id="totalq2" style="width:35px;padding-right:15px;margin:0 auto;text-align:right"> @ViewBag.Q2</div>
+
+            </td>
+            <td style="text-align:center">
+                <div id="tx1" style="width:35px;padding-right:15px;margin:0 auto;text-align:right"> @ViewBag.TX1</div>
+
+            </td>
+            <td style="text-align:center" class="tacvu">
+
+
+                <a href="javascript:void(0)" onclick="addmore()">
+                    Thêm dòng
+                </a>
+
+
+
+            </td>
+        </tr>
+        <tr style="font-weight:bold;background-color:#ddd;font-size:11px" class="endrow">
+            <td colspan="2" style="text-align:center">
+                <a href="javascript:void(0)" onclick="copy1()">
+                    Copy dòng cuối thành
+                </a>
+            </td>
+
+            <td style="text-align:center">
+                <input type="number" name="name" value="1" id="txtcopy1" min="1" />
+
+            </td>
+            <td class="tacvu">
+                dòng
+            </td>
+        </tr>
+    </table>
+
+
+    <table style="width:47%;float:right" cellpadding="5" cellspacing="0" id="gbao">
+        <tr class="theader">
+            <th>
+                TT bao
+            </th>
+
+            <th class="quycach">
+                Số bao
+            </th>
+            <th>
+                Số lượng chứa <br />trong bao
+            </th>
+            <th>
+                Số lượng túi xốp
+            </th>
+            <th class="tacvu">
+                Tác vụ
+            </th>
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data1)
+        {
+            <tr class="row">
+                <td style="text-align:left" class="thutu">@item["TT"]</td>
+                <td style="text-align:center" class="quycach">
+
+                    <input type="text" class="sl" maxlength='5' onfocus="fc(this)" onchange="setTimeout(change2,200,this)" value="@item["Q1"]" />
+                </td>
+                <td style="text-align:center">
+
+                    <input type="text"  class="sl" maxlength='5' onfocus="fc(this)" onchange="setTimeout(change2,200,this)" value="@(Global.Commons.ConvertToInt( item["Q2"])>0?item["Q2"]+"":"")" />
+                </td>
+                <td style="text-align:center">
+
+                    <input type="text"  class="sl" maxlength='5' onfocus="fc(this)" onchange="setTimeout(change2,200,this)" value="@(Global.Commons.ConvertToInt( item["Q3"])>0?item["Q3"]+"":"")" />
+                </td>
+                <td class="tacvu" style="cursor:pointer;text-align:center" onclick="deletethisone(this)">
+                    Xóa
+                </td>
+            </tr>
+        }
+        <tr style="font-weight:bold" id="lastrow1" >
+            <td>
+                <a href="javascript:reset(2)" title="Đánh lại số tt">
+                    <img src="~/Images/reset.png" alt="reset" />
+                </a>
+            </td>
+            <td style="text-align:center" class="quycach">
+                <div id="totalq3" style="width:35px;padding-right:15px;margin:0 auto;text-align:right"> @ViewBag.Q3</div>
+
+            </td>
+            <td style="text-align:center">
+                <div id="totalq4" style="width:35px;padding-right:15px;margin:0 auto;text-align:right"> @ViewBag.Q4</div>
+
+            </td>
+            <td style="text-align:center">
+                <div id="tx2" style="width:35px;padding-right:15px;margin:0 auto;text-align:right"> @ViewBag.TX2</div>
+
+            </td>
+            <td style="text-align:center" class="tacvu">
+
+
+                <a href="javascript:void(0)" onclick="addmore1()">
+                    Thêm dòng
+                </a>
+
+
+            </td>
+        </tr>
+        <tr style="font-weight:bold;background-color:#ddd;font-size:11px" class="endrow">
+            <td colspan="2" style="text-align:center">
+                <a href="javascript:void(0)" onclick="copy2()">
+                    Copy dòng cuối thành
+                </a>
+            </td>
+            <td style="text-align:center">
+                <input type="number" name="name" value="1" id="txtcopy2" min="1" />
+
+            </td>
+            <td class="tacvu">
+                dòng
+            </td>
+
+        </tr>
+    </table>
+
+</div>
+<div class="clear">
+</div><p style="text-align:center">
+    <input type="button" id="nhanhangbutton" name="name" value="Cập nhật" onclick="nhanhang1()" />
+    @*<input type="button" id="intem" name="name" value="In tem" onclick="intem()" />*@
+    <input type="button" id="trove" name="name" value="Trở về" onclick="trove()" />
+
+</p>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+
+
+<script type="text/javascript">
+    function fc(e) {
+        $(e).select();
+    }
+    function checkrow(e) {
+        //var p = $(e).parent().parent();
+        //var ll = $(p).find("input").get();
+        //if ($(ll[0]) != $(e))
+        //    if ($(ll[0]).val() != "1") {
+        //        $(ll[2]).val("0");
+        //        $(ll[2]).attr("disabled", "disabled");
+        //    } else {
+        //        $(ll[2]).removeAttr("disabled");
+
+        //    }
+
+
+    }
+
+    function change1(e) {
+        totalq();
+        checkrow(e);
+
+    }
+    function change2(e) {
+        totalq1();
+        checkrow(e);
+
+    }
+    function createnumber(v, t) {
+        var p = "";
+
+        if (t == 0)
+            p = " <input type=\"text\" min='0'  maxlength='5' onchange='setTimeout(change1,200,this)' onfocus='fc(this)' class='sl' value=\"" + v + "\" />";
+        else
+            p = " <input type=\"text\" min='0'  maxlength='5' onchange='setTimeout(change2,300,this)' onfocus='fc(this)' class='sl' value=\"" + v + "\" />";
+
+        return p;
+    }
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1() {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function copy1() {
+        //lay so tt sau cung
+        var bd = 1;
+        var text1 = 1, text2 = "", text3 ="";
+        var aa = $("#gthung").find(".row").get();
+        if (aa.length > 0) {
+            var cn = $(aa[aa.length - 1]).find(".thutu").get();
+            bd = parseInt($.trim($(cn[0]).html())) + 1;
+            cn = $(aa[aa.length - 1]).find("input").get();
+            text1 = $(cn[0]).val();
+            text2 = $(cn[1]).val();
+            text3 = $(cn[2]).val();
+
+        }
+
+        var soban = $("#txtcopy1").val();
+        if (soban == "")
+            soban = 1;
+        if (isNaN(soban) == true)
+            soban = 1;
+        var p = "";
+
+        for (var i = 0; i < soban; i++) {
+            p = p + "<tr class='row' >"
+            p = p + "<td class='thutu'>" + bd + "</td>";
+
+            p = p + "<td style='text-align:center' class='quycach'>" + createnumber(1, 0) + "</td>";
+            p = p + "<td style='text-align:center'>" + createnumber(text2, 0) + "</td>";
+            p = p + "<td style='text-align:center'>" + createnumber(text3, 0) + "</td>";
+            p = p + "<td style='cursor:pointer;text-align:center' onclick='deletethisone(this)'>Xóa</td>";
+
+            p += "</tr>";
+
+            bd++;
+        }
+        $(p).insertBefore("#lastrow");
+
+        //set lai mau
+        var arr = $("#gthung").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        $("#txtcopy1").val("1");
+
+        totalq();
+        checktg();
+
+    }
+    function copy2() {
+        //lay so tt sau cung
+        var bd = 1;
+        var text1=1, text2="", text3="";
+        var aa = $("#gbao").find(".row").get();
+        if (aa.length > 0) {
+            var cn = $(aa[aa.length - 1]).find(".thutu").get();
+            bd = parseInt($.trim($(cn[0]).html())) + 1;
+            cn = $(aa[aa.length - 1]).find("input").get();
+            text1 = $(cn[0]).val();
+            text2 = $(cn[1]).val();
+            text3 = $(cn[2]).val();
+
+        }
+        var soban = $("#txtcopy2").val();
+        if (soban == "")
+            soban = 1;
+        if (isNaN(soban) == true)
+            soban = 1;
+        var p = "";
+        for (var i = 0; i < soban; i++) {
+            p += "<tr class='row' >"
+            p = p + "<td class='thutu'>" + bd + "</td>";
+
+            p = p + "<td style='text-align:center' class='quycach'>" + createnumber(1, 1) + "</td>";
+            p = p + "<td style='text-align:center'>" + createnumber(text2, 1) + "</td>";
+            p = p + "<td style='text-align:center'>" + createnumber(text3, 1) + "</td>";
+            p = p + "<td style='cursor:pointer;text-align:center' onclick='deletethisone(this)'>Xóa</td>";
+
+            p += "</tr>";
+            bd++;
+        }
+
+        $(p).insertBefore("#lastrow1");
+        $("#txtcopy2").val("1");
+        //set lai mau
+        var arr = $("#gbao").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        totalq1();
+        checktg();
+
+    }
+    function addmore() {
+        //lay so tt sau cung
+        var bd = 1;
+        var aa = $("#gthung").find(".row").get();
+        if (aa.length > 0) {
+            var cn = $(aa[aa.length - 1]).find(".thutu").get();
+            bd = parseInt($.trim($(cn[0]).html())) + 1;
+        }
+
+        var p = "<tr class='row' >"
+        p = p + "<td class='thutu'>"+bd+"</td>";
+
+        p = p + "<td style='text-align:center' class='quycach'>" + createnumber(1, 0) + "</td>";
+        p = p + "<td style='text-align:center' class='ll11'>" + createnumber("", 0) + "</td>";
+        p = p + "<td style='text-align:center'>" + createnumber("", 0) + "</td>";
+        p = p + "<td style='cursor:pointer;text-align:center' onclick='deletethisone(this)'>Xóa</td>";
+
+        p += "</tr>";
+        $(p).insertBefore("#lastrow");
+
+        //set lai mau
+        var arr = $("#gthung").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        $(".ll11:last input").focus();
+        $(".ll11:last input").select();
+        totalq();
+        checktg();
+
+    }
+    function addmore1() {
+
+        //lay so tt sau cung
+        var bd = 1;
+        var aa = $("#gbao").find(".row").get();
+        if (aa.length > 0) {
+            var cn = $(aa[aa.length - 1]).find(".thutu").get();
+            bd = parseInt($.trim($(cn[0]).html())) + 1;
+        }
+        var p = "<tr class='row' >"
+        p = p + "<td class='thutu'>"+bd+"</td>";
+
+        p = p + "<td style='text-align:center' class='quycach'>" + createnumber(1,1) + "</td>";
+        p = p + "<td style='text-align:center' class='ll22'>" + createnumber("",1) + "</td>";
+        p = p + "<td style='text-align:center'>" + createnumber("", 1) + "</td>";
+        p = p + "<td style='cursor:pointer;text-align:center' onclick='deletethisone(this)'>Xóa</td>";
+
+        p += "</tr>";
+        $(p).insertBefore("#lastrow1");
+
+        //set lai mau
+        var arr = $("#gbao").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        $(".ll22:last input").focus();
+        $(".ll22:last input").select();
+        totalq1();
+        checktg();
+
+    }
+    function deletethisone(e) {
+        if (confirm("Bạn có chắc là bạn muốn xóa") == false) return;
+        $(e).parent().remove();
+        playSound();
+        totalq();
+        totalq1();
+    }
+    function trove() {
+
+        location = "/admin/ViewScanners?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")";
+
+    }
+    function totalq() {
+        var arr = $("#gthung").find(".row").get();
+
+        var totalq1 = 0;
+        var totalq2 = 0;
+        var totalq3 = 0;
+
+        for (var i = 0; i < arr.length; i++) {
+            var r = $(arr[i]);
+            var ll = $(r).find("input").get();
+            var q1 =$( ll[0]).val();
+            var q2 = $(ll[1]).val();
+            var q3 = $(ll[2]).val();
+
+            if (q1 == "")
+                q1 = 0;
+            if (isNaN(q1) == true)
+                q1 = 0;
+
+            if (q2 == "")
+                q2 = 0;
+            if (isNaN(q2) == true)
+                q2 = 0;
+
+            if (q3 == "")
+                q3 = 0;
+            if (isNaN(q3) == true)
+                q3 = 0;
+
+            if (parseInt(q1) > 0 && (parseInt(q2) > 0 || parseInt(q3) > 0)) {
+                totalq1 += parseInt(q1);
+                totalq2 += parseInt(q1) * parseInt(q2);
+
+                totalq3 += parseInt(q3);
+
+
+            }
+
+        }
+        $("#totalq1").html(totalq1);
+        $("#totalq2").html(totalq2);
+        $("#tx1").html(totalq3);
+        $("#thung").html(totalq1);
+
+        ttt();
+    }
+    function ttt() {
+        var p1 = $.trim($("#totalq2").html());
+        if (p1 == "")
+            p1 = 0;
+        var p2 = $.trim($("#totalq4").html());
+        if (p2 == "")
+            p2 = 0;
+        var p3 = $.trim($("#tx1").html());
+        if (p3 == "")
+            p3 = 0;
+        var p4 = $.trim($("#tx2").html());
+        if (p4 == "")
+            p4 = 0;
+
+        var tt = parseInt(p1) + parseInt(p2) + parseInt(p3) + parseInt(p4);
+        $("#tsl").html(tt);
+        $("#tsltx").html(parseInt(p3) + parseInt(p4));
+
+    }
+    function totalq1() {
+        var arr = $("#gbao").find(".row").get();
+        var totalq1 = 0;
+        var totalq2 = 0;
+        var totalq3 = 0;
+
+        for (var i = 0; i < arr.length; i++) {
+            var r = $(arr[i]);
+            var ll = $(r).find("input").get();
+            var q1 = $(ll[0]).val();
+            var q2 = $(ll[1]).val();
+            var q3 = $(ll[2]).val();
+
+            if (q1 == "")
+                q1 = 0;
+            if (isNaN(q1) == true)
+                q1 = 0;
+
+            if (q2 == "")
+                q2 = 0;
+            if (isNaN(q2) == true)
+                q2 = 0;
+
+            if (q3 == "")
+                q3 = 0;
+            if (isNaN(q3) == true)
+                q3 = 0;
+
+            if (parseInt(q1) > 0 && (parseInt(q2) > 0 || parseInt(q3) > 0)) {
+                totalq1 += parseInt(q1);
+                totalq2 += parseInt(q1) * parseInt(q2) ;
+                totalq3 += parseInt(q3);
+
+
+
+            }
+
+        }
+        $("#totalq3").html(totalq1);
+        $("#totalq4").html(totalq2);
+        $("#tx2").html(totalq3);
+
+        $("#bao").html(totalq1);
+        ttt();
+
+    }
+</script>
+
+<script>
+    $(window).load(function () {
+        $("#updatescanner").addClass("menuselect");
+
+        var locked = '@ViewBag.Locked';
+        if (locked == '1') {
+            $("#nhanhangbutton,#downloadfromsap,.tacvu,.endrow").hide();
+            $(".sl,.txtl").attr("disabled", "disabled");
+        }
+          var winform = '@Request.QueryString["f"]';
+       var arr= $("#gthung").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $("#gbao").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        $(".sl").attr("min", "0");
+        ttt();
+        checktg();
+    })
+    function checktg() {
+        var arr = $(document).find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            var r = $(arr[i]);
+            var ll = $(r).find("input").get();
+            if ($(ll[0]).val() != "1")
+                $(ll[2]).attr("disabled", "disabled");
+        }
+    }
+
+    function reset(t) {
+        var arr = $("#gthung").find(".row").get();
+        if (t == 2)
+            arr = $("#gbao").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            var cot = $(arr[i]).find("td").get();
+            $(cot[0]).html(i + 1);
+        }
+    }
+
+    function nhanhang() {
+        var m3 = $.trim($("#m3").html().replace(",", "").replace(",", "").replace(",", "").replace(",", ""));
+        //if ($.trim($("#Address").val()) == "") {
+        //    playSound1();
+        //    alert("Bạn chưa nhập địa chỉ");
+        //    $("#Address").focus();
+        //    return;
+        //}
+
+        if ($.trim($("#EmployeeName").val()) == "") {
+            playSound1();
+            alert("Bạn chưa nhập Nv quét");
+            $("#EmployeeName").focus();
+            return;
+        }
+        $("#nhanhangbutton").hide();
+
+        var ob = {
+            OB: $.trim($("#ob").html()),
+            ScannerID: $("#ScannerID").val(),
+            EmployeeName: $("#EmployeeName").val(),
+            Address: $("#Address").val(),
+            CustomerID: $("#CustomerID").val(),
+            CustomerName: $("#CustomerName").val(),
+            PlanDate: $("#PlanDate").val(),
+            M3: m3,
+            Note:$("#note").val(),
+            TotalQuantity: parseInt($.trim($("#totalquantity").html().replace(",", "").replace(",", "").replace(",", ""))),
+            TotalAmount: parseInt($.trim($("#totalamount").html().replace(",", "").replace(",", "").replace(",", ""))),
+            TotalTX: parseInt($.trim($("#bxx").html().replace(",", "").replace(",", "").replace(",", "")))
+        }
+
+        var arr = $(document).find(".row").get();
+        if (arr.length == 0) {
+            playSound1();
+            alert('Bạn chưa nhập chi tiết')
+
+            $("#nhanhangbutton").show();
+            return;
+        }
+
+        var ls = new Array();
+
+        arr = $("#gthung").find(".row").get();
+
+        for (var i = 0; i < arr.length; i++) {
+            var r = $(arr[i]);
+            var style = "Thung";
+            var ll = $(r).find("input").get();
+            var q1 = $(ll[0]).val();
+            var q2 = $(ll[1]).val();
+            var q3 = $(ll[2]).val();
+            var tt =$.trim( $(($(r).find(".thutu").get())[0]).html());
+            if (isNaN(tt) == true)
+                tt = 0;
+
+
+            if (q1 == "")
+                q1 = 0;
+            if (isNaN(q1) == true)
+                q1 = 0;
+
+            if (q2 == "")
+                q2 = 0;
+            if (isNaN(q2) == true)
+                q2 = 0;
+
+            if (q3 == "")
+                q3 = 0;
+            if (isNaN(q3) == true)
+                q3 = 0;
+            if (parseInt(q1) > 0 && (parseInt(q2) > 0 || parseInt(q3) > 0))
+                ls[ls.length] = {TT:tt, Style: style, Q1: q1, Q2: q2, Q3: q3 };
+
+
+
+
+        }
+        arr = $("#gbao").find(".row").get();
+
+        for (var i = 0; i < arr.length; i++) {
+            var r = $(arr[i]);
+            var style = "Bao";
+            var ll = $(r).find("input").get();
+            var q1 = $(ll[0]).val();
+            var q2 = $(ll[1]).val();
+            var q3 = $(ll[2]).val();
+            var tt = $.trim($(($(r).find(".thutu").get())[0]).html());
+            if (isNaN(tt) == true)
+                tt = 0;
+
+
+            if (q1 == "")
+                q1 = 0;
+            if (isNaN(q1) == true)
+                q1 = 0;
+
+            if (q2 == "")
+                q2 = 0;
+            if (isNaN(q2) == true)
+                q2 = 0;
+
+            if (q3 == "")
+                q3 = 0;
+            if (isNaN(q3) == true)
+                q3 = 0;
+
+            if (parseInt(q1) > 0 && (parseInt(q2) > 0 || parseInt(q3) > 0))
+                ls[ls.length] = { TT: tt,Style: style, Q1: q1, Q2: q2, Q3: q3 };
+
+        }
+
+        var jsonObject = { LItem: ls, M: ob };
+
+        $("#message").html("Vui lòng chờ...");
+        $("#nhanhangbutton").hide();
+        $.ajax({
+            url: "/admin/UpdateScanner1",
+            type: "POST",
+            data: JSON.stringify(jsonObject),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            error: function (response) {
+                playSound1();
+                alert(response.responseText);
+
+                $("#message").html("");
+            },
+            success: function (response) {
+                if (response.success == true) {
+                    playSound();
+                    alert(response.msg);
+                    location = "/admin/updatescanner1?id=" + $.trim($("#ob").html());
+                    $("#message").html("");
+                    $("#nhanhangbutton").show();
+                } else {
+                    playSound1();
+                    alert(response.errorMsg);
+                    $("#nhanhangbutton").show();
+                }
+                $("#message").html("");
+            }
+
+        });
+
+
+    }
+    function nhanhang1() {
+        $("#EmployeeName").focus();
+        setTimeout(nhanhang, 300);
+    }
+    function downloadfromsap(e) {
+        $(e).hide();
+        var jsonObject = {  OB:$.trim( $("#ob").html()) };
+
+        $("#message").html("Vui lòng đợi....");
+        $.ajax({
+            url: "/admin/UpdateScannerFromSAP",
+            type: "POST",
+            data: JSON.stringify(jsonObject),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            error: function (response) {
+                playSound1();
+                alert(response.responseText);
+                $(e).show();
+                $("#message").html("");
+            },
+            success: function (response) {
+                if (response.success == true) {
+                    playSound();
+                    alert(response.msg);
+                    location = "/admin/updatescanner1?id=" + $.trim($("#ob").html());
+                    $("#message").html("");
+                    $(e).show();
+                } else {
+                    playSound1();
+                    alert(response.errorMsg);
+                    $(e).show();
+                }
+                $("#message").html("");
+            }
+
+        });
+    }
+    function intem() {
+        var r = "/admin/obbarcode?type=1&key=" +$.trim( $("#ob").text());
+        open(r);
+    }
+</script>

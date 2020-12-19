@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "Danh mục xe";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+    label{
+        cursor:pointer;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#viewtrucks").addClass("menuselect");
+
+    })
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+</div>
+<div style="margin: 20px 0;"></div>
+<div class="easyui-panel" style="width: 100%; max-width: 400px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" class="easyui-searchbox" data-options="prompt:'Từ khóa',searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch(value) {
+
+        location = "/admin/ViewTrucks?key=" + value;
+    }
+</script>
+<div class="clear">
+</div>
+
+<table id="dg" title="Danh sách xe: @ViewBag.Count" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/Admin/Get_Trucks?key=@Request.QueryString["key"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="TruckID" width="150">Số xe </th>
+            <th field="TruckName" width="150">Diễn giải</th>
+            <th field="TruckType" width="150">Loại xe</th>
+            <th field="MaxVolume" width="150">Số khối</th>
+            <th field="IsProcessing1" align="center" width="100">Trạng thái hoạt động</th>
+            <th field="Used1" align="center" width="100">Tình trạng</th>
+
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="newItem()">Thêm</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+
+<div id="dlg" class="easyui-dialog" style="max-width: 500px" closed="true" buttons="#dlg-buttons">
+    <form id="fm" method="post" novalidate style="margin: 0; padding: 20px 50px">
+        <div style="margin-bottom: 20px; font-size: 14px; border-bottom: 1px solid #ccc">Thông tin xe</div>
+
+        <div style="margin-bottom: 10px">
+            <input name="TruckID" class="easyui-textbox" maxlength="20" required="true" label="Số xe:" style="width: 100%">
+        </div>
+        <p style="text-align:right">
+            <input type="checkbox" value="1" name="IsProcessing" id="IsProcessing" /><label for="IsProcessing">Đang bận</label>
+
+
+            <input type="checkbox" value="1" checked="checked" name="Used" id="Used" /><label for="Used">Không khoá</label>
+
+        </p>
+        <div style="margin-bottom: 10px">
+            <input name="TruckName" class="easyui-textbox" maxlength="250" required="true" label="Diễn giải:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="TruckType" class="easyui-textbox" maxlength="250" required="true" label="Loại xe:" style="width: 100%">
+        </div>
+        <div style="margin-bottom: 10px">
+            <input name="MaxVolume" class="easyui-numberbox" precision="6" maxlength="20" required="true" label="Số khối:" style="width: 100%">
+        </div>
+
+
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="saveItem()" style="width: 90px">Cập nhật</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width: 90px">Bỏ qua</a>
+</div>
+
+
+
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+
+<script type="text/javascript">
+
+
+    var url='';
+    function newItem() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Thêm nhóm');
+        $('#fm').form('clear');
+        var row = { Used: 1 };
+        $('#dlg').form('load', row);
+        url = '/admin/add_Truck';
+    }
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $('#dlg').dialog('open').dialog('center').dialog('setTitle', 'Sửa nhóm');
+            $('#dlg').form('load', row);
+            url = '/admin/update_Truck?id=' + row.TruckID;
+        }
+    }
+
+
+
+    function saveItem() {
+
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Thông báo',
+                        msg: result.msg
+                    });
+                    if (url == '/admin/add_Truck') {
+                        Location = location;
+                    }
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa tài khoản này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/deleteTruck', { TruckID: row.TruckID }, function (result) {
+                        if (result.success) {
+                            alert('Đã xóa thành công');
+                            location = location;
+                            
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+
+</script>

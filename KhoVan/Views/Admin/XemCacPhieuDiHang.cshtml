@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "Các phiếu di hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#xemdihang").addClass("menuselect");
+
+    })
+</script>
+
+<h1>
+    Các phiếu di hàng
+</h1>
+
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none;">
+    <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["from"]">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["to"]">
+</div>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["fl"])" labelWidth="150" class="fl easyui-searchbox" label="Từ vị trí" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["tl"])" labelWidth="150" class="tl easyui-searchbox" label="Đến vị trí" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+        var fl = $(".fl").val();
+        var tl = $(".tl").val();
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        location = "/admin/XemCacPhieuDiHang?fl=" + fl + "&tl=" + tl + "&from=" + fromdate + "&to=" + todate;
+    }
+    $('.fromdate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+    $('.todate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+
+</script>
+
+<div style="margin: 10px 0;"></div>
+
+<div class="clear">
+</div>
+<div class="clear">
+    <br />
+</div>
+
+<table id="dg" nowrap="False" emptyMsg="Không có dữ liệu" loadMsg="Vui lòng chờ" title="Danh sách phiếu di hàng: @ViewBag.Count - Tổng SL: @ViewBag.Sum" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/layphieudihang?fl=@Request.QueryString["fl"]&tl=@Request.QueryString["tl"]&page=@Request.QueryString["page"]&from=@Request.QueryString["from"]&to=@Request.QueryString["to"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="VoucherID" width="150">Số phiếu</th>
+            <th field="CreateDate" width="100">ngày phiếu</th>
+            <th field="FromLocation" width="70">Từ vị trí</th>
+            <th field="ToLocation" width="70">Đến vị trí</th>
+            <th field="Quantity" width="50" data-options="align:'right'">Số lượng</th>
+            <th field="Description" width="100">Diễn giải</th>
+            <th field="FullName" width="150">Người tạo</th>
+            <th field="TranItemInfo" width="70">Thông tin</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportfromitem()">Xuất sang excel lịch sử của mã hàng</a>
+
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Xem</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportItem()">Xuất excel tổng hợp</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportItemDetail()">Xuất excel chi tiết</a>
+
+
+
+</div>
+
+
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+<script>
+    var url;
+
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            url = '/admin/ChiXemPhieuDiHang?id=' + row.VoucherID;
+            url += '&from=' + row.FromLocation;
+            url += '&to=' + row.ToLocation;
+            location = url;
+        }
+    }
+    function exportItem() {
+
+
+        var fl = $(".fl").val();
+        var tl = $(".tl").val();
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        var l = "/admin/ExportMoveItem?fl=" + fl + "&tl=" + tl + "&from=" + fromdate + "&to=" + todate;
+        open(l);
+
+    }
+    function exportItemDetail() {
+
+
+        var fl = $(".fl").val();
+        var tl = $(".tl").val();
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        var l = "/admin/ExportMoveItemDetail?fl=" + fl + "&tl=" + tl + "&from=" + fromdate + "&to=" + todate;
+        open(l);
+
+    }
+    function fixcol() {
+        if ($(window).width() > 600) {
+            $('#dg').datagrid('showColumn', 'VoucherID');
+            $('#dg').datagrid('showColumn', 'CreateDate');
+            $('#dg').datagrid('showColumn', 'FromLocation');
+            $('#dg').datagrid('showColumn', 'ToLocation');
+            $('#dg').datagrid('showColumn', 'Quantity');
+            $('#dg').datagrid('showColumn', 'Description');
+            $('#dg').datagrid('showColumn', 'FullName');
+            $('#dg').datagrid('hideColumn', 'TranItemInfo');
+            $('#dg').datagrid('resize');
+
+        }
+
+        else {
+            $('#dg').datagrid('hideColumn', 'VoucherID');
+            $('#dg').datagrid('hideColumn', 'CreateDate');
+            $('#dg').datagrid('hideColumn', 'FromLocation');
+            $('#dg').datagrid('hideColumn', 'ToLocation');
+            $('#dg').datagrid('hideColumn', 'Quantity');
+            $('#dg').datagrid('hideColumn', 'Description');
+            $('#dg').datagrid('hideColumn', 'FullName');
+            $('#dg').datagrid('showColumn', 'TranItemInfo');
+
+        }
+    }
+
+    $(window).resize(function () {
+        fixcol();
+
+    })
+    $(window).load(function () {
+        fixcol();
+    });
+    function exportfromitem() {
+        var itemid = prompt("Nhập mã hàng cần tra lịch sử ", '');
+        if (itemid == null) {
+            return;
+
+        }
+        if (itemid == '') {
+            return;
+
+        }
+        open('/admin/historyitem?id=' + itemid+"&from=@Request.QueryString["from"]&to=@Request.QueryString["to"]");
+    }
+
+</script>
+<script src="~/Scripts/paging.js"></script>
+<script>
+    fixpagingcontent('@Request.QueryString["page"]')
+</script>

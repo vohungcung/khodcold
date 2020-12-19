@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "Gán thủ công vị trí pallet";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text], textarea {
+        text-transform: uppercase;
+    }
+</style>
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+        var arr = $(document).find(".rowdata").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(document).find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+    })
+    $(window).load(function () {
+        $("#newlocation").focus();
+    })
+    function updatepallet() {
+
+        if ($.trim($("#newlocation").val()) == "") {
+            playSound1();
+            alert('Bạn chưa chọn vị trí mới');
+            $("#newlocation").focus();
+            return;
+        }
+
+
+        $.post('/admin/UpdatePalletHandMade', { PalletID:'@Request.QueryString["id"]',Location:$("#newlocation").val()}, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                finish();
+
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function finish() {
+        location = "/admin/viewpallets?date=@DateTime.Now.ToString("dd/MM/yyyy")";
+    }
+</script>
+<h1>
+    Gán thủ công vị trí pallet
+</h1>
+
+<table cellpadding="10" cellspacing="0">
+    <tr>
+        <td class="colable" colspan="2">
+            TT
+        </td>
+        <td colspan="4">
+            :
+            @ViewBag.OrderNo
+        </td>
+
+    </tr>
+    <tr>
+        <td class="colable" colspan="2">
+            Ngày
+        </td>
+        <td colspan="4">
+            :
+            @ViewBag.CreateDate
+        </td>
+
+    </tr>
+    <tr>
+        <td class="colable" colspan="2">
+            PalletID
+        </td>
+        <td colspan="4">
+            :
+            @ViewBag.PalletID
+        </td>
+
+    </tr>
+
+    <tr>
+        <td class="colable" colspan="2">
+            Vị trí mới
+        </td>
+        <td colspan="4">
+            :
+            <input type="text" name="newlocation" id="newlocation" value="" class="BarCode" />
+        </td>
+
+    </tr>
+    <tr class="theader">
+        <td>TT</td>
+        <th>
+            Mã sản phẩm
+        </th>
+        <th>
+            Diễn giải
+        </th>
+        <th>
+            ĐVT
+        </th>
+        <th>
+            Số lượng
+        </th>
+        <td></td>
+    </tr>
+    @foreach (MvcApplication5.Controllers.CC item in ViewBag.data)
+    {
+        <tr class="rowdata">
+            <td class="tt"></td>
+            <td>
+                @item.i
+            </td>
+            <td>
+                @item.d
+            </td>
+            <td>
+                @item.u
+            </td>
+            <td style="text-align:right">
+                @item.q.ToString("N0")
+            </td>
+            <td></td>
+        </tr>
+    }
+    <tr>
+        <td style="font-weight:bold;text-align:right" colspan="4">
+            Tổng cộng
+        </td>
+
+        <td style="font-weight:bold;text-align:right">@ViewBag.TotalQuantity</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="5" style="text-align:center">
+            <input type="button" onclick="updatepallet()" class="bt" name="pallet" value="Cập nhật" />
+
+            <input type="button" onclick="finish()" class="bt" name="pallet" value="Hoàn thành" />
+
+
+        </td>
+
+    </tr>
+</table>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+</script>

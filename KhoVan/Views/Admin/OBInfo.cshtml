@@ -1,0 +1,239 @@
+﻿@{
+    ViewBag.Title = "Thông tin outbound";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        width: 100%;
+        height: 25px;
+        text-align: center;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        text-align: center;
+    }
+
+    th {
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .row1 {
+        background-color: #DDD;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .tt {
+        text-align: center;
+    }
+
+    .data {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #total th, #total1 th {
+        text-align: right;
+    }
+
+    .style {
+        text-align: left;
+        max-width: 60px;
+    }
+
+    .largecontent {
+        font-size: 14px;
+    }
+
+        .largecontent * {
+            font-size: 14px;
+        }
+</style>
+<h1>
+    Outbound: @Request.QueryString["id"]
+</h1>
+@if (ViewBag.IsSpecial != 1)
+{
+    <table id="thung" class="data" cellpadding="5" cellspacing="0" border="1">
+        <tr>
+            <th>
+                TT
+            </th>
+            <th align="left">
+                Tình trạng thùng
+            </th>
+            <th align="right">
+                Hàng
+            </th>
+            <th align="right">
+                Túi xốp
+            </th>
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+            <tr class="row">
+
+                <td align="right" class="tt">
+                    @item["TT"]
+                </td>
+                <td class="style">
+                    @Html.Raw(Global.Commons.ConvertToBool(item["Sent"]) ? "<span style='color:green'>Đã ra cổng</span>" : "<span style='color:red'>Chưa ra cổng</span>")
+                </td>
+                <td align="right">
+                    @item["Q2"]
+                </td>
+                <td align="right">
+                    @item["Q3"]
+                </td>
+            </tr>
+        }
+        <tr id="total">
+
+            <th colspan="2" style="text-align:center">Tổng cộng</th>
+            <th>
+
+            </th>
+
+            <th>
+
+            </th>
+
+        </tr>
+    </table>
+
+
+    <table id="bao" class="data" cellpadding="5" cellspacing="0" border="1">
+        <tr>
+            <th>
+                TT
+            </th>
+            <th align="left">
+                Tình trạng bao
+            </th>
+            <th align="right">
+                Hàng
+            </th>
+            <th align="right">
+                Túi xốp
+            </th>
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data1)
+        {
+            <tr class="row">
+
+                <td align="right" class="tt">
+                    @item["TT"]
+                </td>
+                <td class="style">
+                    @Html.Raw(Global.Commons.ConvertToBool(item["Sent"]) ? "<span style='color:green'>Đã ra cổng</span>" : "<span style='color:red'>Chưa ra cổng</span>")
+                </td>
+                <td align="right">
+                    @item["Q2"]
+                </td>
+                <td align="right">
+                    @item["Q3"]
+                </td>
+            </tr>
+        }
+        <tr id="total1">
+
+            <th colspan="2" style="text-align:center">Tổng cộng</th>
+            <th>
+
+            </th>
+
+            <th>
+
+            </th>
+
+        </tr>
+    </table>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var arr = $("#thung").find(".row").get();
+            for (var i = 0; i < arr.length; i++) {
+                $(arr[i]).addClass("row" + (i % 2));
+            }
+            arr = $("#bao").find(".row").get();
+            for (var i = 0; i < arr.length; i++) {
+                $(arr[i]).addClass("row" + (i % 2));
+            }
+            arr = $(".data").find("td").get();
+            for (var i = 0; i < arr.length; i++) {
+                if ($.trim($(arr[i]).text()) == "0")
+                    $(arr[i]).html("");
+            }
+            summaryall();
+        });
+        function summaryall() {
+            var ttt = new Array();
+            ttt = [0, 0, 0, 0];
+            var arr = $("#thung").find(".row").get();
+            for (var i = 0; i < arr.length; i++) {
+
+                var tsc = $(arr[i]).find("td").get();
+                for (var j = 2; j < tsc.length; j++) {
+                    if (isNaN($(tsc[j]).text()) == false && $(tsc[j]).text() != "")
+                        ttt[j] += parseInt($(tsc[j]).text());
+
+                }
+            }
+            for (var i = 2; i < 4; i++) {
+                $("#total th:eq(" + (i - 1) + ")").html(ttt[i]);
+            }
+            tt = new Array();
+            ttt = [0, 0, 0, 0];
+            var arr = $("#bao").find(".row").get();
+            for (var i = 0; i < arr.length; i++) {
+
+                var tsc = $(arr[i]).find("td").get();
+                for (var j = 2; j < tsc.length; j++) {
+                    if (isNaN($(tsc[j]).text()) == false && $(tsc[j]).text() != "")
+                        ttt[j] += parseInt($(tsc[j]).text());
+
+                }
+            }
+            for (var i = 2; i < 4; i++) {
+                $("#total1 th:eq(" + (i - 1) + ")").html(ttt[i]);
+            }
+        }
+    </script>
+
+}
+
+else
+{
+    <div class="largecontent">
+        <p>
+            <strong>
+                Outbound ngoài
+            </strong>
+
+        </p>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+            <p>
+                Bao : @item["Bag"]
+            </p>
+            <p>
+                Thùng : @item["Box"]
+            </p>
+            <p>
+                Hàng : @(Convert.ToInt32(item["TotalQuantity"]) - Convert.ToInt32(item["BX"]))
+
+            </p>
+            <p>
+                Túi xốp : @Convert.ToInt32(item["BX"])
+
+            </p>
+        }
+    </div>
+
+}

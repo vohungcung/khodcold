@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Chọn vị trí";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    .txt{
+        text-transform:uppercase;
+    }
+</style>
+
+
+<p style="text-align:center">
+    Vị trí di tạm <input type="text" class="txt" name="name" value="" />
+    
+</p>
+<p style="text-align:center">
+    <input type="button" id="pos" name="name" value="Di và tái tạo phiếu xuất mới" />
+</p>
+<script>
+    $(document).ready(function () {
+        $("#pos").click(function () {
+            reinstall();
+
+        })
+    })
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function reinstall() {
+        if ($(".txt").val() == "") {
+            alert('Bạn chưa nhập vị trí');
+            $(".txt").focus();
+            return;
+        }
+        if ($(".txt").val().toUpperCase() == "XUATTHANG") {
+            alert('Vị trí này không hợp lệ');
+            $(".txt").focus();
+            return;
+        }
+        if ($(".txt").val().toUpperCase() == "KEMPHAM") {
+            alert('Vị trí này không hợp lệ');
+            $(".txt").focus();
+            return;
+        }
+        $("#pos").hide();
+        $.post('/admin/reinstall', {
+            VoucherID: '@Request.QueryString["id"]',
+            LocationTo: $(".txt").val().toUpperCase()
+        }, function (result) {
+            if (result.success) {
+                alert('Khởi tạo thành công');              
+                parent.location = '/admin/sx?id=' + result.VoucherID;
+                $("#pos").show();
+            } else {
+               
+                alert(result.errorMsg);
+                $("#pos").show();
+            }
+        }, 'json');
+
+
+    }
+
+</script>

@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Trang chủ admin";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style type="text/css">
+
+    .header {
+        background-color: #544636;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#default").addClass("menuselect");
+
+    })
+</script>
+<h1>Thành công</h1>
+@ViewBag.Message
+<img src="~/Images/background.jpg" style="width: 100%" />

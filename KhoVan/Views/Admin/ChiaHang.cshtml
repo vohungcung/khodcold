@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Chia hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+
+
+    $(window).load(function () {
+        $("#chiahang").addClass("menuselect");
+        $("#voucherid").focus();
+        $('#voucherid').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                gotovoucher();
+            }
+        });
+
+    })
+    function gotovoucher() {
+        if ($('#voucherid').val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập số phiếu");
+            $('#voucherid').focus();
+            return;
+        }
+        $.post('/admin/CheckVoucherExists', {
+            VoucherID: $('#voucherid').val()
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                location = "/admin/chiahang1?id=" + $.trim($('#voucherid').val());
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+            }
+        }, 'json');
+
+
+    }
+</script>
+<h1>
+    Chia hàng
+</h1>
+<p>
+    Số phiếu <input type="text" name="name" id="voucherid" value="" />
+    <input type="button" name="name" value="Bắt đầu" onclick="gotovoucher()" />
+</p>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/uhoh.mp3" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+</script>

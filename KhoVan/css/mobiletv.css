@@ -1,0 +1,133 @@
+
+@media (max-width: 1020px) {
+}
+
+.forshowinmobile {
+    display: none;
+}
+
+.forshowinmobile1 {
+    display: none;
+}
+
+.w914 {
+    display: none;
+}
+
+@media (max-width: 914px) {
+    .w914 {
+        display: block;
+    }
+
+    .forshowinmobile1 {
+        display: block;
+    }
+
+    .producte {
+        width: 30%;
+        margin: 1.66%;
+    }
+}
+
+@media (max-width: 850px) {
+
+    .profile .col1 {
+        width: 200px;
+    }
+
+    .profile .col2 {
+        width: 400px;
+    }
+
+    .profile .txt {
+        width: 360px;
+    }
+
+    .choose {
+        clear: both;
+    }
+}
+
+@media (max-width: 700px) {
+}
+
+@media (max-width: 800px) {
+    .info {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .mdi-menu {
+        display: block;
+        font-size: 40px;
+        float: right;
+        clear: both;
+        margin: 0;
+        padding: 0;
+        margin-right: 10px;
+    }
+
+    .left {
+        display: none;
+        background-color: #000;
+        width: 100%;
+        color: #fff;
+    }
+
+        .left .mdi-folder, .left .mdi-folder-upload,.left .mdi-reply,.left .mdi-book-open {
+            display: none;
+        }
+
+        .left a {
+            color: #FFF;
+        }
+
+        .left .dir {
+            border-bottom: 1px solid whitesmoke;
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+
+        .left .dirselect {
+            border-radius: 0;
+            background-color: transparent;
+        }
+
+            .left .dirselect a {
+                color: yellow;
+            }
+
+    .right {
+        width: 100%;
+    }
+
+    .show {
+        display: block;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .producte {
+        width: 100%;
+        margin: 0;
+        margin-top: 10px;
+        padding: 0;
+    }
+
+
+    .producte {
+        width: 45%;
+        margin: 2.5%;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .producte {
+        width: 90%;
+        margin-left: 5%;
+    }
+}

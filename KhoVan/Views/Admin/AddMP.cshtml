@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "Nhập danh sách mã hàng";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<style>
+    form{
+        padding-right:6px;
+    }
+</style>
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<h1>
+    Import pallet
+</h1>
+<table style="width:100%;background-color:navy;color:#FFF" cellpadding="10" cellspacing="0">
+    <tr>
+        <td colspan="3" style="text-align:center;font-style:italic">
+            Vui lòng dán đúng cấu trúc như bên dưới
+        </td>
+    </tr>
+    <tr>
+        <th style="text-align:left">Mã hàng</th>
+        <th style="text-align:center">Số lượng</th>
+        <th style="text-align:center">Vị trí</th>
+        <th style="text-align:right">Diễn giải</th>
+    </tr>
+</table>
+@using (Html.BeginForm())
+{
+    @Html.TextArea("ItemID", new { @style = "width:100%;height:200px" });
+    <p style="text-align: center">
+        <input type="button" id="choosebutton" name="name" value="Nhập" onclick="importexcel()" />
+        <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+    </p>
+  
+}
+<script>
+    function closew() {
+        parent.tcboxclose();
+      
+    }
+    function importexcel() {
+        $("#choosebutton").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/Add_P', { text: $("#ItemID").val().toUpperCase()}, function (result) {
+
+            if (result.success) {
+                alert(result.msg);
+                parent.location = parent.location;
+            } else {
+
+                alert(result.errorMsg);
+                $("#choosebutton").show();
+                $("#ms").html("");
+             
+            }
+        }, 'json');
+
+
+    }
+</script>

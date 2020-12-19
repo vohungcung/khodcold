@@ -1,0 +1,142 @@
+﻿.colable {
+    font-weight: bold;
+}
+
+.bt {
+    width: 120px;
+    height: 20px;
+}
+
+.tt {
+    width: 30px
+}
+
+.sp {
+    display: none;
+}
+
+.thieuhang {
+}
+
+input[type=text] {
+    text-transform: none;
+    font-size: 10px;
+    height:18px;
+    text-indent:5px;
+}
+
+.divch {
+    width: 20%;
+    float: left;
+    border: 1px solid #666;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    font-size: 9px;
+}
+
+    .divch .data {
+        clear: both;
+        width: 100%;
+        overflow: auto;
+    }
+
+.outbound {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    clear: both;
+    cursor: pointer;
+}
+
+.stt {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+}
+
+.k1 {
+    width: 98%;
+    float: left;
+    margin-left: 1%;
+    clear: both;
+}
+
+.hl {
+    color: #FFF;
+    background-color: #FE0000;
+}
+
+.dh {
+    background-color: green;
+    color: #FFF;
+}
+
+.txtq {
+    width: 40%;
+    text-align: right;
+}
+
+.sl {
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center
+}
+
+.hli {
+    background-color: blue;
+    font-weight: bold;
+}
+
+.d1 {
+    width: 45%;
+    float: left;
+}
+
+.d2 {
+    width: 45%;
+    float: right;
+}
+
+.clear {
+    clear: both;
+}
+
+.d3 {
+    width: 10%;
+    float: left;
+    text-align: center;
+    padding-top: 70px;
+}
+
+    .d3 p {
+        text-align: center;
+    }
+
+    .d3 input {
+        width: 50%;
+        text-align: center;
+    }
+
+@media (max-width: 1200px) {
+    .d1 {
+        float: none;
+        width: 100%;
+        clear: both;
+    }
+
+    .d2 {
+        float: none;
+        width: 100%;
+        clear: both;
+    }
+
+    .d3 {
+        float: none;
+        width: 100%;
+        clear: both;
+        padding: 0;
+    }
+}

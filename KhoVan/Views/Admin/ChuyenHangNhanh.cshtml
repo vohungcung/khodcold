@@ -1,0 +1,80 @@
+﻿@{
+    ViewBag.Title = "Di hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<h1>Di hàng</h1>
+<p>
+    Vị trí cần di <input type="text" name="name" value="" id="locationid" />
+    <input type="button" name="name" value="Tiếp tục" onclick="tieptuc()" />
+</p>
+<script>
+
+    $(window).load(function () {
+        $("#dihang").addClass("menuselect");
+        $("#locationid").focus();
+        $('#locationid').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                tieptuc();
+            }
+        });
+
+    })
+    function tieptuc() {
+        if ($("#locationid").val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập vị trí");
+            return;
+        }
+
+        $.post('/admin/CheckPostLocationExists', { LocationID: $("#locationid").val() }, function (result) {
+            if (result.success) {
+                playSound();
+                location = "/admin/dihang1?id=" + $.trim($("#locationid").val().toUpperCase());
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+
+
+    }
+</script>
+<table id="dgfrom" title="Danh sách hàng" class="easyui-datagrid" selectOnCheck="true" scrollOnSelect="true"
+       ctrlSelect="true" showFooter="true"
+       style="width: 100%; height: 250px; margin: 0 auto"
+       url="/admin/get_remaindetail?id=@Request.QueryString["from"]" toolbar="#toolbar"
+       rownumbers="true" fitcolumns="true">
+    <thead>
+        <tr>
+
+            <th field="ItemID" width="100">Mã hàng</th>
+            <th field="ItemName" width="150">Tên hàng</th>
+
+            <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+            <th field="LSX" width="50">LSX</th>
+
+        </tr>
+    </thead>
+
+
+</table>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+</script>

@@ -1,0 +1,208 @@
+﻿@{
+    ViewBag.Title = "Sửa pallet";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 100px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#inputw").addClass("menuselect");
+        $(".txt").focus();
+    })
+    $(document).ready(function () {
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                postbarcode();
+            }
+        });
+        var arr = $(document).find(".rowdata").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(document).find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i+1);
+        }
+    })
+
+    function postbarcode() {
+
+
+        $.post('/admin/PostWEdit', { BarCode: $('#BarCode').val() ,PalletID:'@Request.QueryString["id"]'}, function (result) {
+            if (result.success) {
+
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+
+        $('#BarCode').val("");
+        $('#BarCode').focus();
+    }
+    function deleteitem(e) {
+        if (confirm("Bạn có chắc là bạn muốn xóa không?") == false) return;
+        var itemid = $(e).attr("itemid");
+        $.post('/admin/DeleteItemWEdit', { ItemID: itemid,PalletID:'@Request.QueryString["id"]' }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function SaveData() {
+
+        $.post('/admin/InputW', { PalletID: '@ViewBag.PalletID'}, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+    function printpallet() {
+        open("printpallet?id=@ViewBag.PalletID");
+    }
+
+    
+   
+
+
+
+
+</script>
+<h1>
+    Nhập pallet
+</h1>
+
+<table cellpadding="10" cellspacing="0">
+    <tr>
+        <td class="colable">
+            TT
+        </td>
+        <td>
+            :
+            @ViewBag.OrderNo
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="colable">
+            Ngày
+        </td>
+        <td>
+            :
+            @ViewBag.CreateDate
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="colable">
+            PalletID
+        </td>
+        <td>
+            :
+            @ViewBag.PalletID
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="colable">Mã vạch</td>
+        <td>
+            :
+            <input type="text" name="BarCode" id="BarCode" value="" class="txt BarCode" />
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr class="theader">
+        <td>TT</td>
+        <th>
+            Mã sản phẩm
+        </th>
+        <th>
+            Diễn giải
+        </th>
+        <th>
+            ĐVT
+        </th>
+        <th>
+            Số lượng
+        </th>
+        <td></td>
+    </tr>
+    @foreach (MvcApplication5.Controllers.CC item in ViewBag.data)
+    {
+        <tr class="rowdata">
+            <td class="tt"></td>
+            <td>
+                @item.i
+            </td>
+            <td>
+                @item.d
+            </td>
+            <td>
+                @item.u
+            </td>
+            <td style="text-align:right">
+                @item.q.ToString("N0")
+            </td>
+            <td>
+                <a href="javascript:void(0)" itemid="@item.i" onclick="deleteitem(this)">Xóa</a>
+
+            </td>
+        </tr>
+    }
+    <tr>
+        <td colspan="5" style="text-align:center">
+            <input type="button" onclick="SaveData()" class="bt" name="SaveData" value="Lưu lại" />
+            <input type="button" onclick="location='/admin/inputw'" class="bt" name="pallet" value="Tạo pallet mới" />
+            @if (Global.Commons.fBrowserIsMobile() == false)
+            {
+                <input type="button" name="In" value="In" onclick="printpallet()" class="bt" />
+            }
+
+        </td>
+
+    </tr>
+</table>

@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "Xác thực vị trí đặt pallet";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .txt {
+        width: 99%;
+        height: 25px;
+        text-indent: 10px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+
+    .cf {
+        width: 100px;
+        height: 25px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+    $(window).load(function () {
+
+        $("#pallet").focus();
+
+        $('#pallet').keypress(function (event) {
+
+            if (event.keyCode === 10 || event.keyCode === 13) {
+
+                $("#vt").focus();
+
+            }
+        });
+        $('#vt').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+
+                $(".cf").focus();
+
+            }
+        });
+    })
+    $(document).ready(function () {
+        $("#xn").click(function () {
+            $.post('/admin/xnvt', { PalletID: $("#pallet").val(), Location: $("#vt").val() }, function (result) {
+                if (result.success) {
+                    playSound();
+                    alert(result.msg);
+                    location = location;
+
+                } else {
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                    playSound1();
+
+                }
+            }, 'json');
+        })
+
+
+
+        $("#btxthl").click(function () {
+            $.post('/admin/ConfirmAll', { sList: $("#xthl").val() }, function (result) {
+                if (result.success) {
+                    playSound();
+                    alert(result.msg);
+                    location = location;
+
+                } else {
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                    playSound1();
+
+                }
+            }, 'json');
+        })
+    })
+
+</script>
+<h1>
+    Xác thực vị trí đặt pallet
+</h1>
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+
+
+        <td>
+
+            <input type="text" id="pallet" class="txt" placeholder="Nhập pallet" name="name" value="" />
+
+        </td>
+    </tr>
+
+    <tr>
+
+
+        <td>
+
+            <input type="text" name="name" class="txt" id="vt" placeholder="Vị trí" value="" />
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center">
+            <input type="button" name="name" class="cf" value="Xác nhận" id="xn" />
+        </td>
+    </tr>
+
+</table>
+@if (Global.GlobalVariables.IsAdmin)
+{
+    <table style="width:100%" cellpadding="5" cellspacing="0">
+
+
+
+        <tr>
+            <td style="text-align:center">
+                <textarea id="xthl" placeholder="Pallet cần xác thực hàng loạt cách nhau bằng xuống dòng" style="text-align:center;width:100%;height:100px">
+
+</textarea>
+                <br />
+                <input id="btxthl" type="button" name="name" value="Xác thực hàng loạt" />
+            </td>
+
+        </tr>
+
+    </table>}
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    $("#xthl").val("");
+    $("#xcvt").addClass("menuselect");
+
+</script>

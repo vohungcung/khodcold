@@ -1,0 +1,86 @@
+﻿@{
+    ViewBag.Title = "In vị trí có tùy chọn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .ltxt {
+        width: 250px;
+        height: 200px;
+        text-indent: 10px;
+        text-align:left;
+        vertical-align:top;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#printoptionlocation").addClass("menuselect");
+
+    })
+    function printoption() {
+        $.post('/admin/SaveDataLocationToPrint', {L:$("#pos").val()}, function (result) {
+            if (result.success) {
+                
+                location = "printl";
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+
+    function exportexcel() {
+        $.post('/admin/SaveDataLocationToExport', { L: $("#pos").val() }, function (result) {
+            if (result.success) {
+
+                location = "ExportL";
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+    }
+</script>
+<h1>
+    In tùy chọn vị trí
+</h1>
+<p>
+    <textarea id="pos" class="ltxt">
+    
+</textarea>
+    <input type="button" name="name" value="In" onclick="printoption()" />
+    <input type="button" name="name" value="Export" onclick="exportexcel()" />
+</p>

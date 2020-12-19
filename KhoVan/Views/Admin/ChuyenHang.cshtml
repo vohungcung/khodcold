@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "Di hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style><h1>Di hàng theo vị trí</h1>
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>Vị trí cần di</td>
+        <td>
+            <input type="text" name="name" value="" id="lfrom" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Vị trí cần đến
+        </td>
+
+        <td>
+            <input type="text" name="name" value="" id="lto" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+
+        </td>
+        <td>
+            <input type="button" name="name" value="Tiếp tục" onclick="tieptuc()" />
+        </td>
+    </tr>
+</table>
+
+<script>
+
+    $(window).load(function () {
+        $("#dihang").addClass("menuselect");
+        $("#lfrom").focus();
+        $('#lfrom').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                $('#lto').focus();
+            }
+        });
+        $('#lto').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                tieptuc();
+            }
+        });
+    })
+    function tieptuc() {
+        if ($("#lfrom").val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập vị trí di");
+            return;
+        }
+        if ($("#lto").val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập vị trí đến");
+            return;
+        }
+        if ($("#lfrom").val() == $("#lto").val()) {
+            alert("Vị trí di và vị trí đến phải khác nhau");
+            return;
+        }
+        $.post('/admin/CheckPostLocationExists', { LocationIDFrom: $("#lfrom").val(), LocationIDTo: $("#lto").val()}, function (result) {
+            if (result.success) {
+                playSound();
+                var l = "/admin/phieudihang?from=" + $("#lfrom").val().toUpperCase();
+                l += "&to=" + $("#lto").val().toUpperCase();
+                l += "&id=" + result.VoucherID;
+
+                location = l;
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+
+
+    }
+</script>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+</script>

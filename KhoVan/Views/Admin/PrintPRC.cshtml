@@ -1,0 +1,461 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "In phiếu ra cổng";
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+<link href="~/css/tv.css?v=1" rel="stylesheet" />
+<style>
+    html {
+        background-color: #FFF;
+    }
+
+    body {
+        width: 21cm;
+        margin: 0 auto;
+        font-family: Arial;
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .content {
+    }
+
+    .clear {
+        clear: both
+    }
+
+    .pallet {
+        width: 200px;
+        height: 80px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .page-break {
+        display: block;
+        page-break-before: always;
+    }
+
+    .hd {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .hd p {
+            margin-top: 0;
+        }
+
+        .hd h1, .hd h2, .hd p {
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        .hd td {
+            vertical-align: top;
+        }
+
+    .content {
+        width: 100%;
+    }
+</style>
+@foreach (System.Data.DataRow item in ViewBag.data)
+{
+    <table cellpadding="5" cellspacing="0" class="hd" border="1">
+        <tr>
+            <td style="width:33%" align="center">
+                <img src="~/Images/logobitis.png" />
+
+            </td>
+            <td style="width:33%" align="center">
+                <h1>
+                    PHIẾU RA CỔNG
+                </h1>
+                <h2>
+                    Số phiếu: @Request.QueryString["id"]
+                </h2>
+
+            </td>
+            <td style="width:33%">
+                <p>
+                    Trung tâm/chi nhánh:
+                    @Global.GlobalVariables.DivisionName
+                </p>
+
+                <p>
+                    Đơn vị: BAN KH & QLBH
+                </p>
+                <p>
+                    Ngày: @DateTime.Now.ToString("dd/MM/yyyy")
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <table cellpadding="10" cellspacing="0" class="content" border="0">
+        <tr>
+            <td>
+                <strong>
+                    Họ tên người nhận hàng
+                </strong>
+            </td>
+            <td>
+                : @item["Receiver"]
+            </td>
+            <td>
+                <strong>
+                    Biển số
+                </strong>
+
+            </td>
+            <td>
+                : @item["SX"]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>
+                    Phương tiện vận chuyển
+                </strong>
+            </td>
+            <td>
+                : @item["TruckType"]
+            </td>
+            <td>
+                <strong>
+                    Nhà vận chuyển
+                </strong>
+
+            </td>
+            <td>
+                : @item["NVCName"]
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <strong>
+                    Kho giao hàng
+                </strong>
+
+            </td>
+            <td>
+                : @item["WareHouse"]
+            </td>
+            <td>
+                <strong>
+                    Đơn giá
+                </strong>
+
+            </td>
+            <td>
+                : @Global.Commons.ConvertToDecimal(item["Price"]).ToString("N0")
+
+                VNĐ/M3
+            </td>
+        </tr>
+        <tr>
+
+            <td>
+                <strong>
+                    Giờ ra cổng
+                </strong>
+            </td>
+            <td>
+                : @item["OutputTime"]
+            </td>
+            <td>
+                <strong>
+                    Tổng số
+                </strong>
+
+            </td>
+            <td>
+                : @Global.Commons.ConvertToDecimal(item["M3"]).ToString("N2")
+                M3
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>
+                    Nội dung
+                </strong>
+
+            </td>
+            <td>
+                : @item["Content"]
+            </td>
+            <td>
+                <strong>
+                    Tổng số tiền
+                </strong>
+
+            </td>
+            <td>
+                : @Global.Commons.ConvertToDecimal(item["TotalAmount"]).ToString("N0") VNĐ
+            </td>
+        </tr>
+    </table>
+
+
+    <table cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse" border="1">
+        <tr>
+            <th rowspan="2">Tên đối tượng</th>
+            <th rowspan="2">Địa chỉ khách hàng</th>
+            <th rowspan="2">Số billing</th>
+            <th rowspan="2">Số chứng từ</th>
+            <th rowspan="2">Số lượng</th>
+            <th colspan="2">Số kiện</th>
+            <th rowspan="2">
+                Ghi chú
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Thùng
+            </td>
+            <td>
+                Bao
+            </td>
+        </tr>
+
+        @foreach (System.Data.DataRow r in ViewBag.datact)
+        {
+            <tr>
+
+                <td style="width:150px">
+                    @r["CustomerName"]
+                </td>
+                <td style="width:150px">
+                    @r["Address"]
+                </td>
+                <td>
+                    @r["STO"]
+                </td>
+                <td class="ob">
+                    @r["OB"]
+                </td>
+                <td align="right" class="TotalQuantityCT">
+                    @Global.Commons.ConvertToDecimal(r["TotalQuantityCT"]).ToString("N0")
+                </td>
+                <td align="right" class="box">
+                    @Global.Commons.ConvertToDecimal(r["Box"]).ToString("N0")
+                </td>
+                <td align="right" class="bag">
+                    @Global.Commons.ConvertToDecimal(r["Bag"]).ToString("N0")
+                </td>
+                <td>
+                    @r["Note"]
+                </td>
+            </tr>
+        }
+        <tr style="font-weight:bold">
+            <td colspan="3" align="center">
+                Tổng cộng
+            </td>
+            <td align="right"><span id="ob"></span></td>
+            <td align="right"><span id="TotalQuantityCT"></span></td>
+            <td align="right">
+                <span id="box">                </span>
+            </td>
+            <td align="right"><span id="bag"></span></td>
+            <td></td>
+        </tr>
+
+
+        <Tr>
+            <td colspan="8">
+                <p style="font-weight:bold">
+                    *  Thông tin hàng hoá rớt tái đi giao :
+
+                </p>
+                <p style="margin-left:20px">
+                    + Số lượng bao : @item["MBag1"]
+                </p>
+                <p style="margin-left:20px">
+                    + Số lượng thùng : @item["MBox1"]
+                </p>
+                <p style="margin-left:20px">
+                    + Số lượng khách hàng : @item["MC"]
+                </p>
+                <p style="margin-left:20px">
+                    +  Đính kèm biên bản xác nhận hàng rớt lại và tái tiếp tục giao hàng: @item["BB"]
+                </p>
+                <p style="font-weight:bold">
+                    *  Tổng số hàng đi giao trên xe :
+
+                </p>
+                <p style="margin-left:20px">
+                    +  Số lượng bao:
+
+
+                </p>
+                <p style="margin-left:20px">
+                    +  Số lượng thùng:
+
+                </p>
+                <p style="font-weight:bold">
+                    *  Thông tin khác :
+
+                </p>
+                <p style="margin-left:20px">
+                    +  @item["Description"]
+                </p>
+            </td>
+
+        </Tr>
+    </table>
+    <table cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%" border="1">
+        <tr>
+            <td style="width:33%">
+                <p style="text-align:center;font-weight:bold">
+                    TỔ BẢO VỆ
+                </p>
+                <p>
+                    Họ và tên: ...............
+                </p>
+                <p>
+                    Ngày: ..../..../....
+                </p>
+            </td>
+            <td style="width:33%">
+                <p style="text-align:center;font-weight:bold">
+                    NGƯỜI NHẬN HÀNG
+                </p>
+                <p>
+                    Họ và tên: ...............
+                </p>
+                <p>
+                    Ngày: ..../..../....
+                </p>
+
+            </td>
+            <td style="width:33%">
+                <p style="text-align:center;font-weight:bold">
+                    BỘ PHẬN GIÁM SÁT
+                </p>
+
+                <p>
+                    Họ và tên: ...............
+                </p>
+                <p>
+                    Ngày: ..../..../....
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:33%">
+                <p style="text-align:center;font-weight:bold">
+                   BAN GIÁM ĐỐC
+                </p>
+                <p>
+                    Họ và tên: ...............
+                </p>
+                <p>
+                    Ngày: ..../..../....
+                </p>
+            </td>
+            <td style="width:33%">
+                <p style="text-align:center;font-weight:bold">
+                   KẾ TOÁN HÀNG HOÁ
+                </p>
+                <p>
+                    Họ và tên: ...............
+                </p>
+                <p>
+                    Ngày: ..../..../....
+                </p>
+
+            </td>
+            <td style="width:33%">
+                <p style="text-align:center;font-weight:bold">
+                    BỘ PHẬN KHO
+                </p>
+
+                <p>
+                    Họ và tên: ...............
+                </p>
+                <p>
+                    Ngày: ..../..../....
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div style="width:100%;height:200px">
+
+                </div>
+            </td>
+        </tr>
+    </table> 
+}
+<p style="font-weight:bold">
+    Ghi chú: 
+    
+</p>
+<p style="font-weight:bold">
+    - Phiếu ra cổng chỉ sử dụng cho một lần ra cổng và có giá trị sử dụng trong ngày.
+</p>
+<p style="font-weight:bold">
+    - Đối với nhà máy : Phiếu ra cổng có giá trị sử dụng trong 2 ngày(kể từ ngày ký).
+
+</p>
+<p style="font-weight:bold">
+    - Lập thành 3 bản có đủ chữ ký ghi rõ họ và tên . Lưu bảo vệ (01), kho (01), giao nhận(01).
+</p>
+<p style="text-align:right;font-weight:bold;margin-right:100px;margin-bottom:100px">
+    @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+</p>
+<script type="text/javascript">
+    function val(e) {
+        e = e + "";
+        var v = "";
+        
+        for (var i = 0; i < e.length; i++) {
+            if (e.charAt(i) >= '0' && e.charAt(i) <= '9')
+                v += e.charAt(i);
+        }
+
+        if (isNaN(v) == true) return 0;
+        return parseInt(v);
+    }
+    $(document).ready(function () {
+        var arr = $(".TotalQuantityCT").get();
+       
+        var TotalQuantityCT = 0;
+        for (var i = 0; i < arr.length; i++) {
+            TotalQuantityCT += val($(arr[i]).text());
+        }
+       
+        $("#TotalQuantityCT").html(TotalQuantityCT);
+
+        arr = $(".box").get();
+        var box = 0;
+        for (var i = 0; i < arr.length; i++) {
+            box += val($(arr[i]).text());
+        }
+        $("#box").html(box);
+        arr = $(".bag").get();
+        var bag = 0;
+        for (var i = 0; i < arr.length; i++) {
+            bag += val($(arr[i]).text());
+        }
+        $("#bag").html(bag);
+
+        arr = $(".ob").get();
+        $("#ob").html(arr.length);
+
+
+    })
+
+</script>

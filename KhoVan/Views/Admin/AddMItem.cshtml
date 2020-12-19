@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "Nhập danh sách mã hàng";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<script src="~/Scripts/lib.js?v=1"></script>
+<h2>
+    Nhập danh sách mã hàng, số lượng hoặc danh sách outbound  
+</h2>
+@using (Html.BeginForm())
+{
+
+    <textarea id="ItemID" style="width:100%;height:300px;text-align:center" placeholder="Mã hàng | Số lượng hoặc danh sách đầu 8"></textarea>
+    <p style="text-align: center">
+        <input type="button" id="choosebutton" name="name" value="Xuất excel" onclick="doreport()" />
+        <input type="button" id="choosebutton2" name="name" value="Xuất excel mẫu số 2" onclick="doreport2()" />
+        <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+    </p>
+
+}
+<script>
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    function doreport() {
+        if (checkdulicaterow($("#ItemID").val()) == false)
+            return;
+
+        $("#choosebutton,#choosebutton2").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/add_List', { sList: $("#ItemID").val() }, function (result) {
+            $("#choosebutton,#choosebutton2").show();
+            if (result.success) {
+            
+                open("/admin/bcchamhangbidong");
+            } else {
+
+                alert(result.errorMsg);
+                  $("#ms").html("");
+
+            }
+        }, 'json');
+
+
+    }
+    function doreport2() {
+        if (checkdulicaterow($("#ItemID").val()) == false)
+            return;
+
+        $("#choosebutton,#choosebutton2").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+
+        $.post('/admin/add_List', { sList: $("#ItemID").val() }, function (result) {
+            $("#choosebutton,#choosebutton2").show();
+            if (result.success) {
+
+                open("/admin/bcchamhangbidong2");
+            } else {
+
+                alert(result.errorMsg);
+                $("#ms").html("");
+
+            }
+        }, 'json');
+
+
+    }
+</script>

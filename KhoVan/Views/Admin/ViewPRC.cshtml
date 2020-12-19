@@ -1,0 +1,259 @@
+﻿@{
+    ViewBag.Title = "Danh sách phiếu ra cổng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(window).load(function () {
+        $("#vprc").addClass("menuselect");
+
+    })
+
+</script>
+<h1>
+    Danh sách phiếu ra cổng
+</h1>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none;">
+    <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["from"]">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["to"]">
+</div>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" labelWidth="150" class="keyword easyui-searchbox" label="Chứng từ/NV" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+        var key = $(".keyword").val();
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        location = "/admin/ViewPRC?key=" + key + "&from=" + fromdate + "&to=" + todate;
+    }
+    $('.fromdate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+    $('.todate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+
+</script>
+<div class="clear">
+</div>
+<div id="message">
+
+</div>
+<div class="clear">
+
+
+</div>
+<table id="dg" title="Danh sách phiếu ra cổng: @ViewBag.Count" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 550px; margin: 0 auto" url="/admin/get_prc?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&page=@Request.QueryString["page"]&key=@Request.QueryString["key"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="VoucherDate" width="130" data-options="align:'center'">Ngày </th>
+            <th field="Title" width="130" data-options="align:'center'">Ghi chú </th>
+            <th field="PRCID" width="130" data-options="align:'center'">Số phiếu </th>
+            <th field="OBCount" width="130" data-options="align:'center'">Số outbound </th>
+            <th field="Q2" width="130" data-options="align:'right'">SL sản phẩm </th>
+            <th field="Q3" width="130" data-options="align:'right'">SL túi xốp </th>
+            <th field="SX" width="100" data-options="align:'center'">Số xe</th>
+            <th field="NVGH" width="150" data-options="align:'center'">Nhân viên giao hàng</th>
+
+            <th field="NV" width="100" data-options="align:'center'">Nhân viên lập</th>
+            <th field="Finished" width="100" data-options="align:'center'">Hoàn thành </th>
+            <th field="Locked" width="100" data-options="align:'center'">Khoá </th>
+
+
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportexcel()">Xuất sang excel</a>
+    @if (Global.Commons.CheckPermit("lockprc"))
+    {
+        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="lockprc()"> | Khoá</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="unlockprc()"> | Mở khoá | </a>
+
+    }
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center id="phantrang">
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+       var arr= $("#phantrang").find("a").get();
+       for (var i = 0; i < arr.length; i++) {
+           var link = $(arr[i]).attr("href")+"";
+           link = link.replace("ViewPRCs", "ViewPRC");
+           $(arr[i]).attr("href", link);
+       }
+    })
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1() {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa phiếu này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/DeletePRC', { PRCID: row.PRCID }, function (result) {
+
+                        if (result.success) {
+                            playSound();
+                            alert('Đã xóa thành công');
+
+                            location = location;
+
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+
+
+    var url;
+
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            url = '/admin/RaCong?id=' + row.PRCID;
+            location = url;
+        }
+    }
+    $(document).ready(function () {
+
+        getsummaryinfo();
+    });
+    function exportexcel() {
+        var url = "/admin/ExportPRC?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&key=@Request.QueryString["key"]";
+        location = url;
+    }
+
+    function lockprc() {
+        var ob = prompt("Nhập số phiếu cần khoá", '');
+        if (ob != null)
+            if (isNaN(ob) == true) {
+                playSound1();
+                alert('Số phiếu không hợp lệ');
+
+            }
+            else {
+                $.post('/admin/LockPRC', { PRCID: ob }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+                        location = location;
+
+                    } else {
+
+                        playSound1();
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    }
+                }, 'json');
+            }
+
+    }
+    function unlockprc() {
+        var ob = prompt("Nhập số phiếu cần mở", '');
+        if (ob != null)
+            if (isNaN(ob) == true) {
+                playSound1();
+                alert('Số phiếu không hợp lệ');
+
+            }
+            else {
+                $.post('/admin/UnLockPRC', { PRCID: ob }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+                        location = location;
+
+                    } else {
+
+                        playSound1();
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    }
+                }, 'json');
+            }
+
+    }
+    function getsummaryinfo() {
+        $.post('/admin/GetPRCSummaryInfo', null, function (result) {
+            if (result.success) {
+                $("#message").html(result.msg);
+
+            } else {
+                $("#message").html(result.errorMsg);
+            }
+        }, 'json');
+    }
+    function ShowPRCNotFinished() {
+        showtc('/admin/ShowPRCNotFinished', 600, 400);
+    }
+    function ShowPRCNotLocked() {
+        showtc('/admin/ShowPRCNotLocked', 600, 400);
+    }
+</script>

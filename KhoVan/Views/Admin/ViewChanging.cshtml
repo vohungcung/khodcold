@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Import";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        width: 100%;
+        height: 25px;
+        text-align: center;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        text-align: center;
+    }
+
+    th {
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .row1 {
+        background-color: #DDD;
+    }
+    .khungchua{
+        height:300px;
+        overflow:auto;
+    }
+</style>
+<h1>
+   Xem nội dung thay đổi của phiếu lấy hàng @Request.QueryString["id"]
+</h1>
+<div class="khungchua">
+    <table cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse" class="data" border="1">
+        <tr>
+            <th>TT</th>
+
+            <th>
+                Mã hàng
+
+            </th>
+            <th>
+                Vị trí
+
+            </th>
+            <th>
+                Trước
+            </th>
+            <th>
+                Sau
+            </th>
+            <th>
+                Ghi chú
+            </th>
+
+        </tr>
+        @foreach (System.Data.DataRow item in ViewBag.data)
+        {
+        <tr class="row">
+            <td class="tt"></td>
+
+            <td>
+                @item["ItemID1"]
+            </td>
+            <td>
+                @item["Location1"]
+            </td>
+            <td align="right">
+                @Convert.ToInt32(item["BeforeValue"]).ToString("N0")
+
+            </td>
+            <td align="right">
+                @Convert.ToInt32(item["AfterValue"]).ToString("N0")
+
+            </td>
+            <td align="center">
+                @Html.Raw( item["Note"])
+            </td>
+
+        </tr>
+        }
+     
+    </table>
+
+</div>
+<p>
+    <input type="button" name="name" value="Export" onclick="exportdata()"/>
+</p>
+<script>
+
+    $(document).ready(function () {
+
+        var arr = $(".data").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(".data").find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+    })
+        ;
+    function exportdata() {
+        open('/admin/ExportChanging?id=@Request.QueryString["id"]')
+    }
+</script>

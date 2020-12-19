@@ -1,0 +1,115 @@
+﻿@{
+
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+@using (Html.BeginForm())
+{
+    <table border="0" cellpadding="10" cellspacing="0">
+        <tr>
+            <td colspan="2" align="center" style="background-color: #C5161D">
+                <h1>Đăng nhập hệ thống</h1>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="color: red">
+                @ViewBag.Message
+
+            </td>
+        </tr>
+        <tr style="display:none">
+            <td align="right">
+                Chi nhánh
+            </td>
+            <td>
+
+                <select name="CN" style="width:213px" class="txt">
+                    <option value="CNMN" selected="selected">Miền Nam</option>
+                    <option value="CNMB">Miền Bắc</option>
+                </select>
+
+            </td>
+        </tr>
+
+        <tr>
+            <td align="right">
+                Tên đăng nhập
+            </td>
+            <td>
+
+                @Html.TextBox("username", null, new { @class = "txt", @autocomplete = "off" })
+
+            </td>
+        </tr>
+        <tr>
+            <td align="right">
+                Mật khẩu
+            </td>
+            <td>
+                @Html.Password("password", null, new { @class = "txt", @autocomplete = "new-password" })
+
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="checkbox" id="remember1" value="remember1" name="remember1" />
+                <label for="remember1">
+                    Nhớ mật khẩu đăng nhập
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" name="login" id="login" value="Đăng nhập" />
+            </td>
+        </tr>
+    </table>
+}
+
+<script>
+    function setCookie(key, value) {
+        var expires = new Date();
+        expires.setTime(expires.getTime() + (1 * 24 * 60 * 60 * 1000));
+        document.cookie = key + '=' + value + ';expires=' + expires.toUTCString();
+    }
+
+    function getCookie(key) {
+        var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+        return keyValue ? keyValue[2] : null;
+    }
+
+    $(window).load(function () {
+        $("#username").focus();
+        var remember1 = getCookie("remember1");
+        var u = getCookie("u1");
+        var p = getCookie("p1");
+        if (remember1 == "true") {
+            $("#remember1").attr({ "checked": "checked" });
+            $("#username").val(u);
+            $("#password").val(p);
+
+        } else {
+            $("#username").val("");
+            $("#password").val("");
+        }
+        $("#login").click(function () {
+            remember1 = $("#remember1").is(":checked");// $.cookie("remember");
+            setCookie("remember1", remember1);
+            setCookie("u1", $("#username").val());
+            setCookie("p1", $("#password").val());
+
+            $("form:first").submit();
+        })
+        $("#password").keydown(function (e) {
+            if (e.which == 13)
+                $("#login").click();
+        })
+        $("#username").keydown(function (e) {
+            if (e.which == 13)
+                $("#password").focus();
+        })
+
+    })
+
+</script>

@@ -1,0 +1,552 @@
+﻿@{
+    ViewBag.Title = "Nhập pallet";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+
+
+    $(window).load(function () {
+        $("#inputw").addClass("menuselect");
+        $("#BarCode").focus();
+    })
+    $(document).ready(function () {
+        var c = "@Global.Commons.ConvertToInt(Request.QueryString["c"],0)";
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn chưa nhập barcode'
+                    });
+
+                    $('#BarCode').focus()
+                    return;
+                }
+
+
+
+                else {
+                    if (c == "1") {
+
+                        $('#Quantity').focus();
+                        $('#Quantity').select();
+                    } else {
+                        postbarcode();
+                    }
+
+                }
+
+
+            }
+        });
+        $('#Quantity').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                postbarcode();
+            }
+        });
+        $(".lsx:last").remove();
+        $(".ob:last").remove();
+        var arr = $(document).find(".rowdata").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(document).find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i+1);
+        }
+
+    })
+    
+    function postbarcode() {
+        if ($("#BarCode").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập barcode hoặc mã hàng'
+            });
+
+
+            $("#BarCode").focus();
+            $("#BarCode").select();
+            return;
+        }
+
+
+
+        if ($.trim($('#Quantity').val())=="") {
+            playSound1();
+           $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Số lượng không hợp lệ'
+            });
+
+            return;
+        }
+        if (isNaN($('#Quantity').val()) == true) {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Số lượng không hợp lệ'
+            });
+
+            return;
+        }
+        else
+            if (parseInt($('#Quantity').val()) <1) {
+                playSound1();
+               $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: 'Số lượng không hợp lệ'
+                });
+                return;
+            }
+        var th = 0;
+        if ($("#hangtrung").is(":checked"))
+            th = 1;
+
+        $("#BarCode,#qq").hide();
+        $.post('/admin/PostW', {
+            BarCode:$.trim( $('#BarCode').val()), PalletID: '@Request.QueryString["id"]',
+            Quantity: $('#Quantity').val(), OutBound: $("#OutBound").val(), AllowTH:0
+
+        }, function (result) {
+            $("#BarCode,#qq").show();
+            if (result.success) {
+                playSound();
+                $('#dg').datagrid('reload');
+                $("#BarCode").focus();
+                if (th == 1)
+                    $("#hangtrung").prop('checked', false);
+           
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $("#BarCode").focus();
+            }
+        }, 'json');
+
+        $('#BarCode').val("");
+        $("#Quantity").val("1");
+        $('#BarCode').focus();
+    }
+
+    function capnhatdiengiai() {
+       
+
+      
+        $.post('/admin/UpdatePalletDescription', {
+           PalletID: '@Request.QueryString["id"]',
+            diengiai: $('#diengiai').val()
+
+        }, function (result) {
+            
+            if (result.success) {
+                playSound();
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+
+            }
+        }, 'json');
+
+      
+    }
+    function ss() {
+
+
+        location = location;
+    }
+
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa dòng này?', function (r) {
+                if (r) {
+                    $.post('/admin/DeleteItemW', { LSX:row.LSX, ItemID: row.ItemID ,PalletID:'@Request.QueryString["id"]' }, function (result) {
+                        if (result.success) {
+                            playSound();
+                            alert('Đã xóa thành công');
+                            $('#dg').datagrid('reload');
+                            $("#BarCode").focus();
+                            location = location;
+
+                        } else {
+                            playSound1();
+                            alert(result.errorMsg);
+                            $("#BarCode").focus();
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+
+
+     function deletelsx(id) {
+        if (confirm("Bạn có chắc là bạn muốn xóa không?") == false) return;
+
+        $.post('/admin/DeleteLSX', { LSX: id ,PalletID:'@Request.QueryString["id"]'}, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+    }
+
+
+    function printpallet() {
+        open("printpallet?id=@ViewBag.PalletID");
+    }
+    function caculate() {
+        if (confirm("Bạn có chắc là bạn muốn xác vị trí không? Sau khi xác định vị trí hệ thống sẽ khóa pallet này và bạn sẽ không thể xóa hay sửa được") == false)
+        {
+            $("#BarCode").focus();
+            return;
+        }
+        $("#footertotal").hide();
+
+        $.post('/admin/CaculatePos', { PalletID:'@Request.QueryString["id"]'}, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                location = location;
+
+            } else {
+                playSound1();
+                $("#footertotal").hide();
+                alert(result.errorMsg);
+                location = location;
+            }
+        }, 'json');
+    }
+    function caculatetc() {
+        location = "/admin/resetw?id=@ViewBag.PalletID";
+    }
+    function showother() {
+
+        $("#ItemID").val("");
+
+        $("#Quantity").val("1");
+        if ($(".sp").is(":visible")) {
+            $(".sp").hide();
+
+        } else {
+            $(".sp").show();
+
+        }
+        if ($("#addmore").text()=="(-)")
+            $("#addmore").text("(+)");
+        else
+            $("#addmore").text("(-)");
+    }
+    function finish(e) {
+
+
+        $(e).hide();
+        $.post('/admin/FinishPallet', { PalletID:'@Request.QueryString["id"]'}, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                location = location;
+
+
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $(e).show();
+            }
+        }, 'json');
+
+
+    }
+    function movepallet() {
+        location = "/admin/movew?id=@Request.QueryString["id"]";
+    }
+    function newitem() {
+        location = "/admin/inputw";
+    }
+    function receive() {
+
+
+
+            postbarcode();
+
+
+    }
+    function gochan() {
+        var id = "@Request.QueryString["id"]";
+        location = "/admin/inputw?c=1&id=" + id;
+
+    }
+    function gole() {
+          var id = "@Request.QueryString["id"]";
+        location = "/admin/inputw?c=0&id=" + id;
+
+    }
+</script>
+<h1>
+    Nhập pallet
+</h1>
+<p>
+    <input type="radio" id="hr" onchange="gole()" name="lh" @(Global.Commons.ConvertToInt(Request.QueryString["c"], 0) == 0 ? "checked='checked'" : "") />
+    <label for="hr" style="cursor:pointer">
+
+        Hàng rời
+    </label>
+    <input id="hg" type="radio" onchange="gochan()" name="lh"
+           @(Global.Commons.ConvertToInt(Request.QueryString["c"], 0) == 0 ? "" : "checked='checked'") />
+    <label style="cursor:pointer" for="hg">Hàng gộp</label>
+    <input type="checkbox" name="name" value="" id="hangtrung" style="display:none" /> <label for="hangtrung" style="cursor:pointer;display:none">Cho phép trùng tem</label>
+</p>
+
+<table cellpadding="10" cellspacing="0">
+    <tr>
+        <td class="colable" colspan="2">
+            TT
+        </td>
+        <td colspan="4">
+            :
+            @ViewBag.OrderNo
+        </td>
+        <td class="forhideinmobile"></td>
+        <td class="forhideinmobile"></td>
+    </tr>
+    <tr>
+        <td class="colable" colspan="2">
+            Ngày
+        </td>
+        <td colspan="4">
+            :
+            @ViewBag.CreateDate
+        </td>
+        <td class="forhideinmobile" style="display:none"></td>
+        <td class="forhideinmobile" style="display:none"></td>
+    </tr>
+    <tr>
+        <td class="colable" colspan="2">
+            PalletID
+        </td>
+        <td colspan="4">
+            :
+            @ViewBag.PalletID
+        </td>
+        <td class="forhideinmobile" style="display:none"></td>
+        <td class="forhideinmobile" style="display:none"></td>
+    </tr>
+    <tr>
+        <td class="colable" colspan="2">
+            Diễn giải
+        </td>
+        <td colspan="4">
+            :
+            
+            <input type="text" id="diengiai" style="width:200px;height:25px" name="name" value="@ViewBag.diengiai" />
+            <input type="button" id="capnhatdd" name="name" value="Cập nhật diễn giải" onclick="capnhatdiengiai()" />
+        </td>
+        <td class="forhideinmobile" style="display:none"></td>
+        <td class="forhideinmobile" style="display:none"></td>
+    </tr>
+</table>
+
+<table id="dg" title="Danh sách hàng" nowrap="False" class="easyui-datagrid" scrollOnSelect="true" showFooter="true" style="width: 100%; height: 250px; margin: 0 auto" url="/admin/get_palletdetail?id=@Request.QueryString["id"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            @if (Global.Commons.fBrowserIsMobile() == false)
+            {
+                <th field="ItemID" width="50">Mã hàng</th>
+
+                <th field="ItemName" width="150">Tên hàng</th>
+                <th field="UnitID" width="30">ĐVT</th>
+            }
+            else
+            {
+                <th field="ItemID" width="110">Mã hàng</th>
+            }
+
+
+            <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+            <th field="LSX" width="50">LSX</th>
+
+        </tr>
+    </thead>
+
+
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-search" plain="true" onclick="showlog()">Xem lịch sử</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">xóa</a>
+
+</div>
+
+<table cellpadding="10" cellspacing="0" id="command">
+    <tr id="mv">
+        <td class="colable" colspan="2">Mã vạch/mã hàng</td>
+        <td colspan="4">
+            :
+            <input type="text" name="BarCode" id="BarCode" value="" class="BarCode" />
+
+
+
+        </td>
+        <td class="forhideinmobile" style="display:none"></td>
+        <td class="forhideinmobile" style="display:none"></td>
+    </tr>
+
+    <tr id="qq">
+        <td class="colable" colspan="2">Số lượng</td>
+        <td colspan="4">
+            :
+            <input type="text" name="Quantity" id="Quantity" value="@(Global.Commons.ConvertToInt(Request.QueryString["c"],0)==0?"1":"")" class="BarCode" />
+            <input type="button" name="name" value="Nhận" onclick="receive()" />
+
+        </td>
+
+    </tr>
+
+    <tr id="footertotal">
+        <td style="font-weight:bold;text-align:right" colspan="3">
+            <span style="color:blue;float:left">
+                Vị trí đặt: @ViewBag.Location
+                @if (ViewBag.exists == false && ViewBag.active == true)
+                {
+                    <a href="javascript:void(0)" style="color:green" onclick="caculate()">Xác định vị trí tự động </a>
+                    <br /><a href="javascript:void(0)" style="color:#666" onclick="caculatetc()">Xác định vị trí thủ công</a>
+
+                }
+                else
+                {
+                    if (ViewBag.active == true)
+                    {
+                        if (ViewBag.finished == 0)
+                        {
+                            <a href="javascript:void(0)" style="color:brown" onclick="movepallet()">Chuyển vị trí </a>
+
+                        }
+                        if (Global.Commons.CheckPermit("ql") == false)
+                        {
+                            <script>
+                                $(document).ready(function () {
+                                    $("#mv").hide();
+                                    $("#qq").hide();
+                                    $(".deleteitem").hide();
+                                })
+                            </script>
+                        }
+
+
+                    }
+
+                }
+
+
+
+            </span>
+        </td>
+
+        <td style="font-weight:bold;text-align:right"></td>
+        <td class="forhideinmobile"></td>
+        <td class="forhideinmobile"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="6" style="text-align:center">
+            @if (ViewBag.active == true)
+            {
+                <input type="button" onclick="newitem()" id="newitem" class="bt" name="pallet" value="Nhập pallet mới" />
+
+            }
+
+            @if (ViewBag.active == false)
+            {
+                <input type="button" onclick="finish(this)" class="bt" name="pallet" value="Hoàn thành" />
+              
+
+            }
+
+
+        </td>
+        <td class="forhideinmobile"></td>
+        <td class="forhideinmobile"></td>
+    </tr>
+</table>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    function openitem(itemid, palletid, lsx) {
+        var url = "/admin/ChangeQuantity?id=" + itemid + "&type=" + palletid + "&lsx=" + lsx;
+        var h = 400;
+        var w = 600;
+        showtc(url, w, h);
+    }
+    
+    $(document).ready(function () {
+        var finish = '@ViewBag.finished';
+        if (finish == "1")
+            $("#command,#capnhatdd").hide();
+    })
+    function showlog() {
+     
+
+            showtc("/admin/viewpalletlog?id=@Request.QueryString["id"]" , 500, 500);
+
+
+    }
+</script>

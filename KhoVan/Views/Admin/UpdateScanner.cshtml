@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "Cập nhật scanner";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .txtl {
+        width: 250px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        var winform = '@Request.QueryString["f"]';
+
+        $("#updatescanner").addClass("menuselect");
+    })
+
+
+
+
+    function nhanhang() {
+
+        $("#thongbao").html('Vui lòng chờ');
+
+        $("#nhanhangbutton").hide();
+
+        $.post('/admin/CheckOutBoundExists', {
+            OB: $("#voucherid").val()
+
+        }, function (result) {
+            if (result.success) {
+
+        $.post('/admin/updatescanner', {
+            OutBound: $("#voucherid").val()
+
+        }, function (result) {
+            if (result.success) {
+                $("#thongbao").html('');                  
+                playSound();
+                location = "/admin/UpdateScanner1";
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#thongbao").html('');
+                $("#nhanhangbutton").show();
+
+            }
+        }, 'json');
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#thongbao").html('');
+                $("#nhanhangbutton").show();
+
+            }
+        }, 'json');
+
+
+    }
+
+</script>
+<h1>
+    Nhập scanner
+</h1>
+
+
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>Số outbound</td>
+        <td>
+            <input type="text" class="txtdate" maxlength="10" id="voucherid" name="voucherid" />
+        </td>
+
+
+    </tr>
+
+
+
+    <tr>
+        <td></td>
+        <td>
+            <input type="button" id="nhanhangbutton" name="name" value="Cập nhật" onclick="nhanhang()" />
+            <span id="thongbao"></span>
+
+        </td>
+    </tr>
+</table>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+<script>
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1() {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+
+    $(document).ready(function () {
+        $("#voucherid").focus();
+
+        $('#voucherid').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn chưa nhập outbound'
+                    });
+
+                    $('#voucherid').focus()
+                    return;
+                }
+                $("#nhanhangbutton").focus();
+
+            }
+        });
+    })</script>

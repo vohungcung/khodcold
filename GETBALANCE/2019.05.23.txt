@@ -1,0 +1,16 @@
+Start: 23/05/2019 03:56:07 PM--------
+Download Customers 
+Customers was Copied 2,704 records
+Download Items 
+Download balance 
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1100/3006 - Done 4,779 records
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1200/3006 - Done 4,344 records
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1300/3006 - Done 243 records
+23/05/2019 03:59:03 PM One or more errors occurred. - from download balance http://apioder.bitis-corp.com/api/Article/GetListQuantity/1400/3006
+
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1500/3006 - Done 2,252 records
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1600/3006 - Done 2,376 records
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1700/3006 - Done 277 records
+Download discount programs 
+Downloaded Discount programs 5,551
+Done: 23/05/2019 04:00:11 PM---------

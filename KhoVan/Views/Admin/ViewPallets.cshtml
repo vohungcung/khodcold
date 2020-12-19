@@ -1,0 +1,392 @@
+﻿@{
+    ViewBag.Title = "Danh mục pallet";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text], textarea {
+        text-transform: uppercase;
+    }
+</style>
+@Session["ScreenResolution"]
+<script>
+
+
+</script>
+<style>
+    .v {
+        width: 30px;
+        height: 20px;
+    }
+</style>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+    <input class="easyui-datebox date" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["date"]">
+</div>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+    <input class="easyui-datebox dateto" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["dateto"]">
+</div>
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" labelWidth="150" class="keyword easyui-searchbox" label="Pallet/Chứng từ" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+        var key = $(".keyword").val();
+        var date = $(".date").val();
+        var dateto = $(".dateto").val();
+        location = "/admin/viewpallets?key=" + key + "&date=" + date + "&dateto=" + dateto;
+    }
+    $('.date').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 500);
+        }
+    });
+
+    $('.dateto').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 500);
+        }
+    });
+</script>
+<div class="clear">
+</div>
+
+
+
+<div id="nd">
+
+</div>
+<div class="clear">
+
+</div>
+<table id="dg" title="Danh sách pallet: @ViewBag.Count - Tổng SL: @ViewBag.Sum " nowrap="False" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/get_pallets?key=@Request.QueryString["key"]&page=@Request.QueryString["page"]&date=@Request.QueryString["date"]&dateto=@Request.QueryString["dateto"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="PalletID" width="150">Mã pallet</th>
+            <th field="OrderNo" width="80">Thứ tự</th>
+            <th field="Description" width="250">Diễn giải</th>
+            <th field="CreateDate" width="150">Ngày tạo</th>
+
+            <th field="ActiveStatus" width="100">Trạng thái</th>
+
+            <th field="ConfirmStatus" width="100">Xác nhận sau cùng</th>
+            <th field="Location" width="100">Vị trí</th>
+            <th field="Quantity" data-options="align:'right'" width="100">Tổng SL</th>
+            <th field="FullName" width="150">Người tạo</th>
+            <th field="PalletInfo" width="150">Thông tin</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-search" plain="true" onclick="findposforpallet()">Đặt vị trí cho pallet này(tự động)</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-search" plain="true" onclick="findposforpallettc()">Đặt vị trí cho pallet này(cách thủ công)</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-search" plain="true" onclick="showlog()">Xem lịch sử</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="copygt()">Copy</a>
+
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportitem()">Xuất sang excel những vị trí có tồn</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportitem1()">Xuất sang excel những pallet chưa xác nhận vị trí cuối</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportItemSum()">Xuất excel tổng hợp</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportItemDetail()">Xuất excel chi tiết</a>
+
+
+
+
+    @if (Global.Commons.CheckPermit("ql"))
+    {
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="importPallet()">Import</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+    }
+
+</div>
+
+
+
+
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+<br />
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>Từ</td>
+
+        <td>
+            <input type="text" id="fromv" class="v" value="1" />
+        </td>
+        <td>Đến</td>
+        <td>
+            <input type="text" id="tov" class="v" value="10" />
+        </td>
+        <td>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="printitem()">In</a>
+
+
+        </td>
+    </tr>
+</table>
+
+<textarea id="cc" style="display:none"></textarea>
+
+<script type="text/javascript">
+    function exportitem() {
+        var l = "/admin/ExportPalletLocation";
+        open(l);
+    }
+    function exportitem1() {
+        var l = "/admin/ExportPalletLocation1";
+        open(l);
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa pallet này?', function (r) {
+                if (r) {
+
+                    $.post('/admin/deletepallet', { PalletID: row.PalletID }, function (result) {
+                        if (result.success) {
+                            playSound();
+                            alert('Đã xóa thành công');
+                            location = location;
+
+                        } else {
+                            playSound1();
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+
+
+    var url;
+
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            url = '/admin/inputw?id=' + row.PalletID;
+            location = url;
+        }
+    }
+    function findposforpallet() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn định vị trí tự động cho pallet này?', function (r) {
+                if (r) {
+                    if (row.Status == "Đang dở dang") {
+                        alert("Pallet này chưa quét xong");
+                        return;
+                    }
+                    if (row.Location != "Chưa có") {
+                        alert("Pallet này đã ấn định vị trí rồi");
+                        return;
+                    }
+                    $.post('/admin/CaculatePos', { PalletID: row.PalletID }, function (result) {
+                        if (result.success) {
+                            alert(result.msg);
+                            location = location;
+
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+    }
+    function findposforpallettc() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn định vị trí thủ công cho pallet này?', function (r) {
+                if (r) {
+                    if (row.Status == "Đang dở dang") {
+                        alert("Pallet này chưa quét xong");
+                        return;
+                    }
+                    if (row.Location != "Chưa có") {
+                        alert("Pallet này đã ấn định vị trí rồi");
+                        return;
+                    }
+                    location = "/admin/resetw?id=" + row.PalletID;
+                }
+            });
+        }
+    }
+    function changepos() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn đổi vị trí cho pallet này?', function (r) {
+                if (r) {
+                    if (row.Status == "Đang dở dang") {
+                        playSound1();
+                        alert("Pallet này chưa quét xong");
+                        return;
+                    }
+                    if (row.Location == "Chưa có") {
+                        playSound1();
+                        alert("Pallet này chưa ấn định vị trí ");
+                        return;
+                    }
+                    if (row.Status1 == "Đã xác nhận") {
+                        playSound1();
+                        alert("Pallet này đã xác nhận vị trí rồi ");
+                        return;
+                    }
+                    location = "/admin/movew?id=" + row.PalletID;
+                }
+            });
+        }
+    }
+    function showlog() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            showtc("/admin/viewpalletlog?id=" + row.PalletID, 500, 500);
+
+
+        }
+    }
+
+    function printitem() {
+        url = "/admin/printrange?d=@ViewBag.dd&d1=@ViewBag.dd1&key=" + '@Request.QueryString["key"]' + "&from=" + $("#fromv").val() + "&to=" + $("#tov").val();
+        open(url);
+    }
+
+</script>
+
+
+
+
+
+<script>
+
+    function copygt() {
+        var r = "";
+        var arr = $(document).find(".datagrid-cell-c1-PalletID").get();;
+        for (var i = 1; i < arr.length; i++) {
+            r += $.trim($(arr[i]).text()) + "\n";
+
+
+        }
+        $("#cc").show();
+        $("#cc").val(r);
+        $("#cc").select();
+        document.execCommand("copy");
+        $("#cc").hide();
+        alert("copy thành công")
+
+    }
+</script>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function importPallet() {
+        var url = "/admin/addMP?id=@Request.QueryString["id"]";
+        var h = 400;
+        var w = 600;
+        showtc(url, w, h);
+    }
+    function fixcol() {
+        if ($(window).width() > 600) {
+            $('#dg').datagrid('showColumn', 'PalletID');
+            $('#dg').datagrid('showColumn', 'OrderNo');
+            $('#dg').datagrid('showColumn', 'CreateDate');
+            $('#dg').datagrid('showColumn', 'ActiveStatus');
+            $('#dg').datagrid('showColumn', 'ConfirmStatus');
+            $('#dg').datagrid('showColumn', 'Location');
+            $('#dg').datagrid('showColumn', 'Quantity');
+            $('#dg').datagrid('showColumn', 'FullName');
+            $('#dg').datagrid('hideColumn', 'PalletInfo');
+        }
+
+        else {
+            $('#dg').datagrid('hideColumn', 'PalletID');
+            $('#dg').datagrid('hideColumn', 'OrderNo');
+            $('#dg').datagrid('hideColumn', 'CreateDate');
+            $('#dg').datagrid('hideColumn', 'ActiveStatus');
+            $('#dg').datagrid('hideColumn', 'ConfirmStatus');
+            $('#dg').datagrid('hideColumn', 'Location');
+            $('#dg').datagrid('hideColumn', 'Quantity');
+            $('#dg').datagrid('hideColumn', 'FullName');
+            $('#dg').datagrid('showColumn', 'PalletInfo');
+        }
+    }
+    $(window).resize(function () {
+        fixcol();
+
+    })
+    $(window).load(function () {
+        $("#viewpallet").addClass("menuselect");
+        fixcol();
+    });
+    function exportItemSum() {
+
+
+        var l = "/admin/ExportPallet?sum=1&from=@Request.QueryString["date"]&to=@Request.QueryString["dateto"]&key=@Request.QueryString["key"]";
+        open(l);
+    }
+    function exportItemDetail() {
+        var l = "/admin/ExportPallet?sum=0&from=@Request.QueryString["date"]&to=@Request.QueryString["dateto"]&key=@Request.QueryString["key"]";
+        open(l);
+    }
+    function loadnote() {
+        $.post('/admin/CheckAllPalletInfo', null, function (result) {
+            if (result.success) {
+
+                $("#nd").html(result.msg);
+
+            } else {
+                $("#nd").html(result.errorMsg);
+
+            }
+        }, 'json');
+
+    }
+    $(document).ready(function () {
+        loadnote();
+
+    });
+    function Show1() {
+        showtc('/admin/PalletNoPosition', 600, 400);
+    }
+    function Show2() {
+        showtc('/admin/PalletNotFinal', 600, 400);
+    }
+</script>

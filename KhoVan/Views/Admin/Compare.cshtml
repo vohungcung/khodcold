@@ -1,0 +1,229 @@
+﻿@{
+    ViewBag.Title = "So sánh đối chiếu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .palletid {
+        width: 200px;
+        float: left;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+
+    label {
+        cursor: pointer;
+    }
+
+    .button {
+        width: 100px;
+    }
+</style>
+<script>
+
+
+    $(window).load(function () {
+        $("#ssnk").addClass("menuselect");
+        var arr = $(".rdata").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+
+        }
+        $("input[type=text]").focus(function () {
+            $(this).select();
+        })
+        $(".txtpost").change(function () {
+            setTimeout(fixdata, 500, $(this));
+
+        })
+        $(".txtpost").blur(function () {
+            setTimeout(fixdata, 500, $(this));
+
+        })
+    })
+
+    function fixdata(e) {
+        if (isNaN($(e).val()) == true || $(e).val() == "") {
+            $(e).val("0");
+            return;
+        }
+        var quantity = parseInt($(e).attr("Quantity"));
+        var cv = parseInt($(e).val());
+        if (cv > quantity) {
+            $(e).val(quantity);
+            return;
+        }
+        if (cv < 0) {
+            $(e).val("0");
+            return;
+        }
+    }
+
+</script>
+<h1>
+    So sánh đối chiếu
+</h1>
+<p><input type="button" name="name" id="btupdate" value="Cập nhật" onclick="updatedata()" /></p>
+<div style="margin: 10px 0;"></div>
+<table cellpadding="5" cellspacing="0">
+    <tr class="theader">
+        <th>TT</th>
+
+        <th>
+            Mã hàng
+        </th>
+
+        <th>Tên hàng</th>
+        <th>OutBound</th>
+        <th>
+            Số lượng yêu cầu
+        </th>
+        <th>
+            Số lượng gán cố định
+        </th>
+        <th>
+            Số lượng đã quét
+        </th>
+        <th>Chênh lệch</th>
+    </tr>
+    @foreach (System.Data.DataRow item in ViewBag.data)
+    {
+        <tr class="rdata">
+            <td>
+                @item["TT"]
+            </td>
+
+            <td>
+                @item["ItemID"]
+            </td>
+            <td>
+                @item["ItemName"]
+            </td>
+            <td>
+                @item["OutBound"]
+            </td>
+            <td style="text-align:right">
+                @item["Quantity"]
+            </td>
+            <td style="text-align:right">
+                @if (Convert.ToInt32(item["Post1"]) != Convert.ToInt32(item["Post"]))
+                {
+                    <input Quantity="@item["Quantity"]" type="text" class="txtpost" OutBound="@item["OutBound"]" ItemID="@item["ItemID"]" style="text-align:right;width:50px;background-color:yellow" name="name" value="@item["Post1"]" />
+
+                }
+                else
+                {
+                    <input Quantity="@item["Quantity"]" type="text" class="txtpost" OutBound="@item["OutBound"]" ItemID="@item["ItemID"]" style="text-align:right;width:50px" name="name" value="@item["Post1"]" />
+
+                }
+
+            </td>
+            <td style="text-align:right">
+
+                @item["Post"]
+
+            </td>
+            @if (Convert.ToInt32(item["CL"]) != 0)
+            {
+                <td style="background-color:#C5161D;color:#FFF;text-align:right">
+
+
+                    @item["CL"]
+                </td>
+            }
+            else
+            {
+                <td style="text-align:right">
+
+
+                    @item["CL"]
+                </td>
+            }
+
+        </tr>
+    }
+</table>
+<h2>
+    @foreach (System.Data.DataRow item in ViewBag.dt1)
+    {
+    <span>@item["ItemID"] dư  @item["Quantity"]</span> <span>,</span>
+    }
+</h2>
+<p style="text-align:center">
+    <input type="button" name="name" id="btupdate1" value="Cập nhật" onclick="updatedata()" />
+    <input type="button" name="name" onclick="exportexccel()" value="Export excel" />
+
+</p>
+
+<script>
+    function updatedata() {
+        var arr = $(".txtpost").get();
+        var list = new Array();
+        for (var i = 0; i < arr.length; i++) {
+            list[list.length] = { "Quantity": $(arr[i]).val(), "ItemID": $(arr[i]).attr("ItemID"), "OutBound": $(arr[i]).attr("OutBound") };
+        }
+        var jsonObject = { list: list };
+        $.post('/admin/postoutbound', { list: JSON.stringify(list) }, function (result) {
+            if (result.success) {
+                //location = location;
+                console.log(list);
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+            }
+        }, 'json');
+
+        $.ajax({
+            url: "/admin/postoutbound",
+            type: "POST",
+            data: JSON.stringify(jsonObject),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            error: function (response) {
+                alert(response.responseText);
+
+            },
+            success: function (response) {
+                if (response.success == true) {
+                    location = location;
+                } else {
+                    alert(response.errorMsg);
+                }
+
+            }
+
+        });
+
+
+    }
+    function exportexccel() {
+        var l = "/admin/exportdatass";
+        open(l);
+
+    }
+    $(document).ready(function () {
+        checkssnk();
+    })
+</script>

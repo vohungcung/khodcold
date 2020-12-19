@@ -1,0 +1,299 @@
+﻿@{
+    ViewBag.Title = "Danh sách đầu 8 đã đóng gói";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(window).load(function () {
+        $("#viewscanner").addClass("menuselect");
+
+    })
+
+</script>
+<h1>
+    Xem đầu 8 đã đóng gói
+</h1>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none;">
+    <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["from"]">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["to"]">
+</div>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" labelWidth="150" class="keyword easyui-searchbox" label="Chứng từ" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+              var winform = '@Request.QueryString["f"]';
+
+        var key = $(".keyword").val();
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        location = "/admin/viewscanners?f=" + winform+"&key=" + key + "&from=" + fromdate + "&to=" + todate;
+    }
+    $('.fromdate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+    $('.todate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+
+</script>
+<div class="clear">
+</div>
+<div id="message">
+
+</div>
+
+<div class="clear">
+    <br />
+
+</div>
+<table id="dg" title="Danh sách đầu 8 đã đóng gói: @ViewBag.Count - Số bao: @ViewBag.Sum1 - Số thùng: @ViewBag.Sum - Sản phẩm: @ViewBag.Sum3 - Bao xốp: @ViewBag.Sum4 - Tổng số tiền: @ViewBag.Sum5 " nowrap="False" class="easyui-datagrid" style="width: 100%; height: 550px; margin: 0 auto" url="/admin/get_ob?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&page=@Request.QueryString["page"]&key=@Request.QueryString["key"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+
+            <th field="CreateDate" width="130" data-options="align:'center'">Ngày thêm</th>
+            <th field="OB1" width="100" data-options="align:'center'">Đầu 8</th>
+            <th field="TotalQuantity" data-options="align:'right'" width="100">Tổng số lượng</th>
+            <th field="TotalQuantity1" data-options="align:'right'" width="100">Tổng số hàng</th>
+            <th field="TotalQuantity2" data-options="align:'right'" width="110">Tổng số túi xốp</th>
+            <th field="TotalAmount" data-options="align:'right'" width="100">Tổng số tiền</th>
+            <th field="Bag" data-options="align:'right'" width="50">Số bao</th>
+            <th field="Box" data-options="align:'right'" width="70">Số thùng</th>
+            <th field="CustomerName" width="250">Khách hàng</th>
+            <th field="Note" width="100">Ghi chú</th>
+
+
+            <th field="ScannerID" width="100">Tên user</th>
+            <th field="EmployeeName" width="100">Nhân viên quét</th>
+            <th field="LastModifyDate" width="130" data-options="align:'center'">Ngày sửa</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editItem()">Sửa</a>
+    @if (Global.Commons.CheckPermit("lockob"))
+    {
+        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="lockob()"> | Khoá</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="unlockob()"> | Mở khoá</a>
+
+    }
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportexcel()">Xuất sang excel</a>
+    @if (Global.Commons.CheckPermit("obbarcode"))
+    {
+
+        <a href="javascript:void(0)" onclick="printob()" class="easyui-linkbutton" iconcls="icon-print" plain="true">In tem</a>
+        @*<a href="javascript:void(0)" onclick="printob2()" class="easyui-linkbutton" iconcls="icon-print" plain="true">In tem 2</a>*@
+
+    }
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">Xóa</a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+
+<script type="text/javascript">
+
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1()
+    {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa phiếu này?', function (r) {
+                if (r) {
+                    if (row.Locked == 1) {
+                        playSound1();
+                        alert('Phiếu này đã bị khoá');
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: 'Phiếu này đã bị khoá'
+                        });
+
+                        return;
+                    }
+                    $.post('/admin/DeleteOB', { OB: row.OB }, function (result) {
+                        if (result.success) {
+                            alert('Đã xóa thành công');
+                            playSound();
+                            location = location;
+
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                        }
+                    }, 'json');
+                }
+            });
+        }
+
+    }
+    function printob() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            var l = "/admin/obbarcode?type=1&key=" + row.OB;
+            open(l);
+        }
+
+
+
+    }
+    function printob2() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            var l = "/admin/obbarcode?key=" + row.OB;
+            open(l);
+        }
+
+
+
+    }
+
+
+    var url;
+
+    function editItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            var winform = '@Request.QueryString["f"]';
+
+            url = '/admin/UpdateScanner1?id=' + row.OB;
+            location = url;
+        }
+    }
+    $(document).ready(function () {
+        var winform = '@Request.QueryString["f"]';
+
+
+    });
+    $(window).load(function () {
+        loadmessage();
+    })
+    function exportexcel() {
+        var url = "/admin/ES?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&key=@Request.QueryString["key"]";
+        location = url;
+    }
+    function shownoxh() {
+        var url = '/admin/shownoxh';
+        showtc(url, 600, 400);
+
+    }
+    function showxh() {
+        var url = '/admin/showxh';
+        showtc(url, 600, 400);
+
+    }
+    function loadmessage() {
+        $.post('/admin/LoadMessageFromScanner',null, function (result) {
+            if (result.success) {
+                $("#message").html(result.content);
+            } else {
+
+            }
+        }, 'json');
+
+    }
+    function lockob() {
+        var ob = prompt("Nhập số outbound cần khoá", '');
+        if (ob != null)
+            if (isNaN(ob) == true || ob.length != 10) {
+                playSound1();
+                alert('Outbound không hợp lệ');
+
+            }
+            else {
+                $.post('/admin/LockOB', { OB: ob }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+                       location = location;
+
+                    } else {
+
+                        playSound1();
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    }
+                }, 'json');
+            }
+
+    }
+    function unlockob() {
+        var ob = prompt("Nhập số outbound cần mở", '');
+        if (ob != null)
+            if (isNaN(ob) == true||ob.length!=10) {
+                playSound1();
+                alert('Outbound không hợp lệ');
+
+            }
+            else {
+                $.post('/admin/UnLockOB', { OB: ob }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+                        location = location;
+
+                    } else {
+
+                        playSound1();
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    }
+                }, 'json');
+            }
+
+    }
+</script>

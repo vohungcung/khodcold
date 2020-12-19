@@ -1,0 +1,324 @@
+﻿/*chung*/
+body {
+    font-family: Arial;
+    font-size: 14px;
+    margin: 0 auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+* {
+    outline: none;
+}
+
+.clear {
+    clear: both;
+}
+/*header*/
+.header {
+    float: left;
+    width: 100%;
+    background-color: #138d13;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #FFF;
+}
+
+.info {
+    float: right;
+    margin-right: 10px;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+    .info a {
+        color: #fff;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+.smallmenu {
+    float: right;
+    cursor: pointer;
+    display: none;
+}
+
+.mdi-menu {
+    font-size: 30px;
+    color: #000;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.username {
+    color: Yellow;
+}
+
+.header h1 {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: normal;
+    font-size: 25px;
+}
+
+.menu-e a, .menu-e1 a {
+    color: #FFF;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.header a:hover {
+    color: Yellow;
+}
+
+.menu-e, .menu-e1 {
+    float: left;
+    margin-left: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #090c09;
+    box-shadow: 2px 2px #000;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.menuselect {
+    background-color: #f4f395;
+}
+
+.header .menu-e:hover, .header .menu-e1:hover {
+    background-color: #f4f395;
+}
+
+    .header .menu-e:hover a, .header .menu-e1:hover a {
+        color: #C5161D;
+    }
+
+.menuselect a {
+    color: #C5161D;
+}
+/*main*/
+.main {
+    width: 100%;
+    float: left;
+}
+
+.main-content {
+    margin: 0 auto;
+}
+
+.main h2 {
+    color: #C5161D;
+    font-size: 17px;
+}
+
+.tdata {
+    width: 100%;
+    border-collapse: collapse;
+    border-color: #ddd;
+    border: 1px solid #ddd;
+}
+
+    .tdata tr:hover {
+        background-color: #eaf2ff;
+    }
+
+    .tdata td {
+        border-style: dotted;
+    }
+
+    .theader, .tdata tr.theader {
+        background-color: navy;
+        color: #fff;
+    }
+
+        .theader th {
+            font-weight: bold;
+            border-color: #ddd;
+        }
+
+.row1 {
+    background-color: #9cf2f3;
+}
+
+.row-1 {
+    background-color: #9cf2f3;
+}
+
+.tbutton {
+    background-color: #C5161D;
+    color: #FFF;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.paging {
+    width: 100%;
+    text-align: center;
+}
+
+    .paging a {
+        margin-left: 3px;
+        margin-right: 3px;
+    }
+
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 99;
+    background-color: #f4f395;
+    padding: 10px;
+    width: 400px;
+}
+
+.menu-e:hover .submenu {
+    display: block;
+}
+
+.submenu-e {
+    width: 100%;
+    float: left;
+    margin-top: 10px;
+}
+
+.menu-e .submenu-e a {
+    color: #C5161D;
+    display: block;
+    width: 100%;
+}
+
+.menu-e .submenu-e:hover a {
+    color: Gray;
+}
+
+.txt {
+    height: 20px;
+    width: 500px;
+    text-indent: 10px;
+}
+
+.txtc {
+    height: 50px;
+    width: 500px;
+    text-indent: 10px;
+}
+
+.ckeditor {
+    height: 50px;
+}
+
+.page {
+    color: #fff;
+    padding: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #000;
+    border-radius: 5px;
+}
+
+.selectedpage {
+    color: yellow;
+    background-color: #000;
+    padding: 3px;
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.gtxt {
+    width: 100%;
+    text-indent: 10px;
+}
+
+.mdi {
+    cursor: pointer;
+}
+
+.choose {
+    background-color: #000;
+    color: #FFF;
+    border-radius: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 10px;
+    display: inline;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.divcontent {
+    width: 100%;
+    overflow: auto;
+    float: left;
+}
+
+.onleft {
+    width: 27%;
+    float: left;
+}
+
+.onright {
+    width: 70%;
+    float: right;
+}
+
+.leftdiv {
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.leftdiv1 {
+    width: 170px;
+}
+
+.leftdiv2 {
+    width: 100px;
+}
+
+.leftdiv select {
+    height: 25px;
+}
+
+.leftdiv select {
+    width: 100px;
+}
+
+.footer {
+    width: 100%;
+    clear: both;
+    float: left;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+@media (max-width: 900px) {
+    .onleft, .onright {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .leftdiv {
+        width: 100%;
+        margin: 0;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+        .leftdiv select {
+            float: right;
+        }
+
+    .footer {
+        text-indent: 10px;
+    }
+}

@@ -1,0 +1,225 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Outbound ngoài";
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+
+<link href="~/css/tv.css?v=1" rel="stylesheet" />
+<style>
+    html {
+        background-color: #FFF;
+    }
+
+    body {
+        margin: 0 auto;
+        font-family: Arial;
+        font-size: 16px;
+    }
+
+    h2 {
+        text-align: left;
+        margin: 0;
+        position: absolute;
+        top: 73px;
+        right: 5px;
+        color: #000;
+        font-size: 22pt;
+    }
+
+    h3 {
+        font-weight: bold;
+        font-size: 15pt;
+        font-family: Calibri;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    h4 {
+        font-weight: bold;
+        font-weight: bold;
+        font-size: 18pt;
+        font-family: Calibri;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .tem {
+        width: 10.4cm;
+        height: 9cm;
+        float: left;
+        overflow: hidden;
+        border: 1px solid #41719c;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        page-break-inside: avoid;
+    }
+
+    .ob {
+       margin:0 auto;
+    }
+
+    .trai {
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    .phai {
+        width: 228px;
+        float: right;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        padding-left: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .phai p {
+            margin-bottom: 0;
+            margin-top: 2px;
+        }
+
+    .bottom {
+        padding-left: 10px;
+        padding-right: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+
+
+    .countob {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-weight: bold;
+        font-size: 10pt;
+    }
+
+    .ngayquet {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 10pt;
+    }
+
+    
+    .trai p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .clear {
+        clear: both
+    }
+
+    .moreinfo {
+        font-size: 11pt;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .customerinfo {
+        font-size: 22pt;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #DDD;
+        font-weight: bold;
+        padding-bottom: 10px;
+    }
+
+    .customerinfo-address {
+        font-size: 14pt;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        padding-top: 5px;
+        line-height: 25px;
+        font-weight: bold;
+    }
+
+    .newsize {
+        font-size: 18pt;
+        line-height: 25px;
+    }
+
+    .sl {
+        float: right;
+    }
+
+    .note {
+       
+        text-align: center;
+        display: block;
+        line-height: 20px;
+        font-weight: bold;
+        font-size: 15pt;
+    }
+</style>
+@foreach (System.Data.DataRow item in ViewBag.data)
+{
+
+
+    <div class="tem">
+        <div class="trai">
+            <div style="width:100%;height:5px;clear:both"></div>
+            <div class="ob" id="@item["OB"]">
+
+            </div>
+            <div class="clear"></div>
+            <p class="note">
+                @(Global.Commons.ConvertToInt(item["Box"]) != 0 ? item["Box"] + " thùng " : "")
+
+                @(Global.Commons.ConvertToInt(item["Box"]) != 0 && Global.Commons.ConvertToInt(item["Bag"]) != 0 ? " + " : "")
+
+                @(Global.Commons.ConvertToInt(item["Bag"]) != 0 ? item["Bag"] + " bao " : "")
+
+
+                <br />
+
+                @(Global.Commons.ConvertToInt(item["SH"]) != 0 ? item["SH"] + " đôi " : "")
+
+                @(Global.Commons.ConvertToInt(item["SH"]) != 0 && Global.Commons.ConvertToInt(item["ST"]) != 0 ? " + " : "")
+
+                @(Global.Commons.ConvertToInt(item["ST"]) != 0 ? item["ST"] + " tx " : "")
+
+
+            </p>
+
+            <div class="ngayquet"> @Convert.ToDateTime(item["CreateDate"]).ToString("dd/MM/yyyy")</div>
+
+        </div>
+
+        <div class="clear">
+
+        </div>
+        <div class="bottom">
+            <p class="customerinfo">   @item["CustomerName"].ToString().Replace("(", " (").Replace(" )", ")") </p>
+            <p class="customerinfo-address">  @item["Address"] </p>
+
+        </div>
+
+    </div>
+}
+<div class="footer">
+
+</div>
+<script>
+
+    $(document).ready(function () {
+        var arr = $(".ob").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).barcode(
+                $(arr[i]).attr("id"), // Value barcode (dependent on the type of barcode)
+                "code128" // type (string)
+            );
+        }
+
+       
+    })
+
+</script>
+

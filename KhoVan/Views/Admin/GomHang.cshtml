@@ -1,0 +1,285 @@
+﻿@{
+    ViewBag.Title = "Gom đầu 8 để xét châm hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .txtl {
+        width: 250px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+</style>
+<script>
+    $(window).load(function () {
+        $("#gomhang").addClass("menuselect");
+
+    })
+
+
+    function checkdata() {
+        if (checkdulicate() == false) {
+            return;
+        }
+
+        $("#nhanhangbutton,#kiemtra,#gomao").hide();
+
+        $.post('/admin/CheckOB', {
+
+            OutBound: $("#outbound").val()
+
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                $("#nhanhangbutton,#kiemtra,#gomao").show();
+                $("#thieu").html(result.thieu);
+                $("#du").html(result.du);
+
+                location = result.link;
+
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+
+                var m = result.errorMsg;
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                $("#ms").html(m);
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $("#nhanhangbutton,#kiemtra,#gomao").show();
+
+
+            }
+        }, 'json');
+    }
+    function checkdulicate() {
+        $("#outbound").val($.trim($("#outbound").val()));
+        var ob = $("#outbound").val();
+        var arr = new Array();
+        var trung = false;
+        var dstrung = "";
+
+        var lines = ob.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+            var e = $.trim(lines[i]);
+            for (var j = 0; j < arr.length; j++) {
+                if (e == arr[j]) {
+                    if (dstrung != "")
+                        dstrung += ", " + e;
+                    else
+                        dstrung = e;
+
+                    trung = true;
+                    break;
+                }
+            }
+            if (trung == true) {
+
+            }
+            arr[arr.length] = e;
+        }
+        if (trung == true) {
+            playSound1();
+
+            alert(dstrung + " bị trùng");
+            return false;
+        }
+        return true;
+    }
+
+    function nhanhang() {
+        if (checkdulicate() == false) {
+            return;
+        }
+        $("#nhanhangbutton,#kiemtra,#gomao").hide();
+
+
+        $.post('/admin/nhanhang', {
+            VoucherDate: $("#VoucherDate").val(),
+            Description: '',
+            OutBound: $("#outbound").val(),
+            CheckBalance: ($("#checkbalance").is(":checked") ? 1 : 0),
+            loai:"that"
+
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                if (result.v != "")
+                    location = "/admin/SX?id=" + result.v;
+                else
+                    location = "/admin/ViewXK?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")";
+
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+
+                var m = result.errorMsg;
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                $("#ms").html(m);
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $("#nhanhangbutton,#kiemtra,#gomao").show();
+
+            }
+        }, 'json');
+    }
+
+    function nhanhangao() {
+        if (checkdulicate() == false) {
+            return;
+        }
+        $("#nhanhangbutton,#kiemtra,#gomao").hide();
+
+
+        $.post('/admin/nhanhang', {
+            VoucherDate: $("#VoucherDate").val(),
+            Description: '',
+            OutBound: $("#outbound").val(),
+            CheckBalance: ($("#checkbalance").is(":checked") ? 1 : 0),
+            loai:"ao"
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                if (result.v != "")
+                    location = "/admin/SX?id=" + result.v;
+                else
+                    location = "/admin/ViewXK?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")";
+
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+
+                var m = result.errorMsg;
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                m = m.replace("\n", "<br/>")
+                $("#ms").html(m);
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $("#nhanhangbutton,#kiemtra,#gomao").show();
+
+            }
+        }, 'json');
+    }
+</script>
+<h1>
+    Gom đầu 8 để xét châm hàng
+</h1>
+
+<p id="ms">
+
+</p>
+<div class="clear"></div>
+
+<table cellpadding="5" cellspacing="0" style="float:left">
+    <tr>
+        <td>Ngày</td>
+        <td>
+            <input type="text" class="txtdate" id="VoucherDate" name="VoucherDate" value="@ViewBag.VoucherDate" />
+        </td>
+
+
+    </tr>
+    <tr>
+        <td>
+            OutBound
+        </td>
+        <td>
+
+            <textarea id="outbound" style="height:100px;width:200px"></textarea>
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td></td>
+        <td>
+            <input type="checkbox" checked="checked" name="name" value="" id="checkbalance" />
+            <label for="checkbalance" style="cursor:pointer"> Có tính tồn kho</label>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <input type="button" id="gomao" name="name" value="Gom đầu 8" onclick="nhanhangao()" />
+
+            <input type="button" id="kiemtra" name="name" value="Kiểm tra khả năng đáp ứng trước" onclick="checkdata()" />
+
+        </td>
+    </tr>
+</table>
+<table style="float:left;margin-left:20px" cellpadding="5" cellspacing="0" border="1">
+    <tr>
+        <td colspan="2" style="color:red">
+            đủ hàng là tính hàng hiện không khóa và không định trạng thái khóa tự động
+            là có
+        </td>
+    </tr>
+    <tr>
+        <th>Outbound thiếu hàng</th>
+        <th>Outbound đủ hàng</th>
+    </tr>
+    <tr>
+        <td id="thieu" style="color:red" valign="top"></td>
+        <td valign="top" id="du" style="color:green"></td>
+    </tr>
+</table>
+
+
+<div class="clear"></div>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+</script>

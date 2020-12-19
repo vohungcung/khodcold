@@ -1,0 +1,138 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Outbound quét hàng";
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+
+<link href="~/css/tv.css?v=1" rel="stylesheet" />
+@if (Request.QueryString["type"] == "1")
+{
+    <link href="~/css/ob1.css?v=44" rel="stylesheet" />
+}
+else
+{
+    <link href="~/css/ob.css" rel="stylesheet" />
+}
+
+@foreach (System.Data.DataRow item in ViewBag.data)
+{
+
+
+    <div class="tem">
+        <div class="trai">
+            <div style="width:100%;height:5px;clear:both"></div>
+            <div class="ob" id="@(item["OB"]+(item["Style"].ToString().ToLower()=="bao"?"B":"T")+Convert.ToInt32( item["TT"]).ToString("000")+Convert.ToInt32( item["Q2"]).ToString("00000")+Convert.ToInt32( item["Q3"]).ToString("00000"))">
+
+            </div>
+            <div class="clear"></div>
+            <p class="note">
+                @(Global.Commons.ConvertToInt(item["Box"]) != 0 ? item["Box"] + " thùng " : "")
+
+                @(Global.Commons.ConvertToInt(item["Box"]) != 0 && Global.Commons.ConvertToInt(item["Bag"]) != 0 ? " + " : "")
+
+                @(Global.Commons.ConvertToInt(item["Bag"]) != 0 ? item["Bag"] + " bao " : "")
+
+                @if (Request.QueryString["type"] != "1")
+                {
+                    <br />
+                }
+                else
+                {
+                    <span> / </span>
+                }
+
+                @(Global.Commons.ConvertToInt(item["SH"]) != 0 ? item["SH"] + " đôi " : "")
+
+                @(Global.Commons.ConvertToInt(item["SH"]) != 0 && Global.Commons.ConvertToInt(item["ST"]) != 0 ? " + " : "")
+
+                @(Global.Commons.ConvertToInt(item["ST"]) != 0 ? item["ST"] + " tx " : "")
+
+
+            </p>
+
+            <div ob="@item["OB"]" class="countob">/@(Global.Commons.ConvertToInt(item["Bag"]) + Global.Commons.ConvertToInt(item["Box"]))</div>
+            <div class="ngayquet"> @Convert.ToDateTime(item["CreateDate"]).ToString("dd/MM/yyyy")</div>
+            <div class="nvquet">
+                NV: <strong>
+                    @item["EmployeeName"]
+                </strong>
+
+
+
+            </div>
+            <h2>
+                @item["OB"]
+            </h2>
+        </div>
+
+        <div class="clear">
+
+        </div>
+        <div class="bottom">
+            <p class="customerinfo">   @item["CustomerName"].ToString().Split('(')[0] </p>
+            <h3>
+
+
+                @(item["Style"].ToString().ToLower() == "bao" ? "Bao" : "Thùng") @item["TT"] @*/  @(item["Style"].ToString().ToLower() == "bao" ? item["Bag"] : item["Box"])*@
+
+                :  @(Global.Commons.ConvertToInt(item["Q2"]) != 0 ? item["Q2"] + " đôi " : "")
+
+
+                @(Global.Commons.ConvertToInt(item["Q2"]) != 0 && Global.Commons.ConvertToInt(item["Q3"]) != 0 ? " + " : "")
+
+                @(Global.Commons.ConvertToInt(item["Q3"]) != 0 ? item["Q3"] + " tx " : "")
+
+            </h3>
+
+
+
+
+
+            <p class="customerinfo-address">  @item["Address"] </p>
+
+        </div>
+
+    </div>
+    
+}
+<div class="footer">
+
+</div>
+<script>
+
+    $(document).ready(function () {
+        var arr = $(".ob").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).barcode(
+                $(arr[i]).attr("id"), // Value barcode (dependent on the type of barcode)
+                "code128" // type (string)
+            );
+        }
+
+        arr = $(".trai").find(".countob").get();
+        var c = 1;
+        var oldob = "";
+        for (var i = 0; i < arr.length; i++) {
+            if (oldob != $(arr[i]).attr("ob")) {
+                oldob = $(arr[i]).attr("ob");
+                c = 1;
+            }
+            var v = $(arr[i]).text();
+            $(arr[i]).html(c + v);
+            c++;
+        }
+
+        arr = $(document).find(".customerinfo-address").get();
+
+        for (var i = 0; i < arr.length; i++) {
+            var content = $(arr[i]).text();
+            if (content.length < 50)
+                $(arr[i]).addClass("newsize");
+        }
+    })
+  
+</script>
+

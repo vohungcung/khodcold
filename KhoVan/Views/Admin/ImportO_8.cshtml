@@ -1,0 +1,247 @@
+﻿@{
+    ViewBag.Title = "Nhập outbound";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        text-indent: 10px;
+    }
+
+    .txt {
+        width: 200px;
+        height: 25px;
+        text-align: left;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        text-indent: 10px;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        text-align: center;
+    }
+
+    th {
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .row1 {
+        background-color: #DDD;
+    }
+
+    a {
+        text-decoration: none;
+    }
+</style>
+<h1>
+    Nhập bao thùng cho outbound
+</h1>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<script>
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1() {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+</script>
+
+@if (Request.QueryString["ob"] == null || Request.QueryString["ob"] == "")
+{
+    <p>
+
+        <input type="text" id="ob" autofocus class="txt" placeholder="Nhập số outbound " value="" />
+        <input type="button" name="name" id="nhan" value="Nhận" onclick="nhanhang()" />
+    </p>
+    <script>
+        function nhanhang() {
+            $("#ob,#nhan").hide();
+            $.post('/admin/CheckOutBoundForOutExists', {
+                OB: $("#ob").val()
+
+            }, function (result) {
+                $("#ob").show();
+                if (result.success) {
+                    $("#ob").hide();
+                    $.post('/admin/updatescannerForOut', {
+                        OutBound: $("#ob").val()
+
+                    }, function (result) {
+                        $("#ob,#nhan").show();
+                        if (result.success) {
+                            playSound();
+                            location = "/admin/ImportO_8?id=@Request.QueryString["id"]&ob=" + $.trim($("#ob").val());
+
+                        } else {
+                            playSound1();
+                            alert(result.errorMsg);
+
+
+                        }
+                    }, 'json');
+                }
+                else {
+                    playSound1();
+                    alert(result.errorMsg);
+                    $("#ob,#nhan").show();
+                }
+            }, 'json');
+
+        }
+        $("#ob").keydown(function () {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn chưa nhập outbound'
+                    });
+
+                    $('#ob').focus()
+                    return;
+                }
+             
+               
+                nhanhang();
+
+
+            }
+        });
+
+    </script>
+}
+else
+{
+    <p>
+
+        <input type="text" id="ob" disabled="disabled" class="txt" value="@Request.QueryString["ob"]" />
+    </p>
+    <p>
+      Ngày giao:  <span id="PlanDate">@ViewBag.PlanDate</span>
+    </p>
+    <p>
+        Mã khách : <span id="CustomerID">@ViewBag.CustomerID</span>
+    </p>
+    <p>
+        Tên khách : <span id="CustomerName">@ViewBag.CustomerName</span>
+    </p>
+    <p>
+        Địa chỉ : <span id="Address">@ViewBag.Address</span>
+    </p>
+    <p>
+        Tổng số lượng: <span style="color:red" id="totalquantity"> @ViewBag.TotalQuantity</span>
+        Túi xốp : <span id="bxx" style="color:red">@ViewBag.BX</span> Thể tích : <span style="color:red" id="m3">@ViewBag.M3</span>
+    </p>
+
+
+    <p>
+        Tổng tiền : <span style="color:red" id="totalamount">@ViewBag.TotalAmount</span>
+    </p> <p>
+
+        <input type="number" class="txt" id="bao" placeholder="Nhập số bao " value="" />
+    </p>
+    <p>
+
+        <input type="number" class="txt" id="thung" placeholder="Nhập số thùng " value="" />
+    </p>
+    <p>
+        <input type="button" id="save" onclick="savedata()" name="save" value="Lưu" />
+    </p>
+
+
+
+    <Script>
+         function fixdata(e) {
+        while (e.indexOf('\n')>-1)
+            e = e.replace("\n", "");
+        while (e.indexOf(' ') > -1)
+            e = e.replace(" ", "");
+
+        return e;
+
+    }
+    function converttonumber(e) {
+        if (e == '') return 0;
+        e = fixdata(e);
+        while (e.indexOf(',') > -1)
+            e = e.replace(",", "");
+        if (isNaN(e) == true)
+            return 0;
+        return parseFloat(e);
+    }
+
+    function savedata() {
+        try {
+
+            if (converttonumber($("#thung").val()) <= 0 && converttonumber($("#bao").val()) <= 0) {
+                playSound1();
+                alert('Thùng bao không hợp lệ. Nó phải là số nguyên dương và không đồng thời bằng 0 ');
+                if ($("#thung").val() == "") {
+                    $("#thung").focus();
+                    $("#thung").select();
+
+                }
+
+                else {
+                    $("#bao").focus();
+                    $("#bao").select();
+                }
+
+                return;
+            }
+            $.post('/admin/updatescannerForOut1', {
+                OB: fixdata($("#ob").val()),
+                TotalQuantity: converttonumber( $("#totalquantity").text()),
+                TotalAmount: converttonumber($("#totalamount").text()),
+                Bag: converttonumber($("#bao").val()),
+                Box: converttonumber($("#thung").val()),
+                BX: converttonumber($("#bxx").text()),
+                M3: converttonumber($("#m3").text()),
+                CustomerID: $("#CustomerID").text(),
+                CustomerName: $("#CustomerName").text(),
+                Address: $("#Address").text(),
+                PlanDate: $("#PlanDate").text()
+
+            }, function (result) {
+                if (result.success) {
+                   
+                    playSound();
+                    alert(result.msg);
+                    parent.postfromiframe('@Request.QueryString["ob"]');
+                } else {
+                    playSound1();
+                    alert(result.errorMsg);
+                    
+
+                }
+            }, 'json');
+        } catch (e) {
+
+        }
+
+
+
+    }
+    </Script>
+}

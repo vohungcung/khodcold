@@ -1,0 +1,153 @@
+﻿@{
+    ViewBag.Title = "Xem và in đầu 8";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<h1>Xem và in đầu 8</h1>
+<p>
+    Picking list/Outbound <input type="text" name="name" value="" id="lll" />
+    <input type="button" class="bt" id="indl" name="name" value="In" onclick="indau8()" />
+    @*<input type="button" style="margin-left:100px" class="bt" id="cf" name="name" value="Xác nhận lấy hàng" onclick="confirmxkfromwinform()" />*@
+
+</p>
+<div id="content" style="max-height:350px;overflow:auto">
+
+   
+</div>
+<script>
+
+    $(window).load(function () {
+        $("#id8").addClass("menuselect");
+      
+        $('#lll').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                indau8();
+            }
+        });
+        $("#lll").focus(function () {
+            $(this).select();
+        });
+        $("#lll").focus();
+    })
+    function indau8() {
+        if ($("#lll").val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập picking list");
+            return;
+        }
+          $(".bt").hide();
+        $("#lll").attr("disabled","disabled");
+
+        $.post('/admin/CheckPickingList', { VoucherID: $("#lll").val() }, function (result) {
+            if (result.success) {
+                playSound();
+                var l = "/admin/indau8?id=" + result.VoucherID + "&n=1&ob=" + result.OB;
+                location = l;
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $(".bt").show();
+                $("#lll").removeAttr("disabled");
+
+            }
+        }, 'json');
+
+
+    }
+    function updatetoweb() {
+        if ($("#lll").val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập picking list");
+            return;
+        }
+        $(".bt").hide();
+        $("#lll").attr("disabled", "disabled");
+
+        $.post('/admin/UpdatePickingList', { VoucherID: $("#lll").val() }, function (result) {
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                $(".bt").show();
+                $("#lll").removeAttr("disabled");
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $(".bt").show();
+                $("#lll").removeAttr("disabled");
+
+            }
+        }, 'json');
+    }
+    function confirmxkfromwinform() {
+        if ($("#lll").val() == "") {
+            playSound1();
+            alert("Bạn chưa nhập picking list");
+            return;
+        }
+
+        GetInfoFromScanner();
+       
+    }
+    function GetInfoFromScanner() {
+       
+        $(".bt").hide();
+        $("#lll").attr("disabled", "disabled");
+       
+        $.post('/admin/GetInfoFromScanner', { OB: $("#lll").val() }, function (result) {
+            if (result.success) {
+
+                if (confirm('Bạn có chắc là muốn xác nhận lấy hàng outbound ' + $("#lll").val() + " \n" + result.msg) == false) {
+                    $(".bt").show();
+                    $("#lll").removeAttr("disabled");
+                    return;
+                }
+                $.post('/admin/ConfirmPickingListFromWinform', { VoucherID: $("#lll").val() }, function (result) {
+                    if (result.success) {
+                        $("#content").html(result.content);
+                        playSound();
+                        alert(result.msg);
+                        $(".bt").show();
+                        $("#lll").removeAttr("disabled");
+
+
+                    } else {
+                        $("#content").html(result.content);
+                        playSound1();
+                        alert(result.errorMsg);
+                        $(".bt").show();
+                        $("#lll").removeAttr("disabled");
+
+                    }
+                }, 'json');
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $(".bt").show();
+                $("#lll").removeAttr("disabled");
+
+            }
+        }, 'json');
+    }
+
+</script>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+</script>

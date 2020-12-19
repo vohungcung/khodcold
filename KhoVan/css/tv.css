@@ -1,0 +1,50 @@
+﻿.chedau {
+    display: none;
+}
+
+@media print {
+
+
+    table {
+        page-break-after: auto;
+        counter-increment: page;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto
+    }
+
+    td {
+        page-break-inside: avoid;
+        page-break-after: auto
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-footer-group
+    }
+
+    .footer {
+        position: fixed;
+        bottom: 0;
+        background-color: #FFF;
+        width: 100%;
+        text-align: center;
+    }
+
+
+
+    @page {
+        margin: 0;
+        margin-bottom: 40px;
+        margin-top: 40px;
+    }
+
+    .resetpage {
+        counter-reset: initial;
+    }
+}

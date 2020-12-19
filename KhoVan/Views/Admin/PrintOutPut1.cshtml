@@ -1,0 +1,152 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = Request.QueryString["id"];
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+<link href="~/css/tv.css?v=2" rel="stylesheet" />
+<style>
+    html {
+        background-color: #FFF;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 12px;
+    }
+
+    .clear {
+        clear: both
+    }
+</style>
+<div style="text-align:center">
+    <h1>Phiếu lấy hàng kệ lẻ</h1>
+    <table cellpadding="5" cellspacing="0" style="margin:0 auto">
+        <tr>
+            <td>Số phiếu</td><td>:</td>
+            <td>
+
+                @Request.QueryString["id"]
+
+            </td>
+        </tr>
+        <tr>
+            <td>Ngày</td><td>:</td>
+            <td>
+                @ViewBag.VoucherDate
+            </td>
+        </tr>
+        <tr>
+            <td>Số đầu 8</td><td>:</td>
+            <td>
+                @ViewBag.C
+               
+            </td>
+        </tr>
+       
+        <tr>
+            <td colspan="3">
+                <div id="sp" style="width:200px;height:100px;margin:0 auto">
+
+                </div>
+            </td>
+        </tr>
+
+
+    </table>
+</div>
+<p style="text-align:center">
+    Danh sách đầu 8:
+    @foreach (System.Data.DataRow item in ViewBag.L)
+    {<span class="dauphay">
+            ,
+        </span>
+        <span>
+              @item[0]
+        </span>
+    }
+</p>
+<table cellspacing="0" cellpadding="10" border="1" style="border-collapse:collapse;width:100%">
+    <tr>
+        <th>TT</th>
+        <th>
+            Mã hàng
+        </th>
+        <th>
+            Số lượng
+        </th>
+        <th>
+            Vị trí
+        </th>
+
+        <th>
+            Tên hàng
+        </th>
+
+
+
+    </tr>
+    @foreach (System.Data.DataRow item in ViewBag.data)
+    {
+        <tr>
+            <td class="tt"></td>
+            <td>
+                @item["ItemID"]
+            </td>
+            <th class="sl" sl="@item["Quantity"]" style="text-align:right">
+                @item["Quantity"]
+            </th>
+            <td style="text-align:center">
+                @item["Location"] - @item["Ke"]
+            </td>
+            <td>
+                @item["ItemName"]
+            </td>
+
+
+        </tr>
+    }
+    <tr style="font-weight:bold;color:#FFF;background-color:navy">
+        <td colspan="2">
+            Tổng cộng:
+        </td>
+
+        <td id="tongcong" style="text-align:right"></td>
+        <td colspan="2"></td>
+    </tr>
+</table>
+<div class="clear"></div>
+<table style="width:100%;text-align:center;font-weight:bold" cellpadding="10" cellspacing="0">
+    <tr>
+        <td style="width:33%">Người soạn hàng</td>
+        <td style="width:33%">Người chia hàng</td>
+        <td style="width:33%">Người lập biểu</td>
+
+    </tr>
+
+</table>
+
+<script>
+
+    $(document).ready(function () {
+        $("#sp").barcode('@Request.QueryString["id"]',
+            "code128" // type (string)
+        );
+        var arr = $(".sl").get();
+
+        var tc = 0;
+        for (var i = 0; i < arr.length; i++) {
+            tc += parseInt($(arr[i]).attr("sl"));
+        }
+        $("#tongcong").html(tc);
+        arr = $(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+    });
+    $(".dauphay:first").remove();
+
+</script>
+

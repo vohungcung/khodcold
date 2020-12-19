@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = "Pallet";
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-ean13.js"></script>
+
+<style>
+    html {
+        background-color: #FFF;
+    }
+
+    body {
+        width: 14.8cm;
+        margin: 0 auto;
+        font-family: Arial;
+        font-size: 16pt;
+    }
+
+    h1 {
+        text-align: center;
+    }
+</style>
+<h1>
+    @ViewBag.OrderNo
+</h1>
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+        <th>ITEM CODE</th>
+        <th>DESCRIPTION</th>
+        <th>QTY</th>
+
+    </tr>
+    @foreach (System.Data.DataRow item in ViewBag.Data)
+    {
+        <tr>
+            <td>
+                @item["ItemID"]
+            </td>
+            <td>
+                @item["ItemName"]
+            </td>
+            <td style="text-align:right">
+                @Global.Commons.ConvertToInt(item["Quantity"]).ToString("N0")
+            </td>
+        </tr>
+    }
+
+    <tr>
+        <td>
+            DATE IN:
+        </td>
+        <td colspan="2">
+            @ViewBag.CreateDate
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+            LOCATION:
+        </td>
+        <td colspan="2">
+            @ViewBag.Location AA-001-A
+
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+            CODE:
+        </td>
+        <td colspan="2">
+            <canvas id="ean" width="300" height="100"></canvas>
+
+        </td>
+
+    </tr>
+</table>
+
+<script>
+
+    
+           
+    $("#ean").EAN13("@Request.QueryString["id"]");
+    
+</script>
+
+
+</script>

@@ -1,0 +1,92 @@
+﻿@{
+    ViewBag.Title = "Nhật ký giảm hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script>
+    $(window).load(function () {
+        $("#gh").addClass("menuselect");
+
+    })
+
+</script>
+<h1>
+    Nhật ký giảm hàng
+</h1>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none;">
+    <input class="easyui-datebox fromdate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Từ ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["from"]">
+</div>
+<div class="easyui-panel" style="width: 300px; padding: 5px 5px; border: none">
+    <input class="easyui-datebox todate" labelWidth="150" data-options="formatter:myformatter,parser:myparser" label="Đến ngày" data-options="searcher:doSearch" style="width: 100%;" value="@Request.QueryString["to"]">
+</div>
+
+
+<script>
+    function doSearch() {
+        var fromdate = $(".fromdate").val();
+        var todate = $(".todate").val();
+        location = "/admin/ViewHC?from=" + fromdate + "&to=" + todate;
+    }
+    $('.fromdate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+    $('.todate').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 300);
+        }
+    });
+
+</script>
+<div class="clear">
+</div>
+<div class="clear">
+    <br />
+</div>
+<table id="dg" title="Nhật ký giảm hàng: @ViewBag.Count" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/gethc?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="CreateDate" width="100">Ngày</th>
+            <th field="Description" width="100">Diễn giải</th>
+            <th field="FromLocation" width="100">Từ</th>
+            <th field="ToLocation" width="100">Đến</th>
+            <th field="UserName" width="100">Người thực hiện</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportItem()">Xuất excel danh sách</a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+
+
+
+<script type="text/javascript">
+    function exportItem() {
+        var l = "/admin/ViewReLoadDH?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]";
+        open(l);
+    }
+  
+    var url;
+    
+</script>

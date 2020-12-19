@@ -1,0 +1,165 @@
+﻿html {
+    background-color: #FFF;
+}
+
+body {
+    margin: 0 auto;
+    font-family: Arial;
+    font-size: 16px;
+}
+
+h2 {
+    text-align: left;
+    margin: 0;
+    position: absolute;
+    top: 73px;
+    right: 5px;
+    color: #000;
+    font-size: 22pt;
+}
+
+h3 {
+    font-weight: bold;
+    font-size: 15pt;
+    font-family: Calibri;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+h4 {
+    font-weight: bold;
+    font-weight: bold;
+    font-size: 18pt;
+    font-family: Calibri;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.tem {
+    width: 10.4cm;
+    height: 9cm;
+    float: left;
+    overflow: hidden;
+    border: 1px solid #41719c;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    page-break-inside: avoid;
+}
+
+.ob {
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    margin-left: 10px;
+}
+
+.trai {
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.phai {
+    width: 228px;
+    float: right;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding-left: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+    .phai p {
+        margin-bottom: 0;
+        margin-top: 2px;
+    }
+
+.bottom {
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top: 1px solid #ddd;
+}
+
+
+
+.countob {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+.ngayquet {
+    position: absolute;
+    top: 24px;
+    right: 5px;
+    font-size: 10pt;
+}
+
+.nvquet {
+    position: absolute;
+    top: 44px;
+    right: 5px;
+    font-size: 10pt;
+}
+
+    .nvquet strong {
+        text-transform: capitalize;
+    }
+
+.trai p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.clear {
+    clear: both
+}
+
+.moreinfo {
+    font-size: 11pt;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.customerinfo {
+    font-size: 22pt;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #DDD;
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+.customerinfo-address {
+    font-size: 14pt;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-top: 1px solid #DDD;
+    padding-top: 5px;
+    line-height: 25px;
+    font-weight: bold;
+}
+
+.newsize {
+    font-size: 18pt;
+    line-height: 25px;
+}
+
+.sl {
+    float: right;
+}
+
+.note {
+    margin-left: 10px;
+    float: left;
+    width: 215px;
+    text-align: center;
+    display: block;
+    line-height: 20px;
+    font-weight: bold;
+    font-size: 15pt;
+}

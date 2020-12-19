@@ -1,0 +1,672 @@
+﻿@{
+    ViewBag.Title = "Phiếu di hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<link href="~/css/dihang.css" rel="stylesheet" />
+<style>
+    #from, #to, #keyword {
+        text-transform: uppercase;
+        font-size: 16px;
+    }
+
+    .datagrid-cell, .datagrid-cell-group, .datagrid-header-rownumber, .datagrid-cell-rownumber {
+        font-size: 16px;
+        line-height: 30px;
+    }
+</style>
+<h1>
+    Phiếu di hàng @Request.QueryString["id"]
+</h1>
+<p><input id="dd" type="text" maxlength="200" style="width:100%" placeholder="Diễn giải" name="name" value="@ViewBag.dd" /></p>
+<div class="clear">
+
+</div>
+<div class="d1">
+    <p style="font-weight:bold">
+        Vị trí cần di
+        <input type="text" id="from" name="name" value="@Request.QueryString["from"]" />
+
+    </p>
+
+
+    <p style="color:orangered;display:none">
+        <input type="checkbox" style="width:20px;height:20px" id="fromout" onchange="dihangtubenngoai()" />
+        <label for="fromout" style="cursor:pointer;font-size:20px">Di hàng từ bên ngoài vào vị trí</label>
+
+    </p>
+
+
+    <p>Vị trí mà bạn muốn lấy hàng</p>
+    <p>
+        Ghi chú : kiểm tra kỹ số liệu trước khi di hàng
+    </p>
+
+
+
+    <table id="dgfrom" title="Danh sách hàng(@ViewBag.Count dòng) tổng SL: @ViewBag.SL" class="easyui-datagrid loadding" selectOnCheck="true" scrollOnSelect="true"
+           ctrlSelect="true" showFooter="true"
+           style="width: 100%; height: 250px; margin: 0 auto"
+           url="/admin/get_remaindetail?id=@Request.QueryString["from"]&page=@Request.QueryString["page"]&key=@Request.QueryString["key"]" toolbar="#toolbar"
+           rownumbers="true" fitcolumns="true">
+        <thead>
+            <tr>
+
+                <th field="ItemID" width="100">Mã hàng</th>
+                <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+
+            </tr>
+        </thead>
+
+
+    </table>
+
+</div>
+<div class="d3">
+
+
+    <p>
+        <input type="number" placeholder="Lấy hết" name="name" min="0" value="" id="txtQuantity" />
+    </p>
+    <p>
+        <input class="bt" type="button" name="name" id="add" value=">" />
+    </p>
+    <p>
+        <input class="bt" type="button" name="name" id="addall" value=">>" />
+    </p>
+    <p>
+        <input class="bt" type="button" name="name" id="remove" value="<" />
+    </p>
+    <p>
+        <input class="bt" type="button" name="name" id="removeall" value="<<" />
+    </p>
+    <p>
+        <input class="bt" type="button" id="searchbutton" value="Tìm kiếm" />
+    </p>
+    <p>
+        <input class="bt" type="button" id="cancel" value="Bỏ qua" />
+    </p>
+
+</div>
+
+<div class="d2">
+    <p style="font-weight:bold">
+        Vị trí cần đến
+        <input type="text" id="to" name="name" value="@Request.QueryString["to"]" />
+
+
+
+    </p>
+    <p class="loadding">
+        <input type="radio" id="hr" checked="checked" name="lh" />
+        <label for="hr" style="cursor:pointer">
+
+            Hàng rời
+        </label>
+        <input id="hg" type="radio" name="lh" />
+        <label style="cursor:pointer" for="hg">Hàng gộp</label>
+    </p>
+
+    <p class="loadding">
+        <input type="text" name="name" value="" id="BarCode" placeholder="Mã vạch hoặc mã hàng" style="width:200px" />
+        <input type="number" name="name" value="" id="bq" placeholder="Số lượng" min="0" style="width:50px" />
+        <input type="button" name="name" value="Nhận" id="postbarcode" />
+    </p>
+    <table id="dgto" title="Danh sách hàng" class="easyui-datagrid loadding" ctrlSelect="true" scrollOnSelect="true" showFooter="true" style="width: 100%; height: 250px; margin: 0 auto" url="/admin/get_moveitems?id=@Request.QueryString["id"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true">
+        <thead>
+            <tr>
+
+                <th field="ItemID" width="100">Mã hàng</th>
+                <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+
+            </tr>
+        </thead>
+
+
+    </table>
+
+
+</div>
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    function postbarcode() {
+        if ($("#dd").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập diễn giải'
+            });
+            alert('Bạn chưa nhập diễn giải')
+            $("#dd").focus();
+            $("#dd").select();
+            return;
+        }
+
+        if ($("#BarCode").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập barcode hoặc mã hàng'
+            });
+          
+
+            $("#BarCode").focus();
+            $("#BarCode").select();
+            return;
+        }
+        var sl = 1;
+        if ($("#hg").is(":checked")) {
+            if ($("#bq").val() == "") {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: 'Bạn chưa nhập số lượng'
+                });
+                $("#bq").focus();
+                return;
+            }
+            if (isNaN($("#bq").val()) == true) {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: 'Số lượng không hợp lệ'
+                });
+                $("#bq").focus();
+                return;
+            }
+            if (parseInt($("#bq").val()) <= 0) {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: 'Số lượng không hợp lệ'
+                });
+                $("#bq").focus();
+                return;
+            }
+            sl = parseInt($("#bq").val());
+        }
+        $(".main").hide();
+        $(".bt,#postbarcode").hide();
+        $.post('/admin/QuetDiHang', {
+            BarCode: $.trim($('#BarCode').val()),
+            VoucherID: '@Request.QueryString["id"]',
+            LocationFrom: '@Request.QueryString["from"]',
+            LocationTo: '@Request.QueryString["to"]',
+            Quantity: sl,
+            Description: $.trim($('#dd').val()),
+
+        }, function (result) {
+            $(".main").show();
+            if (result.success) {
+                playSound();
+                $('#dgfrom').datagrid('reload');
+                $('#dgto').datagrid('reload');
+                $("#BarCode").focus();
+                $("#bq").val("");
+                $(".bt,#postbarcode").show();
+                setTimeout(gotoresult, 2000, result.ItemList)
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $('#dgfrom').datagrid('reload');
+                $('#dgto').datagrid('reload');
+                $(".bt,#postbarcode").show();
+
+            }
+        }, 'json');
+
+        $('#BarCode').val("");
+
+        $('#BarCode').focus();
+    }
+    function gotoresult(list) {
+        var data = $("#dgfrom").datagrid("getData");
+        for (var i = 0; i < data.total; i++) {
+            var r = data.rows[i];
+            var itemid = r.ItemID;
+            if (list.indexOf(itemid) >= 0 && itemid != "")
+
+                $("#dgfrom").datagrid("selectRow", i);
+        }
+
+        data = $("#dgto").datagrid("getData");
+        for (var i = 0; i < data.total; i++) {
+            var r = data.rows[i];
+            var itemid = r.ItemID;
+            if (list.indexOf(itemid) >= 0 && itemid != "")
+
+                $("#dgto").datagrid("selectRow", i);
+        }
+
+    }
+    $(document).ready(function () {
+        $("#from,#to").focus(function () {
+            $(this).select();
+
+        })
+
+
+        $("#from,#to").change(function () {
+
+
+            var from = '@Request.QueryString["from"]';
+            if (from == 'TUNGOAI') {
+                dihangtubenngoai();
+                return;
+            }
+            $(".loadding,.datagrid,.d3").hide();
+            if ($("#from").val() != "" && $("#to").val() != "")
+                $.post('/admin/CheckPostLocationExists', { LocationIDFrom: $("#from").val(), LocationIDTo: $("#to").val() }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        $("#from,#to,#BarCode").hide();
+                        var l = "/admin/phieudihang?from=" + $("#from").val().toUpperCase();
+                        l += "&to=" + $("#to").val().toUpperCase();
+                        l += "&dd=" + $("#dd").val().toUpperCase();
+                        l += "&id=" + result.VoucherID;
+
+                        location = l;
+                    } else {
+                        $("#to").focus();
+                        $("#to").blur();
+                        playSound1();
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+
+                    }
+                }, 'json');
+            else {
+                if ($("#from").val() == "")
+                    $("#from").focus();
+                else
+                    if ($("#to").val() == "")
+                        $("#to").focus();
+                    else
+                        $("#BarCode").focus();
+
+            }
+
+        })
+        $("#bq").hide();
+        $("#hr,#hg").change(function () {
+            if ($("#hg").is(":checked"))
+                $("#bq").show();
+            else
+                $("#bq").hide();
+        })
+        $('#BarCode').focus();
+        var fromlocationxx = '@Request.QueryString["from"]'
+        if (fromlocationxx == 'TUNGOAI') {
+            $("#dihangtubenngoai").addClass("menuselect");
+            $("#from").attr("disabled", "disabled");
+            var duocquyen = '@(Global.Commons.CheckPermit("dihangtubenngoai")?"1":"0")'
+            if (duocquyen == '0')
+                location = "/admin/notpermit";
+            $("h1").html("Phiếu di hàng từ bên ngoài");
+            try {
+                $(document).attr("title", "Phiếu di hàng từ bên ngoài");
+            } catch (exx) {
+
+            }
+
+        }
+
+        else
+            $("#dihang").addClass("menuselect");
+
+        $("#add").click(function () {
+            additem();
+        });
+        $("#addall").click(function () {
+            $('#dgfrom').datagrid('selectAll');
+            additem();
+        });
+        //remove
+        $("#remove").click(function () {
+            removeitem();
+
+        });
+        $("#removeall").click(function () {
+            $('#dgto').datagrid('selectAll');
+            removeitem();
+
+        });
+
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn chưa nhập barcode'
+                    });
+
+                    $('#BarCode').focus()
+                    return;
+                }
+                if ($("#hg").is(":checked"))
+                    $('#bq').focus()
+                else
+                    postbarcode();
+            }
+        });
+
+        $('#searchbutton').click(function (event) {
+            var note = prompt("Mã hàng cần tìm", "");
+            if (note != null)
+
+                location = "/admin/phieudihang?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&key=" + note + "&id=@Request.QueryString["id"]";
+
+
+        });
+        $('#cancel').click(function (event) {
+
+            location = "/admin/phieudihang?from=@Request.QueryString["from"]&to=@Request.QueryString["to"]&id=@Request.QueryString["id"]";
+
+
+        });
+        $('#bq').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn chưa nhập số lượng'
+                    });
+
+                    $('#bq').focus()
+                    return;
+                }
+                postbarcode();
+            }
+        });
+
+        $("#postbarcode").click(function () {
+            if ($.trim($(this).val()) == "") {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: 'Bạn chưa nhập barcode'
+                });
+
+                $('#BarCode').focus()
+                return;
+            }
+
+            postbarcode();
+        });
+        if ('@Request.QueryString["key"]' != '')
+            setTimeout(gotoresult, 1000, '@Request.QueryString["key"]');
+    });
+    function additem() {
+        if ($("#dd").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập diễn giải'
+            });
+            alert('Bạn chưa nhập diễn giải')
+            $("#dd").focus();
+            $("#dd").select();
+            return;
+        }
+
+        var rows = $('#dgfrom').datagrid('getSelections');
+        var arr = new Array();
+        var sl = 0;
+        if (isNaN($("#txtQuantity").val()) == false)
+            if (parseInt($("#txtQuantity").val()) > 0)
+                sl = parseInt($("#txtQuantity").val());
+            else {
+                sl = 0;
+                $("#txtQuantity").val("");
+            }
+
+
+
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var r = rows[i];
+
+                if (sl <= 0)
+                    arr[arr.length] = { ItemID: r.ItemID, LSX: r.LSX, Quantity: r.Quantity };
+                else
+                    arr[arr.length] = { ItemID: r.ItemID, LSX: r.LSX, Quantity: sl };
+
+            }
+
+            var jsonObject = {
+                LItem: arr
+                , VoucherID: "@Request.QueryString["id"]"
+                , LocationFrom: "@Request.QueryString["from"]"
+                , LocationTo: "@Request.QueryString["to"]"
+                , Description: $.trim($('#dd').val())
+
+            };
+            $("#message").html("Vui lòng chờ...");
+            $(".bt").hide();
+            $.ajax({
+                url: "/admin/Add_ListDetail",
+                type: "POST",
+                data: JSON.stringify(jsonObject),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                error: function (response) {
+                    playSound1();
+                    alert(response.responseText);
+                    $("#message").html("");
+                    $(".bt").show();
+                    $('#dgfrom').datagrid('reload');
+                    $('#dgto').datagrid('reload');
+                },
+                success: function (response) {
+                    if (response.success == true) {
+                        playSound();
+                        $("#message").html("");
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                        $("#txtQuantity").val("");
+                        gettotal();
+                        setTimeout(gotoresult, 1000, response.ItemList);
+                    } else {
+                        playSound1();
+                        alert(response.errorMsg);
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                    }
+                    $("#message").html("");
+                    $(".bt").show();
+                }
+
+            });
+
+        }
+
+    }
+    function removeitem() {
+        if ($("#dd").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập diễn giải'
+            });
+            alert('Bạn chưa nhập diễn giải')
+            $("#dd").focus();
+            $("#dd").select();
+            return;
+        }
+
+        var rows = $('#dgto').datagrid('getSelections');
+        var arr = new Array();
+        var sl = 0;
+        if (isNaN($("#txtQuantity").val()) == false)
+            if (parseInt($("#txtQuantity").val()) > 0)
+                sl = parseInt($("#txtQuantity").val());
+            else {
+                sl = 0;
+                $("#txtQuantity").val("");
+            }
+
+
+
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var r = rows[i];
+                if (sl <= 0)
+                    arr[arr.length] = { ItemID: r.ItemID, LSX: r.LSX, Quantity: r.Quantity };
+                else
+                    arr[arr.length] = { ItemID: r.ItemID, LSX: r.LSX, Quantity: sl };
+
+            }
+
+            var jsonObject = {
+                LItem: arr
+                , VoucherID: "@Request.QueryString["id"]"
+                , LocationFrom: "@Request.QueryString["to"]"
+                , LocationTo: "@Request.QueryString["from"]"
+                , Description: $.trim($('#dd').val())
+
+            };
+            $("#message").html("Vui lòng chờ...");
+            $(".bt").hide();
+            $.ajax({
+                url: "/admin/Remove_ListDetail",
+                type: "POST",
+                data: JSON.stringify(jsonObject),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                error: function (response) {
+                    playSound1();
+                    alert(response.responseText);
+                    $("#message").html("");
+                    $(".bt").show();
+                    $('#dgfrom').datagrid('reload');
+                    $('#dgto').datagrid('reload');
+
+                },
+                success: function (response) {
+                    if (response.success == true) {
+                        playSound();
+                        $("#message").html("");
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                        $("#txtQuantity").val("");
+                        gettotal();
+                        setTimeout(gotoresult, 1000, response.ItemList);
+                    } else {
+                        playSound1();
+                        alert(response.errorMsg);
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                    }
+                    $("#message").html("");
+                    $(".bt").show();
+                }
+
+            });
+
+        }
+    }
+    function gettotal() {
+
+        $.post('/admin/Get_RemainDetailSum?id=@Request.QueryString["from"]&key=@Request.QueryString["key"]&page=1', null, function (result) {
+            $(".panel-title:first").html("Danh sách hàng(" + result.Count + " dòng) tổng SL: " + result.SL)
+        }, 'json');
+    }
+    function dihangtubenngoai() {
+        if ($("#fromout").is(":checked")) {
+            $(".loadding,.datagrid,.d3").hide();
+            if ($("#to").val() != "") {
+
+                $.post('/admin/CheckPostLocationToExists', { LocationIDTo: $("#to").val() }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        var l = "/admin/phieudihang?from=TUNGOAI";
+                        l += "&to=" + $("#to").val().toUpperCase();
+                        l += "&id=" + result.VoucherID;
+                        l += "&dd=" + $("#dd").val().toUpperCase();
+                        location = l;
+                    } else {
+                        playSound1();
+                        alert(result.errorMsg);
+
+                    }
+                }, 'json');
+            } else {
+                playSound1();
+                alert('Vui lòng nhập vị trí đến');
+                var l = "/admin/phieudihang?from=TUNGOAI";
+                location = l;
+            }
+        } else {
+            playSound();
+            var l = "/admin/phieudihang";
+            location = l;
+        }
+
+
+    }
+    $(document).ready(function () {
+        var dd = '@Request.QueryString["dd"]';
+        if ($("#dd").val() == "")
+            $("#dd").val(dd);
+
+        $('#dd').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                $("#from").focus();
+            }
+        });
+
+        var from = '@Request.QueryString["from"]';
+        if (from == 'TUNGOAI') {
+            $("#dgfrom,.d3,.d1 .datagrid").hide();
+            $(".d2").css({ "width": "100%" });
+            $("#fromout").attr("checked", "checked");
+        }
+        if ($("#dd").val() == "") {
+            $('#dd').focus();
+        }
+        else
+            if ($("#from").val() == "")
+                $("#from").focus();
+            else
+                if ($("#to").val() == "")
+                    $("#to").focus();
+                else
+                    $("#BarCode").focus();
+
+
+    });
+</script>

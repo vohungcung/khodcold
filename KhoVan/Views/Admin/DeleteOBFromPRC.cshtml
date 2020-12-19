@@ -1,0 +1,175 @@
+﻿@{
+    ViewBag.Title = "Xóa từ phiếu ra cổng";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        width: 100%;
+        height: 25px;
+        text-align: center;
+    }
+
+
+
+    th {
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .row1 {
+        background-color: #DDD;
+    }
+
+    a {
+        text-decoration: none;
+    }
+    #buttondelete{
+        display:none;
+    }
+    h1 span{
+        font-size:16px;
+        color:green;
+    }
+</style>
+<h1>
+    Xóa chi tiết phiếu ra cổng 
+</h1>
+<p  style="color:blue">
+    <span id="label"></span><span id="count"></span>
+</p>
+<p>
+    Barcode
+</p>
+<p> <input type="text" name="name" value="" id="barcode" /></p>
+<p id="message" style="color:red">
+
+</p>
+<div style="width:100%;height:170px;overflow:auto">
+    <table style="width:100%;border-collapse:collapse" cellpadding="5" cellspacing="0" id="data" border="1">
+        <tr>
+            <th colspan="3" id="ob"></th>
+        </tr>
+        <tr>
+            <th>TT</th>
+            <th>Quy cách</th>
+            <th>
+                Số lượng
+
+            </th>
+        </tr>
+    </table>
+</div>
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<p style="text-align:center"><input type="button" name="name" value="Xóa" id="buttondelete" onclick="savedata()" /></p>
+<script>
+    var listbarcode = new Array();
+    function addarcode(bc) {
+        for (var i = 0; i < listbarcode.length; i++) {
+            if (listbarcode[i] == bc) return false;
+        }
+        listbarcode[listbarcode.length] = bc;
+        return true;
+    }
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    $(document).ready(function () {
+        $("#barcode").focus();
+        $('#barcode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                 postdata();
+
+               
+            }
+        });
+        $('#barcode').focus(function () {
+            $(this).select();
+        })
+    });
+    function postdata() {
+        if ($("#barcode").val() == "") {
+            playSound1();
+            alert("Tem không hợp lệ");
+            return;
+        }
+        $("#message").html("");
+        $("#barcode").hide();
+        $.post('/admin/GetOBInfoFromPRC', {
+            BarCode: $("#barcode").val(),
+            PRCID: '@Request.QueryString["id"]',
+            OB: $.trim($("#ob").text())
+        }, function (result) {
+          
+           
+            if (result.success) {
+                if (addarcode($("#barcode").val()) == false) {
+                    playSound1();
+                    alert($("#barcode").val() + ' đã quét rồi');
+                    $("#message").html($("#barcode").val() + ' đã quét rồi');
+                    $("#barcode").show();
+                    $("#barcode").val("");
+                    $("#barcode").focus();
+                    return;
+                }
+
+                playSound();
+                var sp = "";
+                if (parseInt(result.Quantity) > 0)
+                    sp += "Sản phẩm: " + result.Quantity+" ";
+                if (parseInt(result.BX) > 0)
+                    sp += "túi xốp: " + result.BX;
+
+                var tr = "<tr class='row'><td align='center'>" + result.OrderNo + "</td><td align='center'>" + result.Style + "</td><td align='center'>" + sp + "</td></tr>";
+                $("#data").append(tr);
+                $("#ob").html(result.OB);
+                $("#label").html(" Outbound "+result.OB + " có số kiện: ");
+                $("#count").html(result.OBCount);
+                var arr = $(".row").get();
+                if (arr.length == parseInt(result.OBCount)) {
+                    $("#buttondelete").show();
+                }
+            } else {
+                playSound1();
+                $("#message").html(result.errorMsg);
+            }
+            $("#barcode").show();
+            $("#barcode").val("");
+            $("#barcode").focus();
+
+        }, 'json');
+    }
+    function savedata() {
+        if (confirm('Bạn có chắc là muốn xóa toàn bộ đầu 8 ' + $.trim($("#ob").text())) == false)
+            return;
+        $("#buttondelete").hide();
+        $.post('/admin/DeleteOBInfoFromPRC', {
+            OB: $.trim($("#ob").text()),
+            PRCID: '@Request.QueryString["id"]'
+        }, function (result) {
+
+          
+
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                parent.location = parent.location;
+            } else {
+                playSound1();
+                $("#message").html(result.errorMsg);
+                alert(result.errorMsg);
+                $("#buttondelete").show();
+            }
+        }, 'json');
+    }
+</script>

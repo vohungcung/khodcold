@@ -1,0 +1,288 @@
+﻿@{
+    ViewBag.Title = "Di hàng theo mã";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link href="~/css/dihang.css" rel="stylesheet" />
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+    })
+    function changeitem() {
+        var olditem = '@Request.QueryString["id"]';
+        var item = $("#itemid").val();
+        if (olditem != item) {
+            $.post('/admin/GetGroupVoucher', { BarCode: item}, function (result) {
+
+            if (result.success) {
+                playSound();
+                location = '/admin/dihangtheoma?id=' + result.itemid+"&g="+result.g;
+                $(".bt").show();
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $(".bt").show();
+            }
+                }, 'json');
+
+        }
+
+    }
+</script>
+<h1>Di hàng theo mã</h1> <p><input id="dd" type="text" maxlength="200" style="width:100%" placeholder="Diễn giải" name="name" value="@ViewBag.dd" /></p>
+
+<script>
+    $(document).ready(function () {
+        $("#dihangtheoma").addClass("menuselect");
+    })
+</script>
+<div class="clear">
+
+</div>
+<div class="d1">
+
+    <p>
+        <input placeholder="Mã hàng" type="text" autocomplete="off" onchange="changeitem()" name="itemid" value="@Request.QueryString["id"]" id="itemid" />
+
+    </p>
+
+
+    <table id="dgfrom" title="Danh sách vị trí có hàng này" class="easyui-datagrid" selectOnCheck="true" scrollOnSelect="true"
+           ctrlSelect="true" showFooter="true"
+           style="width: 100%; height: 250px; margin: 0 auto"
+           url="/admin/GetByItem?id=@Request.QueryString["id"]&g=@Request.QueryString["g"]" toolbar="#toolbar"
+           rownumbers="true" fitcolumns="true">
+        <thead>
+            <tr>
+                <th field="Location" width="100">Vị trí</th>
+                <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+            
+            </tr>
+        </thead>
+
+
+    </table>
+
+</div>
+<div class="d3">
+
+
+    <p>
+        <input type="number" placeholder="Lấy hết" name="name" min="0" value="" id="txtQuantity" />
+    </p>
+    <p>
+        <input class="bt" type="button" name="name" id="add" value=">" />
+    </p>
+    <p>
+        <input class="bt" type="button" name="name" id="remove" value="<" />
+    </p>
+</div>
+
+<div class="d2">
+
+
+    <p>
+        <input type="text" id="vitriden" placeholder="vị trí đến" name="name" value="" />
+    </p>
+    <table id="dgto" title="Danh sách hàng" class="easyui-datagrid" ctrlSelect="true" scrollOnSelect="true" showFooter="true" style="width: 100%; height: 250px; margin: 0 auto" url="/admin/get_moveitembygroup?g=@Request.QueryString["g"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true">
+        <thead>
+            <tr>
+                <th field="VoucherID" width="100">Số phiếu di</th>
+                <th field="LocationFrom" width="60">Từ</th>
+                <th field="LocationTo" width="60">Đến</th>
+                <th field="ItemID" width="100">Mã hàng</th>
+                <th field="Quantity" data-options="align:'right'" width="40">Số lượng</th>
+         
+            </tr>
+        </thead>
+
+
+    </table>
+
+
+</div>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    $(document).ready(function () {
+
+
+        $("#add").click(function () {
+            additem();
+        });
+
+        //remove
+        $("#remove").click(function () {
+            removeitem();
+
+        });
+    });
+
+
+
+    function additem() {
+        if ($("#vitriden").val() == "") {
+            playSound1();
+
+            alert('Bạn chưa nhập vị trí đến');
+            return;
+        }
+         var rows = $('#dgfrom').datagrid('getSelections');
+            var arr = new Array();
+            var sl = 0;
+            if (isNaN($("#txtQuantity").val()) == false)
+                if (parseInt($("#txtQuantity").val()) > 0)
+                    sl = parseInt($("#txtQuantity").val());
+                else {
+                    sl = 0;
+                    $("#txtQuantity").val("");
+                }
+
+
+
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var r = rows[i];
+
+                if (sl <=0)
+                    arr[arr.length] = { Location:r.Location,ItemID: $("#itemid").val(), LSX: r.LSX, Quantity: r.Quantity };
+                else
+                    arr[arr.length] = { Location: r.Location, ItemID: $("#itemid").val(), LSX: r.LSX, Quantity: sl };
+
+            }
+
+            var jsonObject = {
+                LItem: arr,
+                 LocationTo: $("#vitriden").val(),
+                Description: $.trim($('#dd').val()),
+                 G:"@Request.QueryString["g"]"
+
+            };
+            $("#message").html("Vui lòng chờ...");
+            $(".bt").hide();
+            $.ajax({
+                url: "/admin/Add_ListItem",
+                type: "POST",
+                data: JSON.stringify(jsonObject),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                error: function (response) {
+                    playSound1();
+                    $('#dgfrom').datagrid('reload');
+                    $('#dgto').datagrid('reload');
+                    alert(response.responseText);
+                    $("#message").html("");
+                    $(".bt").show();
+                },
+                success: function (response) {
+                    if (response.success == true) {
+                        playSound();
+                        $("#message").html("");
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                        $("#txtQuantity").val("");
+                    } else {
+                        playSound1();
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                        alert(response.errorMsg);
+                    }
+                    $("#message").html("");
+                    $(".bt").show();
+                }
+
+            });
+
+            }
+
+    }
+
+
+
+    function removeitem() {
+
+         var rows = $('#dgto').datagrid('getSelections');
+            var arr = new Array();
+            var sl = 0;
+            if (isNaN($("#txtQuantity").val()) == false)
+                if (parseInt($("#txtQuantity").val()) > 0)
+                    sl = parseInt($("#txtQuantity").val());
+                else {
+                    sl = 0;
+                    $("#txtQuantity").val("");
+                }
+
+
+
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var r = rows[i];
+
+                if (sl <=0)
+                    arr[arr.length] = {VoucherID:r.VoucherID, LocationFrom: r.LocationTo, LocationTo: r.LocationFrom,ItemID: $("#itemid").val(), LSX: r.LSX, Quantity: r.Quantity };
+                else
+                    arr[arr.length] = { VoucherID: r.VoucherID, LocationFrom: r.LocationTo, LocationTo: r.LocationFrom, ItemID: $("#itemid").val(), LSX: r.LSX, Quantity: sl };
+
+            }
+
+            var jsonObject = {
+                LItem: arr,
+                 G:"@Request.QueryString["g"]"
+
+            };
+            $("#message").html("Vui lòng chờ...");
+            $(".bt").hide();
+            $.ajax({
+                url: "/admin/Remove_ListDetailFromGroup",
+                type: "POST",
+                data: JSON.stringify(jsonObject),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                error: function (response) {
+                    playSound1();
+                    alert(response.responseText);
+                    $('#dgfrom').datagrid('reload');
+                    $('#dgto').datagrid('reload');
+                    $("#message").html("");
+                    $(".bt").show();
+                },
+                success: function (response) {
+                    if (response.success == true) {
+                        playSound();
+                        $("#message").html("");
+                        $('#dgfrom').datagrid('reload');
+                        $('#dgto').datagrid('reload');
+                        $("#txtQuantity").val("");
+                    } else {
+                        playSound1();
+                        alert(response.errorMsg);
+                       
+                    }
+                    $("#message").html("");
+                    $(".bt").show();
+                }
+
+            });
+
+            }
+
+    }
+</script>

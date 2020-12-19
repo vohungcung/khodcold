@@ -1,0 +1,147 @@
+﻿@{
+    ViewBag.Title = "Phieu ra cong";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        width: 100%;
+        height: 25px;
+        text-align: center;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        text-align: center;
+    }
+
+    th {
+        color: #FFF;
+        background-color: navy;
+    }
+
+    .row1 {
+        background-color: #DDD;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .tt {
+        text-align: center;
+    }
+
+    .data {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #total th {
+        text-align: right;
+    }
+    h1{
+        color:red;
+    }
+</style>
+<h1>
+    Outbound còn thiếu của phiếu: @Request.QueryString["id"]
+</h1>
+<table class="data" cellpadding="5" cellspacing="0" border="1">
+    <tr>
+        <th>
+            TT
+        </th>
+        <th>Outbound</th>
+        <th align="right">
+            Thùng
+        </th>
+        <th align="right">
+            Bao
+        </th>
+        <th align="right">
+            Hàng
+        </th>
+        <th align="right">
+            Túi xốp
+        </th>
+    </tr>
+    @foreach (System.Data.DataRow item in ViewBag.data)
+    {
+        <tr class="row">
+            <td class="tt"></td>
+            <td align="center">
+                <a href="/admin/obinfo?id=@item["OB"]">
+                    @item["OB"]
+                </a>
+            </td>
+            <td align="right">
+                @item["T"]
+            </td>
+            <td align="right">
+                @item["B"]
+            </td>
+            <td align="right">
+                @item["Q2"]
+            </td>
+            <td align="right">
+                @item["Q3"]
+            </td>
+        </tr>
+    }
+    <tr id="total">
+        <th>
+
+        </th>
+        <th style="text-align:center">Tổng cộng</th>
+        <th>
+
+        </th>
+        <th>
+
+        </th>
+        <th>
+
+        </th>
+        <th>
+
+        </th>
+    </tr>
+</table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var arr = $(".data").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(".data").find(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+        arr = $(".data").find("td").get();
+        for (var i = 0; i < arr.length; i++) {
+            if ($.trim($(arr[i]).text()) == "0")
+                $(arr[i]).html("");
+        }
+        summaryall();
+    });
+    function summaryall() {
+        var ttt = new Array();
+        ttt = [0, 0, 0, 0, 0, 0];
+        var arr = $(".data").find(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+
+            var tsc = $(arr[i]).find("td").get();
+            for (var j = 2; j < tsc.length; j++) {
+                if (isNaN($(tsc[j]).text()) == false && $(tsc[j]).text() != "")
+                    ttt[j] += parseInt($(tsc[j]).text());
+
+            }
+        }
+        for (var i = 2; i < 6; i++) {
+            $("#total th:eq(" + i + ")").html(ttt[i]);
+        }
+
+    }
+</script>

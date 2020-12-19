@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "Vị trí châm hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<h1>
+    Vị trí cần châm 
+</h1>
+
+<div style="margin: 10px 0;"></div>
+<div class="easyui-panel" style="width: 100%; padding: 5px 5px; border: none">
+    <input value="@Global.Commons.ConvertToString(Request.QueryString["key"])" labelWidth="150" class="keyword easyui-searchbox" label="Vị trí" data-options="searcher:doSearch" style="width: 100%">
+</div>
+<script>
+    function doSearch() {
+        var key = $(".keyword").val();
+        location = "/admin/baocaochamhang?key=" + key;
+    }
+    $('.date').datebox({
+        onSelect: function (date) {
+            setTimeout(doSearch, 500);
+        }
+    });
+
+
+</script>
+
+<table id="dg" title="Danh sách vị trí cần châm: @ViewBag.Count" class="easyui-datagrid" style="width: 100%; height: 350px; margin: 0 auto" url="/admin/Get_ChamHang?key=@Request.QueryString["key"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="Location" width="150">Vị trí</th>
+            <th field="Volume" width="150" data-options="align:'right'">Sức chứa(m3)</th>
+            <th field="VolumeUsed" width="150" data-options="align:'right'">Đã chứa(m3)</th>
+            <th field="Quantity" width="150" data-options="align:'right'">Số lượng hiện tại</th>
+
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportexcel()">Xuất sang excel</a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+
+
+
+<script>
+    $(window).load(function () {
+        $("#baocaochamhang").addClass("menuselect");
+
+    })
+    function exportexcel() {
+        var url = "/admin/XuatChamHang";
+        open(url);
+    }
+</script>

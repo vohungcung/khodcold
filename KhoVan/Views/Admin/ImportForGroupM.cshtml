@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Import";
+    Layout = "~/Views/Shared/_SingleLayout.cshtml";
+}
+<script src="~/Scripts/jquery-1.4.1.min.js"></script>
+<style>
+    input[type=text] {
+        width: 100%;
+        height:25px;
+        text-align: center;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        text-align:center;
+    }
+</style>
+<p>
+    <textarea id="ItemID" placeholder="Mã hàng | Vị trí | Số lượng"></textarea>
+</p>
+<p>
+    <input type="text" id="Description" placeholder="Diễn giải" />
+</p>
+<p>
+    <input type="text" id="LocationTo" placeholder="Vị trí đến" />
+</p>
+
+<p style="text-align: center">
+    <input type="button" id="choosebutton" name="name" value="Di hàng" onclick="doit()" />
+    <input type="button" id="closebutton" name="name" onclick="closew()" value="Đóng" />
+</p>
+
+
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    function closew() {
+        parent.tcboxclose();
+
+    }
+    //CheckSLocation
+    function doit() {
+        $("#choosebutton").hide();
+        $("#ms").html("Đang tải. Vui lòng chờ trong giây lát....");
+        $.post('/admin/CheckSLocation', {
+         
+            Location: $("#LocationTo").val()
+        }, function (result) {
+
+            if (result.success) {
+
+
+                $.post('/admin/ImportForGroupM', {
+                    sList: $("#ItemID").val(),
+                    Description: $("#Description").val(),
+                    LocationTo: $("#LocationTo").val()
+                }, function (result) {
+
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+
+                        $("#choosebutton").show();
+                        parent.location = parent.location;
+                    } else {
+                        playSound1();
+                        alert(result.errorMsg);
+                        $("#choosebutton").show();
+                        $("#ms").html("");
+
+                    }
+                }, 'json');
+
+
+              
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#choosebutton").show();
+                $("#ms").html("");
+
+            }
+            }, 'json');
+
+      
+
+    }
+</script>

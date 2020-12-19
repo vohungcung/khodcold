@@ -1,0 +1,642 @@
+﻿@{
+    ViewBag.Title = "Sửa phiếu lấy hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .txtl {
+        width: 250px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+
+    .divdata {
+        margin: 0 auto;
+        max-height: 450px;
+        overflow: auto;
+        max-width: 890px;
+        border: 1px solid #ddd;
+    }
+
+    .divcontent {
+        margin: 0 auto;
+    }
+
+    .lenh {
+        text-align: center;
+    }
+
+    h1 {
+        text-align: center;
+    }
+</style>
+
+<script>
+    var status = '@ViewBag.Status';
+      var dxn = '@ViewBag.xn';
+    $(window).load(function () {
+        if (status != '')
+            $(".getfrom").html("");
+        if (dxn == '1') {
+            $(".vt a").removeAttr("onclick");
+            $(".vt a").attr("href", "#");
+            $(".vt .themhang").remove();
+           $("<span style='font-weight:bold;color:green;margin-left:10px'>Đã xác nhận lấy hàng </span>").insertAfter($("#xacnhan"));
+            $("#xacnhan,#reset,#reset1").hide();
+        }
+
+        $("#xk").addClass("menuselect");
+        var arr = $(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+        arr = $(".row").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).addClass("row" + (i % 2));
+        }
+        arr = $(".vitri").get();
+        for (var i = 0; i < arr.length; i++) {
+            if ($.trim($(arr[i]).html()) != "") {
+                $(".ud").remove();
+                break;
+            }
+        }
+
+    })
+
+
+
+
+    var gbd = "";
+    function getproducts1() {
+        $("#mm").hide();
+        if (confirm("Sau khi tính vị trí này xong phiếu này bạn sẽ không thể thêm xóa sửa được. Bạn có chắc là muốn thực hiện điều này? ") == false) {
+            return;
+        }
+        ShowWaiting();
+        var dt = new Date();
+
+        gbd = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+        var batdau = dt.getHours() * 3600 + dt.getMinutes() * 60 + dt.getSeconds();
+
+        $.post('/admin/getproductsforvoucher1', {
+            VoucherID: '@Request.QueryString["id"]'
+        }, function (result) {
+            HideWaitting();
+            if (result.success) {
+                playSound();
+
+                dt = new Date();
+                var gkt = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+                var ketthuc = dt.getHours() * 3600 + dt.getMinutes() * 60 + dt.getSeconds();
+
+                alert(result.msg + ' (bắt đầu: ' + gbd + ' - kết thúc: ' + gkt+') - Tổng cộng : '+(ketthuc-batdau)+' giây ');
+                location = location;
+
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $("#thieu").html(result.thieu);
+                if(du!="")
+                    $("#du").html("<input style='float:right' type='button' value='Tách' onclick=\'tach(this)\' />"+result.du);
+
+                $("#loi").show();
+                alert(result.errorMsg);
+                $("#mm").val(result.errorMsg);
+                $("#mm").show();
+            }
+        }, 'json');
+    }
+    function rountingitem(voucherid) {
+        ShowWaiting();
+        $.post('/admin/getproductsforvoucher1', {
+            VoucherID: voucherid
+        }, function (result) {
+            HideWaitting();
+
+            playSound();
+            open('/admin/SX?id=' + voucherid);
+
+
+
+        }, 'json');
+    }
+
+
+    function printdata(id) {
+        $.post('/admin/CheckPrintCount', {
+            VoucherID: id
+        }, function (result) {
+            if (result.success) {
+
+                if (result.PrintCount > 0) {
+                    warningsound();
+                    if (confirm("Phiếu này đã từng in " + result.PrintCount + " lần rồi. Bạn có chắc là muốn in lại nó không?") == false) return;
+                }
+                playSound();
+                open('/admin/printoutput?id=' + id);
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+            }
+            }, 'json');
+
+
+
+    }
+    function printdata1(id) {
+        $.post('/admin/CheckPrintCount', {
+            VoucherID: id
+        }, function (result) {
+            if (result.success) {
+
+                if (result.PrintCount > 0) {
+                    warningsound();
+                    if (confirm("Phiếu này đã từng in " + result.PrintCount + " lần rồi. Bạn có chắc là muốn in lại nó không?") == false) return;
+             }
+                playSound();
+                open('/admin/printoutput1?id=' + id);
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+            }
+        }, 'json');
+
+
+
+    }
+    function printdata2(id) {
+        $.post('/admin/CheckPrintCount', {
+            VoucherID: id
+        }, function (result) {
+            if (result.success) {
+
+                if (result.PrintCount > 0) {
+                    warningsound();
+                    if (confirm("Phiếu này đã từng in " + result.PrintCount + " lần rồi. Bạn có chắc là muốn in lại nó không?") == false) return;
+                }
+                playSound();
+                open('/admin/printoutput2?id=' + id);
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+            }
+            }, 'json');
+
+
+
+    }
+
+</script>
+<h1>
+    Sửa phiếu lấy hàng @Html.Raw(ViewBag.Status)
+</h1>
+
+<table cellpadding="5" cellspacing="0" style="margin:0 auto">
+    <tr>
+        <td>Số phiếu</td>
+        <td>
+            @ViewBag.VoucherID   <strong style="color:green">@ViewBag.PrintCount</strong>
+         
+        </td>
+        <td class="ud"></td>
+        <td class="ud"></td>
+
+
+    </tr>
+    <tr>
+        <td>Ngày</td>
+        <td>
+            <input type="text" class="txtdate" id="VoucherDate" name="VoucherDate" value="@ViewBag.VoucherDate" />
+         
+        </td>
+
+
+        <td class="ud getfrom">Vị trí cần lấy hàng</td>
+        <td class="ud getfrom">
+            <input type="text" name="name" value="" id="locationid" />
+            <input type="button" id="getfromhere" name="name" onclick="getitemfromlocation()" value="Thực hiện lấy từ vị trí này" />
+        </td>
+    </tr>
+
+</table>
+
+<div class="clear"></div>
+
+<p id="rowcount" style="text-align:center">
+    <strong style="color:green">@ViewBag.OBCount</strong> - 
+</p>
+<div class="clear"></div>
+<div class="divcontent">
+
+    <div class="divdata">
+
+        <table cellpadding="5" cellspacing="0">
+            <tr class="theader">
+                <th>TT</th>
+
+                <th>Mã hàng</th>
+                <th>Tên hàng</th>
+                <th>ĐVT</th>
+                <th>
+                    Số lượng giao
+                </th>
+                <th>
+                    Số lượng lấy
+                </th>
+
+                <th>Vị trí</th>
+
+                <th class="ud"></th>
+            </tr>
+            @foreach (MvcApplication5.Controllers.WD item in ViewBag.data)
+            {
+                <tr class="row">
+                    <td class="tt"></td>
+                    <td>
+                        @item.ItemID
+                    </td>
+                    <td>
+
+                        @item.ItemName
+
+                    </td>
+
+                    <td>
+                        @item.UnitID
+                    </td>
+                    <td style="text-align:right">
+                        @item.Quantity.ToString("N0")
+                    </td>
+
+                    <td style="text-align:right">
+                        @item.Q.ToString("N0")
+                    </td>
+
+
+                    <td class="vt">
+
+                        <p>
+                            <a class="vitri" href="javascript:void(1)" onclick="changelocation('@item.Location','@item.ItemID','@Request.QueryString["id"]','@item.Q')">
+
+                                @item.Location
+                            </a>
+                        </p>
+                        @*<p class="themhang">
+                                <a href="javascript:void(1)" onclick="changelocation('','@item.ItemID','@Request.QueryString["id"]','@item.Q')">
+                                    lấy Thêm hàng từ vị trí
+                                </a>
+                            </p>
+                            <p class="themhang">
+                                <a href="javascript:void(1)" id="reset" onclick="resetlocation('@item.Location','@item.ItemID')">
+                                    Khởi tạo lại
+                                </a>
+                            </p>*@
+                    </td>
+
+                    <td style="text-align:center" class="ud">
+                        <a href="javascript:void(0)" style="display:none" onclick="deleteitem('@item.ItemID','@item.OB')">Xóa</a>
+                    </td>
+                </tr>
+
+            }
+            @*<tr class="ud" style="display:none">
+                <td colspan="3">
+                    <input type="text" name="ItemID" placeholder="Mã hàng" id="ItemID" value="" class="txtl" />
+                </td>
+                <td>
+                    <input type="text" name="Quantity" id="Quantity" value="1" class="txtdate" />
+                </td>
+                <td></td>
+                <td></td>
+
+
+                <td style="text-align:center">
+                    <input type="button" name="add" value="Thêm" onclick="additem()" />
+                </td>
+            </tr>*@
+
+            @foreach (System.Data.DataRow item in Global.Commons.GetData("exec SP_SumWD '"+Global.Commons.Fix(Global.Commons.ConvertToString( Request.QueryString["id"]))+"'").Rows)
+            {
+                <tr >
+                   
+                    <th colspan="4">
+                       Tổng cộng
+                    </th>
+                  
+
+                 
+                    <th style="text-align:right">
+                        @Global.Commons.ConvertToDecimal(item[0]).ToString("N0")
+                    </th>
+
+                    <th style="text-align:right">
+                        @Global.Commons.ConvertToDecimal(item[1]).ToString("N0")
+                    </th>
+
+
+                    <th class="vt">
+
+                      
+                      
+                    </th>
+
+                    <th style="text-align:center" class="ud">
+                     
+                    </th>
+                </tr>
+
+            }
+            <tr>
+                <td style="text-align:center" colspan="6"></td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="clear">
+
+    </div>
+    <p class="lenh">
+        <input type="button" name="name" value="In tổng hợp" onclick="printdata('@Request.QueryString["id"]')" />
+        <input type="button" name="name" value="In lẻ" onclick="printdata1('@Request.QueryString["id"]')" />
+        <input type="button" name="name" value="In chẳn" onclick="printdata2('@Request.QueryString["id"]')" />
+        <input type="button" id="reset1" name="name" value="Xóa tất cả vị trí" onclick="resetall()" />
+        <input type="button" id="datachange" name="name" value="Xem sự thay đổi" onclick="ViewChanging()" />
+
+
+
+        <input type="button" class="ud" name="name" value="Lấy hàng" onclick="getproducts1()" />
+     
+
+        @if (Global.GlobalVariables.IsAdmin)
+        {
+
+            <input type="button" name="name" value="Cập nhật lại outbound từ SAP" id="updatepickinglist" onclick="UpdatePickingListFromSAP()" />
+
+        }
+        <input type="button" name="name" value="Trở về" onclick="location='/admin/viewxk?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")'" />
+
+    </p>
+    <center>
+
+        <table id="loi" style="display:none" cellpadding="10" cellspacing="0">
+            <tr>
+                <th>Chi tiết</th>
+                <th>Outbound thiếu</th>
+                <th>Outbound đủ hàng</th>
+            </tr>
+            <tr>
+                <td id="chitiet" valign="top">
+                    <textarea id="mm" style="width:500px;height:200px;margin:0 auto;display:none" disabled="disabled">
+
+</textarea>
+                </td>
+                <td id="thieu" style="color:red" valign="top"></td>
+                <td id="du" style="color:green" valign="top"></td>
+            </tr>
+        </table>
+    </center>
+
+</div>
+
+<div class="clear"></div>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<script src="~/Scripts/tuchebox.js"></script>
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+
+    function changelocation(locationid, itemid, voucherid, sl) {
+        return;
+        showtc("/admin/sxx?p=" + locationid + "&i=" + itemid + "&id=" + voucherid + "&sl=" + sl, 600, 400);
+
+    }
+    function resetlocation(locationid, itemid) {
+        ShowWaiting();
+       $.post('/admin/resetxk', {
+            VoucherID: '@Request.QueryString["id"]',
+            LocationID: locationid,
+            ItemID: itemid
+
+       }, function (result) {
+           HideWaitting();
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+    }
+
+    function resetall() {
+        if (confirm('Bạn có chắc là bạn muốn xoá hết vị trí') == false) return;
+        ShowWaiting();
+       $.post('/admin/resetall', {
+            VoucherID: '@Request.QueryString["id"]'
+
+
+       }, function (result) {
+           HideWaitting();
+            if (result.success) {
+                playSound();
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+    }
+
+
+
+    $(document).ready(function () {
+
+    });
+    $(document).ready(function () {
+        var arr = $(document).find(".row").get();
+
+        var itemid = "";
+        for (var i = 0; i < arr.length; i++) {
+            var cols = $(arr[i]).find("td").get();
+            if ($(cols[1]).text().trim() != itemid) {
+                itemid = $(cols[1]).text().trim();
+
+            } else {
+                $(cols[1]).html("");
+                $(cols[2]).html("");
+                $(cols[3]).html("");
+                $(cols[4]).html("");
+
+            }
+        }
+        $("#rowcount").append(arr.length + ' dòng');
+
+    })
+    function getitemfromlocation() {
+        var l = $("#locationid").val();
+        if ($.trim(l) == "") {
+            playSound1();
+            alert('Bạn chưa nhập vị trí')
+            return;
+        }
+        ShowWaiting();
+        $.post('/admin/GetFromLocation', {
+            VoucherID:'@Request.QueryString["id"]'
+            , LocationID:$("#locationid").val()
+        }, function (result) {
+            HideWaitting();
+            if (result.success) {
+                playSound();
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+    }
+    function ShowWaiting() {
+        $(".lenh,.ud").hide();
+        $(".lenh,.ud").hide();
+    }
+    function HideWaitting() {
+        $(".lenh,.ud").show();
+        $(".lenh,.ud").show();
+    }
+    function UpdatePickingListFromSAP() {
+        var value = '@Request.QueryString["id"]';
+        $.messager.confirm('Xác nhận', 'Bạn đang sử dụng tính năng đặc biệt dành cho quản trị. khi bạn dùng tính năng này hệ thống sẽ xoá bỏ các xác nhận trước đó nếu có và cập nhật lại theo SAP. Bạn có chắc là muốn cập nhật lại phiếu ' + value + '?', function (r) {
+            if (r) {
+
+                ShowWaiting();
+                $.post('/admin/UpdateNewDataFromSAP', { VoucherID: value }, function (result) {
+                    if (result.success) {
+                        playSound();
+                        alert(result.msg);
+                        location = location;
+                        HideWaitting();
+                    } else {
+                        $.messager.show({    // show error message
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                        playSound1();
+                        HideWaitting();
+                    }
+                }, 'json');
+            }
+        });
+
+    }
+    function tach10(v) {
+
+        var value = "";
+        for (var i = 0; i < v.length; i++) {
+
+            if (i % 10 == 0 && i > 0)
+                value += "\n";
+            value += v.charAt(i);
+        }
+
+        return value;
+    }
+    function tach(e) {
+
+        $(e).hide();
+        ShowWaiting();
+        $.post('/admin/Tach', { VoucherID: '@Request.QueryString["id"]', OB:tach10($("#du").text()) }, function (result) {
+            $(e).show();
+            if (result.success) {
+              
+                rountingitem(result.VoucherID)
+
+               
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                HideWaitting();
+            }
+        }, 'json');
+    }
+    function ViewChanging() {
+        showtc('/admin/ViewChanging?id=@Request.QueryString["id"]', 600, 400);
+    }
+</script>

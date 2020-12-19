@@ -1,0 +1,10 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Nhật ký";
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<link href="~/css/tv.css?v=1" rel="stylesheet" />
+<h1>Nhật ký pallet @Request.QueryString["id"]</h1>
+@Html.Raw(ViewBag.content)

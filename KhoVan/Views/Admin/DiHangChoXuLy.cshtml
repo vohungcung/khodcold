@@ -1,0 +1,154 @@
+﻿@{
+    ViewBag.Title = "Di hàng chờ xử lý";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+
+</style>
+<script>
+    $(window).load(function () {
+        $("#dihangchoxuly").addClass("menuselect");
+        $('#itemid').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($(this).val() == "") {
+                    alert('Bạn chưa nhập mã hàng');
+                    $(this).focus();
+                } else
+                    $("#quantity").focus();
+
+
+            }
+        });
+        $('#quantity').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($(this).val() == "") {
+                    alert('Bạn chưa nhập số lượng');
+                    $(this).focus();
+                } else
+                    $("#palletid").focus();
+
+
+            }
+        });
+        $('#palletid').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($(this).val() == "") {
+                    alert('Bạn chưa nhập pallet');
+                    $(this).focus();
+                } else
+                    $("#move").focus();
+
+            }
+        });
+       
+
+    })
+
+</script>
+<style>
+    .v {
+        width: 30px;
+        height: 20px;
+    }
+
+    .txt {
+        width: 100%;
+        text-indent: 10px;
+        height: 25px;
+    }
+</style>
+<h1>
+    Di hàng chờ xử lý
+</h1>
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+        <td>Mã hàng</td>
+        <td>
+            <input type="text" name="name" id="itemid" value="" class="txt" />
+        </td>
+    </tr>
+    <tr>
+        <td>Số lượng</td>
+        <td>
+            <input type="text" name="name" id="quantity" value="" class="txt" />
+        </td>
+    </tr>
+    <tr>
+        <td>Pallet nguồn</td>
+        <td>
+            <input type="text" name="name" id="palletid" value="" class="txt" />
+        </td>
+    </tr>
+    <tr>
+        <td>LSX</td>
+        <td>
+            <input type="text" name="name" id="lsx" value="" class="txt" />
+        </td>
+    </tr>
+    <tr>
+        <td>Pallet đích</td>
+        <td>
+            <input type="text" name="name" id="palletdest" value="" class="txt" />
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2" style="text-align:center">
+            <input type="button" class="button" id="move" name="name" onclick="savedata()" value="Thực hiện" />
+
+            <input type="button" class="button" onclick="location='/admin/viewpallets'" id="cancel" name="name" value="Bỏ qua" />
+        </td>
+    </tr>
+</table>
+<script>
+    function savedata() {
+        if (isNaN($("#quantity").val())){
+            alert('Số lượng không hợp lệ');
+            $("#quantity").focus();
+            $("#quantity").select();
+            return;
+        }
+        if ($.trim($("#palletid").val()) == "") {
+            alert('Bạn chưa nhập pallet nguồn');
+            $("#palletid").focus();
+            $("#palletid").select();
+            return;
+        }
+        if ($.trim($("#itemid").val()) == "") {
+            alert('Bạn chưa nhập mã hàng');
+            $("#itemid").focus();
+            $("#itemid").select();
+            return;
+        } $(".button").hide();
+
+        $.post('/admin/dihangchoxuly', {
+            PalletID: $("#palletid").val(),
+            LSX: $("#lsx").val(),
+            ItemID: $("#itemid").val(),
+            Quantity: $("#quantity").val(),
+            PalletDestID: $("#palletdest").val()
+
+        }, function (result) {
+            if (result.success) {
+                alert(result.msg);
+                location = location;
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                $("#footertotal").hide();
+                $(".button").show();
+
+            }
+        }, 'json');
+    }
+
+</script>

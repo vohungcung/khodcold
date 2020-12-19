@@ -1,0 +1,654 @@
+﻿@{
+    ViewBag.Title = "Kiểm kê";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text], textarea {
+        text-transform: uppercase;
+    }
+
+    .colable {
+        width: 50px;
+    }
+
+    .hc {
+        width: 5px;
+    }
+</style>
+<h1>Kiểm kê</h1>
+<script>
+    $("#kk").addClass("menuselect");
+</script>
+@Html.Raw(ViewBag.ms)
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+        <td class="colable"></td>
+        <td class="hc"></td>
+        <td id="mss"></td>
+    </tr>
+    <tr>
+        <td class="colable">
+            Ngày
+        </td>
+        <td class="hc">
+            :
+        </td>
+        <td>
+            @ViewBag.D
+        </td>
+    </tr>
+    <tr>
+        <td class="colable">
+            Vị trí
+        </td>
+        <td class="hc">
+            :
+        </td>
+        <td>
+            <input type="text" id="loc" value="@Request.QueryString["l"]" maxlength="20" />
+        </td>
+
+    </tr>
+    <tr>
+        <td class="colable">
+            Ghi chú <span id="sokytu" style="color:red"></span>
+        </td>
+        <td class="hc">
+            :
+        </td>
+        <td>
+            @*<textarea id="loc1" style="width:100%;height:40px">@Request.QueryString["note"]</textarea>*@
+            <input type="text" id="loc1" style="width:100%" value="@Request.QueryString["note"]" maxlength="250" />
+        </td>
+    </tr>
+    <tr id="mv">
+        <td class="colable">Mã vạch</td>
+        <td>:</td>
+        <td>
+            <input type="text" name="BarCode" style="width:100%" id="BarCode" value="" class="BarCode" placeholder="Tem/mã hàng  số lượng" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" id="vuaquet" style="font-weight:bold"></td>
+    </tr>
+</table>
+<table id="dg" title="Danh sách hàng" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 250px; margin: 0 auto" url="/admin/getkk?d=@Request.QueryString["d"]&l=@Request.QueryString["l"]&note=@Request.QueryString["note"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="ItemID" width="100">Mã hàng</th>
+            <th field="ItemName" width="150">Tên hàng</th>
+            <th field="UnitID" width="150">ĐVT</th>
+            <th field="Quantity" width="50" data-options="align:'right'">Số lượng</th>
+        </tr>
+    </thead>
+
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="unlockitem()">Mở</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="decrease()">Giảm số lượng</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editnote()">Sửa ghi chú</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editnoteall()">Đổi tất cả các mã theo ghi chú mới</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="editlocationall()">Đổi tất cả các mã theo vị trí mới</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="deleteItem()">xóa</a>
+
+</div>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function countkt() {
+        $("#sokytu").html($("#loc1").val().length);
+
+    }
+    function changevt() {
+        if ($.trim($("#loc1").val()) == "") {
+            playSound1();
+            alert('Bạn chưa nhập ghi chú');
+            location = location;
+            return;
+        }
+        $("#mv").hide();
+        var l = "/admin/kk?d=@Request.QueryString["d"]";
+        l += "&l=" + $.trim($("#loc").val());
+        l += "&note=" + $.trim($("#loc1").val()).replace('\n', '').replace('\n', '').replace('\n', '').replace('\n', '');
+        $("#loc").attr("disabled", "disabled");
+
+        $.post('/admin/CheckSLocation', { Location: $("#loc").val() }, function (result) {
+            if (result.success) {
+                playSound();
+                location = l.toUpperCase();
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#command").hide();
+                $("#loc").removeAttr("disabled");
+                $("#mv").show();
+            }
+        }, 'json');
+
+
+
+
+    }
+    function checkvt() {
+        $.post('/admin/CheckSLocation', { Location: '@Request.QueryString["l"]' }, function (result) {
+            if (result.success) {
+
+            } else {
+
+                $("#command").hide();
+                $("#mss").html("Sai vị trí");
+            }
+        }, 'json');
+    }
+    $(document).ready(function () {
+
+        checkvt();
+        $('#BarCode').focus(function () {
+            $(this).select();
+            lockitem();
+        });
+
+        $('#loc').focus(function () {
+            $(this).select();
+            $('#BarCode').attr("disabled", "disabled");
+        });
+
+        $('#loc').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                $("#loc1").focus();
+            }
+        });
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                postbarcode();
+            }
+        });
+        $("#loc1").keydown(function () {
+            setTimeout(countkt, 100);
+
+        });
+
+        $("#loc1").keypress(function (event) {
+
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if (kiemtradiengiai($("#loc1").val())) {
+                    changevt();
+                } else {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn đã quét nhầm ô'
+                    });
+                }
+
+            }
+        });
+        function kiemtradiengiai(dd) {
+            return true;
+            //if (loc1old == "") return true;
+            if (dd.indexOf(loc1old) == 0 && loc1old.length < dd.length)
+                dd = dd.substr(loc1old.length);
+
+            var len = dd.length;
+            var flag = 1;
+            if (len == 18 || len == 27) {
+                for (var i = 0; i < dd.length; i++)
+                    if (dd.charAt(i) < 'A' && dd.charAt(i) > 'B' && dd.charAt(i) < '0' && dd.charAt(i) > '9')
+                        return true;
+            }
+            else
+                return true;
+
+            return false;
+        }
+        $('#BarCode').focus();
+        if ('@Request.QueryString["l"]' == "" || '@Request.QueryString["note"]' == "") {
+            $("#mv").hide();
+            $("#loc").focus();
+        }
+
+    })
+    function deleteItem() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn xóa?', function (r) {
+                if (r) {
+
+                    $.post('/admin/DeleteKKCT', {
+                        D: '@Request.QueryString["d"]',
+                        L: '@Request.QueryString["l"]',
+                        ItemID: row.ItemID,
+                        SubLocation: '@Html.Raw(Request.QueryString["note"])'
+                    }, function (result) {
+                        if (result.success) {
+                            playSound();
+                            alert('Đã xóa thành công');
+
+                            $('#dg').datagrid('reload');
+
+                        } else {
+
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                            alert(result.errorMsg);
+                        }
+                    }, 'json');
+                }
+            });
+        }
+    }
+    function editnote() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn sửa ghi chú?', function (r) {
+                if (r) {
+                    var note = prompt("Ghi chú mới", row.SubLocation);
+                    if (note != null) {
+                        if ('@Html.Raw(Request.QueryString["note"])'.toUpperCase() == $.trim(note.toUpperCase())) {
+                            alert('Ghi chú chưa có thay đổi gì cả');
+                            return;
+                        }
+                        $.post('/admin/UpdateKKNote', {
+                            ItemID: row.ItemID,
+                            D: '@Request.QueryString["d"]',
+                            L: '@Request.QueryString["l"]',
+                            SubLocation: '@Html.Raw(Request.QueryString["note"])',
+                            NewSubLocation: note
+
+                        }, function (result) {
+                            if (result.success) {
+                                $('#dg').datagrid('reload');
+                                playSound();
+                                alert(result.msg);
+                                var l = "/admin/kk?d=@Request.QueryString["d"]";
+                                l += "&l=@Request.QueryString["l"]";
+                                l += "&note=" + result.note;
+                                location = l;
+                            } else {
+                                $.messager.show({    // show error message
+                                    title: 'Error',
+                                    msg: result.errorMsg
+                                });
+                                playSound1();
+                            }
+                        }, 'json');
+                    }
+                }
+            });
+        }
+    }
+    function loadtop() {
+        if (vuamoiquet == "") return;
+
+        var result = $("#dg").datagrid("getData");
+
+
+        var kq = vuamoiquet + "";
+        var list = kq.split(' ');
+        var mahang = list[3];
+
+        for (var i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].ItemID == mahang) {
+                var ten = result.rows[i].ItemID + " - " + result.rows[i].ItemName + ": " + result.rows[i].Quantity;
+                $("#vuaquet").text(ten);
+                break;
+            }
+        }
+
+    }
+    function editnoteall() {
+
+        $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn sửa toàn bộ sang ghi chú mới?', function (r) {
+            if (r) {
+                var note = prompt("Ghi chú mới", '@Html.Raw(Request.QueryString["note"])'.toUpperCase());
+                if (note != null) {
+                    if ('@Html.Raw(Request.QueryString["note"])'.toUpperCase() == $.trim(note.toUpperCase())) {
+                        alert('Ghi chú chưa có thay đổi gì cả');
+                        return;
+                    }
+                    $.post('/admin/UpdateKKNoteAll', {
+                        D: '@Request.QueryString["d"]',
+                        L: '@Request.QueryString["l"]',
+                        SubLocation: '@Html.Raw(Request.QueryString["note"])',
+                        NewSubLocation: note
+
+                    }, function (result) {
+                        if (result.success) {
+                            $('#dg').datagrid('reload');
+                            playSound();
+                            alert(result.msg);
+                            var l = "/admin/kk?d=@Request.QueryString["d"]";
+                            l += "&l=@Request.QueryString["l"]";
+                            l += "&note=" + result.note;
+                            location = l;
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                        }
+                    }, 'json');
+                }
+            }
+        });
+
+    }
+    function editlocationall() {
+
+        $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn sửa toàn bộ sang vị trí mới?', function (r) {
+            if (r) {
+                var newlocation = prompt("Vị trí mới", '@Request.QueryString["id"]'.toUpperCase());
+                if (newlocation != null) {
+                    if ('@Request.QueryString["id"]'.toUpperCase() == $.trim(newlocation.toUpperCase())) {
+                        alert('Vị trí chưa có thay đổi gì cả');
+                        return;
+                    }
+                    $.post('/admin/UpdateKKLocationAll', {
+                        D: '@Request.QueryString["d"]',
+                        L: '@Request.QueryString["l"]',
+                        NewLocation: newlocation,
+                        SubLocation: '@Html.Raw(Request.QueryString["note"])',
+                        NewSubLocation: '@Html.Raw(Request.QueryString["note"])'
+
+                    }, function (result) {
+                        if (result.success) {
+                            $('#dg').datagrid('reload');
+                            playSound();
+                            alert(result.msg);
+                            var l = "/admin/kk?d=@Request.QueryString["d"]";
+                            l += "&l=" + result.newlocation;
+                            l += "&note=@Html.Raw(Request.QueryString["note"])";
+                            location = l;
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                        }
+                    }, 'json');
+                }
+            }
+        });
+
+    }
+
+    function decrease() {
+
+        var barcode = prompt("Nhập barcode cần giảm", "");
+        if (barcode == null || barcode == "") {
+            playSound1();
+            alert('Bạn chưa nhập barcode');
+            return;
+        }
+        var value = prompt("Nhập số lượng giảm", "1");
+
+        if (value == null || value == "") {
+            playSound1();
+            alert('Bạn chưa nhập số lượng cần giảm');
+            return;
+        }
+
+
+
+        if (isNaN(value) == true) {
+            playSound1();
+            alert('Số lượng giảm phải là số và >0');
+            return;
+        }
+
+        if (parseFloat(value) < 1) {
+            playSound1();
+            alert('Số lượng giảm phải là số và >0');
+            return;
+        }
+
+        if (parseFloat(value) != parseInt(value)) {
+            playSound1();
+            alert('Số lượng giảm phải là số nguyên.');
+            return;
+        }
+
+
+        $.post('/admin/decreasekk', {
+            Q: value,
+            D: '@Request.QueryString["d"]',
+            L: '@Request.QueryString["l"]',
+            SubLocation: '@Html.Raw(Request.QueryString["note"])',
+            BarCode: barcode
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                $.messager.show({    // show error message
+                    title: 'Note',
+                    msg: result.msg
+                });
+                $('#dg').datagrid('reload');
+            } else {
+                playSound1();
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                alert(result.errorMsg);
+
+            }
+        }, 'json');
+
+
+
+    }
+    var vuamoiquet = "";
+
+    function postbarcode() {
+        lockitem();
+
+        if ($("#BarCode").val() == "") {
+            playSound1();
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập barcode hoặc mã hàng'
+            });
+            return;
+
+            $("#BarCode").focus();
+            $("#BarCode").select();
+            return;
+        }
+        if ($("#loc1").val() == "") {
+            playSound1();
+            alert('Bạn chưa nhập ghi chú');
+            $.messager.show({    // show error message
+                title: 'Error',
+                msg: 'Bạn chưa nhập ghi chú'
+            });
+            $("#loc1").focus();
+            return;
+        }
+        $('#BarCode').hide();
+        $.post('/admin/PostKK', {
+            BarCode: $.trim($('#BarCode').val().toUpperCase())
+            , D: '@Request.QueryString["d"]'
+            , L: '@Request.QueryString["l"]'
+              , sL: $("#loc1").val()
+
+        }, function (result) {
+            $('#BarCode').show();
+            if (result.success) {
+                playSound();
+                vuamoiquet = result.msg;
+                $('#dg').datagrid('reload');
+                $("#BarCode").focus();
+
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $("#BarCode").focus();
+            }
+        }, 'json');
+
+        $('#BarCode').val("");
+        $('#BarCode').focus();
+    }
+    function unlockall() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+
+            $.messager.confirm('Xác nhận', 'Bạn có chắc là muốn mở khóa?', function (r) {
+                if (r) {
+
+                    $.post('/admin/unlockkk', {
+                        D: '@Request.QueryString["d"]',
+                        L: '@Request.QueryString["l"]',
+                        SubLocation: row.SubLocation
+
+                    }, function (result) {
+                        if (result.success) {
+                            playSound();
+                            location = location;
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                            playSound1();
+                        }
+                    }, 'json');
+                }
+            });
+        }
+    }
+
+    jQuery.fn.putCursorAtEnd = function () {
+
+        return this.each(function () {
+
+            // Cache references
+            var $el = $(this),
+                el = this;
+
+            // Only focus if input isn't already
+            if (!$el.is(":focus")) {
+                $el.focus();
+            }
+
+            // If this function exists... (IE 9+)
+            if (el.setSelectionRange) {
+
+                // Double the length because Opera is inconsistent about whether a carriage return is one character or two.
+                var len = $el.val().length * 2;
+
+                // Timeout seems to be required for Blink
+                setTimeout(function () {
+                    el.setSelectionRange(len, len);
+                }, 1);
+
+            } else {
+
+                // As a fallback, replace the contents with itself
+                // Doesn't work in Chrome, but Chrome supports setSelectionRange
+                $el.val($el.val());
+
+            }
+
+            // Scroll to the bottom, in case we're in a tall textarea
+            // (Necessary for Firefox and Chrome)
+            this.scrollTop = 999999;
+
+        });
+
+    };
+
+    (function () {
+
+        var searchInput = $("#loc1");
+
+        searchInput
+            .putCursorAtEnd() // should be chainable
+            .on("focus", function () { // could be on any event
+                searchInput.putCursorAtEnd()
+            });
+
+    })();
+    function myfunction() {
+
+    }
+    $(window).resize(function () {
+        fixcol();
+
+    })
+    var loc1old = "";
+    $(document).ready(function () {
+        setTimeout(fixcol, 5000);
+        $("#loc1").focus(function () {
+            loc1old = $("#loc1").val();
+            $("#BarCode").attr("disabled", "disabled");
+        });
+        if ('@Request.QueryString["d"]' <= '@Global.GlobalVariables.LockedDate.Replace("-",".")') {
+            $("#mv,#toolbar").remove();
+            $("#loc,#loc1").attr("disabled", "disabled");
+        }
+    })
+
+    function fixcol() {
+        if ($(window).width() > 600) {
+            $('#dg').datagrid('showColumn', 'ItemName');
+            $('#dg').datagrid('showColumn', 'UnitID');
+
+        }
+
+        else {
+            $('#dg').datagrid('hideColumn', 'ItemName');
+            $('#dg').datagrid('hideColumn', 'UnitID');
+        }
+    }
+    $(document).ready(function () {
+        $('#dg').datagrid({
+            onLoadSuccess: function (data) {
+                loadtop();
+            }
+        });
+        $(window).keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($("#loc1").attr("disabled") == "disabled" && $("#loc").attr("disabled") == "disabled") {
+                    if (!$("#BarCode").is(":focus"))
+                        playSound1();
+                }
+            }
+        })
+    })
+    function unlockitem() {
+        $("#loc,#loc1").removeAttr("disabled");
+
+
+    }
+    function lockitem() {
+        if ($("#loc").val() != "" && $("#loc1").val() != "")
+            $("#loc,#loc1").attr({ "disabled": "disabled" });
+
+
+    }
+</script>

@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Đăng nhập</title>
+    <link href="~/images/chu-ky.jpg" rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+    <script src="~/Scripts/jquery-1.4.1.min.js"></script>
+    <style type="text/css">
+        body
+        {
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        table
+        {
+            width: 100%;
+            border: 1px solid #C5161D;
+            margin-top: 10px;
+            float: left;
+        }
+
+        td
+        {
+            padding: 5px;
+        }
+
+        *
+        {
+            font-family: Tahoma;
+            font-size: 12px;
+        }
+
+        h1
+        {
+            font-size: 20px;
+            color: #FFF;
+        }
+
+        .txt
+        {
+            padding-left: 10px;
+            width: 200px;
+            height: 30px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-style: italic;
+        }
+
+        .button
+        {
+            width: 100px;
+            height: 30px;
+            border: none;
+            background-color: #C5161D;
+            color: #FFF;
+        }
+    </style>
+
+</head>
+<body>
+     @RenderSection("featured", required: false)
+      @RenderBody()
+
+</body>
+</html>

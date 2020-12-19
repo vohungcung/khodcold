@@ -1,0 +1,322 @@
+﻿@{
+    ViewBag.Title = "Phiếu kiểm tra";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .txtl {
+        width: 250px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+</style>
+<script>
+    $(window).load(function () {
+      
+        $("#pendingob").addClass("menuselect");
+        $("#BarCode").focus(function () {
+            $(this).select();
+        })
+        $("#Note").blur(function () {
+
+            if ('@Request.QueryString["note"]' != $("#Note").val()) {
+                $("#BarCode,#nhanhangbutton").hide();
+
+                location = '/admin/PendingOB?note=' + $("#Note").val()+'&id=@Request.QueryString["id"]';
+            }
+        })
+    })
+
+
+
+
+    function nhanhang() {
+
+        $("#thongbao").html('Vui lòng chờ');
+
+        $("#nhanhangbutton").hide();
+        var ob = $.trim($('#BarCode').val().toUpperCase()).substring(0, 10);
+        var bc = $.trim($('#BarCode').val().toUpperCase());
+        $('#BarCode').hide();
+      
+        $.post('/admin/PostPending', {
+            BarCode: bc,
+            VoucherID: '@Request.QueryString["id"]',
+            Note: $("#Note").val()
+        }, function (result) {
+            if (result.success) {
+                $("#thongbao").html(result.result);
+                playSound();
+                $("#nhanhangbutton").show();
+                $('#dg').datagrid('reload');
+                $('#BarCode').val("");
+                $('#BarCode').show();
+                $("#thongbao").html('');
+                $('#BarCode').focus();
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#thongbao").html(result.errorMsg);
+                $("#nhanhangbutton").show();
+                $('#dg').datagrid('reload');
+                $('#BarCode').val("");
+                $('#BarCode').show();
+                $('#BarCode').focus();
+            }
+
+        }, 'json');
+
+
+    }
+
+</script>
+<h1>
+    Phiếu kiểm tra @Request.QueryString["id"]
+</h1>
+
+
+<table cellpadding="5" cellspacing="0">
+    <tr>
+
+        <td>
+            <input type="text" class="txtl" maxlength="250" placeholder="Ghi chú" id="Note" name="Note" value="@ViewBag.Note"/>
+        </td>
+        <td>
+            
+
+        </td>
+
+    </tr>
+    <tr>
+
+        <td>
+            <input type="text" class="txtl" placeholder="BarCode" id="BarCode" name="BarCode" />
+        </td>
+        <td>
+            <input type="button" id="nhanhangbutton" name="name" value="Quét" onclick="nhanhang()" />
+
+        </td>
+
+    </tr>
+
+</table>
+<p id="thongbao">
+
+</p>
+
+<table id="dg" title="Danh sách kiện hàng" nowrap="False" class="easyui-datagrid" style="width: 100%; height: 400px; margin: 0 auto" url="/admin/GetPendingCT?id=@Request.QueryString["id"]&note=@Request.QueryString["note"]&page=@Request.QueryString["page"]" toolbar="#toolbar" rownumbers="true" fitcolumns="true" singleselect="true">
+    <thead>
+        <tr>
+            <th field="OB" width="100">OutBound</th>
+            <th field="Note" width="100">Ghi chú</th>
+            <th field="Style" width="100">Quy cách</th>
+            <th field="TT" width="50">Thứ tự</th>
+            <th field="Q2" width="80" align="right">SL hàng</th>
+            <th field="Q3" width="80" align="right">SL túi xốp</th>
+            <th field="Status" width="80" align="center">Tình trạng</th>
+            <th field="Info" width="80" align="left">Thông tin</th>
+
+        </tr>
+    </thead>
+
+
+</table>
+<div id="toolbar">
+
+    <a href="javascript:void(0)" class="easyui-linkbutton del" iconcls="icon-remove" plain="true" onclick="deleteItem()">xóa</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportPendingOB()">Export chi tiết</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="exportSummaryPendingOB()">Export tổng hợp</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-search" plain="true" onclick="location=location">Tải lại</a>
+
+</div>
+
+
+<div class="clear">
+    <br />
+</div>
+
+<center>
+    Trang :
+    @foreach (System.Data.DataRow itemp in ViewBag.Paging.Rows)
+    {
+        <a href="@itemp["link"]" class="@itemp["class"]">@itemp["text"]</a>
+    }
+
+</center>
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+
+<script>
+    function playSound() {
+        try {
+            var sound = document.getElementById("audio");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function playSound1() {
+        try {
+            var sound = document.getElementById("audio1");
+            sound.play();
+        } catch (e) {
+
+        }
+
+    }
+    function exportPendingOB() {
+        var url = '/admin/ExportPendingOB?id=@Request.QueryString["id"]';
+        open(url);
+    }
+      function exportSummaryPendingOB() {
+        var url = '/admin/ExportSummaryPendingOB?id=@Request.QueryString["id"]';
+        open(url);
+    }
+    $(document).ready(function () {
+        $("#BarCode").focus();
+
+        $('#BarCode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($.trim($(this).val()) == "") {
+                    playSound1();
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: 'Bạn chưa nhập outbound'
+                    });
+
+                    $('#BarCode').focus()
+                    return;
+                }
+                nhanhang();
+
+            }
+        });
+
+        $('#Note').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                $('#BarCode').focus()
+                return;
+
+
+            }
+        });
+
+        fixcol();
+    });
+
+    function getResult() {
+
+    }
+
+    
+    function deleteItem() {
+        var barcode = prompt("Nhập barcode cần xoá", "");
+        if (barcode == null || barcode == "") {
+            playSound1();
+            alert('Bạn chưa nhập barcode');
+            return;
+        }
+        if (barcode.length < 24) {
+            playSound1();
+            alert('Barcode không hợp lệ');
+            return;
+        }
+        $(".del").hide();
+        var ob = barcode.substr(0, 10);
+        var Style = barcode.substr(10, 1);
+        if (Style == "B")
+            Style = "Bao";
+        if (Style == "T")
+            Style = "Thung";
+        if (Style.length == 1) {
+            playSound1();
+            alert('Barcode không hợp lệ');
+            return;
+        }
+        var tt = barcode.substr(11,3);
+        if (isNaN(tt) == true) {
+            playSound1();
+            alert('Barcode không hợp lệ');
+            return;
+
+        }
+
+
+        $.post('/admin/DeletePending', {
+            OB: ob,
+            Style: Style,
+            TT: tt,
+            VoucherID: '@Request.QueryString["id"]'
+        }, function (result) {
+            if (result.success) {
+                playSound();
+                alert('Đã xóa thành công');
+                $(".del").show();
+                $('#dg').datagrid('reload');
+                $('#BarCode').focus();
+
+            } else {
+
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                alert(result.errorMsg);
+                $(".del").show();
+            }
+        }, 'json');
+
+    }
+    function fixcol() {
+        if ($(window).width() > 600) {
+            $('#dg').datagrid('showColumn', 'TT');
+            $('#dg').datagrid('showColumn', 'OB');
+            $('#dg').datagrid('showColumn', 'Style');
+            $('#dg').datagrid('showColumn', 'Q2');
+            $('#dg').datagrid('showColumn', 'Q3');
+            $('#dg').datagrid('hideColumn', 'Info');
+        }
+
+        else {
+            $('#dg').datagrid('hideColumn', 'TT');
+             $('#dg').datagrid('hideColumn', 'OB');
+            $('#dg').datagrid('hideColumn', 'Style');
+            $('#dg').datagrid('hideColumn', 'Q2');
+            $('#dg').datagrid('hideColumn', 'Q3');
+            $('#dg').datagrid('showColumn', 'Info');
+        }
+    }
+</script>

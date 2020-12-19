@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{39F5C0E2-19FF-48D4-827E-7C0B7608EEDB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EasyCode.Business</RootNamespace>
+    <AssemblyName>EasyCode.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EasyCode.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\EasyCode.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="EasyCode.Utility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\EasyCode.Utility.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\AnswerController.cs" />
+    <Compile Include="Controllers\ApproveLogController.cs" />
+    <Compile Include="Controllers\ArticleController.cs" />
+    <Compile Include="Controllers\BalanceController.cs" />
+    <Compile Include="Controllers\ColorController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\CustomerSignController.cs" />
+    <Compile Include="Controllers\CustomerTypeController.cs" />
+    <Compile Include="Controllers\HNDHController.cs" />
+    <Compile Include="Controllers\ItemController.cs" />
+    <Compile Include="Controllers\ItemHNController.cs" />
+    <Compile Include="Controllers\KeyController.cs" />
+    <Compile Include="Controllers\LController.cs" />
+    <Compile Include="Controllers\ModifyLogController.cs" />
+    <Compile Include="Controllers\OrderController.cs" />
+    <Compile Include="Controllers\OrderDetailController.cs" />
+    <Compile Include="Controllers\OrderTypeController.cs" />
+    <Compile Include="Controllers\QuestionController.cs" />
+    <Compile Include="Controllers\ResultDetailController.cs" />
+    <Compile Include="Controllers\ResultMController.cs" />
+    <Compile Include="Controllers\SettingController.cs" />
+    <Compile Include="Controllers\TopicController.cs" />
+    <Compile Include="Controllers\VCustomerController.cs" />
+    <Compile Include="Controllers\VItemHasThumbController.cs" />
+    <Compile Include="Controllers\VOrderController.cs" />
+    <Compile Include="Controllers\VOrderDetailController.cs" />
+    <Compile Include="DBOES\Admin.cs" />
+    <Compile Include="DBOES\Answer.cs" />
+    <Compile Include="DBOES\ApproveLog.cs" />
+    <Compile Include="DBOES\Article.cs" />
+    <Compile Include="DBOES\Balance.cs" />
+    <Compile Include="DBOES\Color.cs" />
+    <Compile Include="DBOES\Customer.cs" />
+    <Compile Include="DBOES\CustomerSign.cs" />
+    <Compile Include="DBOES\CustomerType.cs" />
+    <Compile Include="DBOES\HNDH.cs" />
+    <Compile Include="DBOES\Item.cs" />
+    <Compile Include="DBOES\ItemHN.cs" />
+    <Compile Include="DBOES\Key.cs" />
+    <Compile Include="DBOES\L.cs" />
+    <Compile Include="DBOES\ModifyLog.cs" />
+    <Compile Include="DBOES\Order.cs" />
+    <Compile Include="DBOES\OrderDetail.cs" />
+    <Compile Include="DBOES\OrderType.cs" />
+    <Compile Include="DBOES\Question.cs" />
+    <Compile Include="DBOES\ResultDetail.cs" />
+    <Compile Include="DBOES\ResultM.cs" />
+    <Compile Include="DBOES\Setting.cs" />
+    <Compile Include="DBOES\Topic.cs" />
+    <Compile Include="DBOES\VCustomer.cs" />
+    <Compile Include="DBOES\VItemHasThumb.cs" />
+    <Compile Include="DBOES\VOrder.cs" />
+    <Compile Include="DBOES\VOrderDetail.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="StoredProcedures\Admin.sql" />
+    <Content Include="StoredProcedures\AllStoreProcedures.sql" />
+    <Content Include="StoredProcedures\AllViewStoreProcedures.sql" />
+    <Content Include="StoredProcedures\Answer.sql" />
+    <Content Include="StoredProcedures\ApproveLog.sql" />
+    <Content Include="StoredProcedures\Article.sql" />
+    <Content Include="StoredProcedures\Balance.sql" />
+    <Content Include="StoredProcedures\Color.sql" />
+    <Content Include="StoredProcedures\Customer.sql" />
+    <Content Include="StoredProcedures\CustomerSign.sql" />
+    <Content Include="StoredProcedures\CustomerType.sql" />
+    <Content Include="StoredProcedures\HNDH.sql" />
+    <Content Include="StoredProcedures\Item.sql" />
+    <Content Include="StoredProcedures\ItemHN.sql" />
+    <Content Include="StoredProcedures\Key.sql" />
+    <Content Include="StoredProcedures\L.sql" />
+    <Content Include="StoredProcedures\ModifyLog.sql" />
+    <Content Include="StoredProcedures\Order.sql" />
+    <Content Include="StoredProcedures\OrderDetail.sql" />
+    <Content Include="StoredProcedures\Orders_UpdateSpecial.sql" />
+    <Content Include="StoredProcedures\OrderType.sql" />
+    <Content Include="StoredProcedures\Question.sql" />
+    <Content Include="StoredProcedures\ResultDetail.sql" />
+    <Content Include="StoredProcedures\ResultM.sql" />
+    <Content Include="StoredProcedures\Setting.sql" />
+    <Content Include="StoredProcedures\SP.sql" />
+    <Content Include="StoredProcedures\SP_InsertOrUpdateCustomer.sql" />
+    <Content Include="StoredProcedures\Topic.sql" />
+    <Content Include="StoredProcedures\VCustomer.sql" />
+    <Content Include="StoredProcedures\VItemHasThumb.sql" />
+    <Content Include="StoredProcedures\VOrder.sql" />
+    <Content Include="StoredProcedures\VOrderDetail.sql" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

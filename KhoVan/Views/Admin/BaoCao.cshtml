@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "Báo cáo châm hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+    }
+</style>
+<h1>Báo cáo châm hàng</h1>
+<table cellpadding="5" cellspacing="0">
+    <tr>
+        <td>
+            <input type="button" id="r1" name="name" value="Báo cáo châm hàng dựa vào hàng đang có trên vị trí" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="button" id="r2" name="name" value="Báo cáo châm hàng dựa vào danh sách sản phẩm và số lượng" />
+
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td>
+            <input type="button" id="r3" name="name" value="Báo cáo châm hàng bị động dựa vào ngày dự kiến giao hàng" />
+
+        </td>
+    </tr>
+    @*<tr>
+        <td>
+            <input type="button" id="r4" name="name" value="Chi tiết xuất hàng dựa vào ngày dự kiến giao hàng" />
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="button" id="r5" name="name" value="Tổng hợp xuất hàng dựa vào ngày dự kiến giao hàng" />
+
+        </td>
+    </tr>*@
+</table>
+<script>
+
+    $(document).ready(function () {
+        $("#baocao").addClass("menuselect");
+
+        $("#r1").click(function () {
+            var url = "/admin/ex?id=1";
+            open(url);
+        });
+
+        $("#r2").click(function () {
+            var url = "/admin/AddMItem";
+            showtc(url, 600, 400);
+
+        });
+        $("#r3").click(function () {
+            var url = "/admin/CHFromDate";
+            showtchasbg(url, 600, 400,"#fff");
+
+        });
+
+        $("#r4").click(function () {
+            var url = "/admin/CTFromDate";
+            showtchasbg(url, 600, 400, "#fff");
+
+        });
+        $("#r5").click(function () {
+            var url = "/admin/THFromDate";
+            showtchasbg(url, 600, 400, "#fff");
+
+        });
+    })
+</script>

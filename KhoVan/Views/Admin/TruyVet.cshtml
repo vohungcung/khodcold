@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Truy vết";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .bt {
+        width: 120px;
+        height: 20px;
+    }
+
+    .tt {
+        width: 30px
+    }
+
+    .sp {
+        display: none;
+    }
+
+    .txtdate {
+        width: 100px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    .txtl {
+        width: 250px;
+        height: 20px;
+        text-indent: 10px;
+    }
+
+    #Quantity {
+        text-align: right;
+    }
+</style>
+<script>
+    $(window).load(function () {
+      
+        $("#truyvet").addClass("menuselect");
+        $("#itemid").focus(function () {
+            $(this).select();
+        })
+    })
+    function truyvet() {
+        location = "/admin/truyvet?id="+$("#itemid").val();
+    }
+    </script>
+<h1>
+    Truy vết
+</h1>
+
+<input type="text" placeholder="Mã hàng" class="txtl" value="@Request.QueryString["id"]" id="itemid"/>
+<input type="button" name="name" value="Truy vết" onclick="truyvet()"/>
+
+@Html.Raw( ViewBag.content)

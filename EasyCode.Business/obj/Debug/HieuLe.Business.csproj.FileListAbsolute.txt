@@ -1,0 +1,9 @@
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\obj\Debug\ResolveAssemblyReference.cache
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\bin\Debug\HieuLe.Business.dll
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\bin\Debug\HieuLe.Business.pdb
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\bin\Debug\HieuLe.Framework.dll
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\bin\Debug\HieuLe.Utility.dll
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\bin\Debug\HieuLe.Framework.pdb
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\bin\Debug\HieuLe.Utility.pdb
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\obj\Debug\HieuLe.Business.dll
+D:\Project\MyProjects\AmThuc247.vn\Programs\AmThuc247_Solution\HieuLe.Business\obj\Debug\HieuLe.Business.pdb

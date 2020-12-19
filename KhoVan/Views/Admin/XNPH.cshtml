@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "Xác nhận pick hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<script>
+    $(window).load(function () {
+        $("#xnph").addClass("menuselect");
+        $("#vt").focus();
+    })
+</script>
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+        width: 100%;
+        height: 30px;
+    }
+</style>
+<h1>
+    Xác nhận pick hàng
+</h1>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+        <td style="width:160px">Chứng từ / Outbound</td>
+        <td>
+            <input type="text" autocomplete="off" id="vt" value="" />
+        </td>
+    </tr>
+  
+    <tr>
+        <td></td>
+        <td>
+            <input type="button" name="confirm" value="Xác nhận" id="xn" />
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td id="result"></td>
+    </tr>
+</table>
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    $(document).ready(function () {
+        $('#vt').focus(function () {
+            $(this).select();
+
+        });
+        $('#vt').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($('#vt').val() == "") {
+                    playSound1();
+                    alert('Bạn chưa nhập outbound ');
+                    $('#vt').focus();
+                    return;
+                }
+
+                updatedata();
+            }
+        });
+       
+        $("#xn").click(function () {
+            updatedata();
+        })
+
+    });
+    function updatedata() {
+
+        if ($('#vt').val() == "") {
+            playSound1();
+            alert('Bạn chưa nhập outbound ');
+            $('#vt').focus();
+            return;
+        }
+       
+        $("#xn,#vt").hide();
+        //ok co ban
+        $.post('/admin/XNPH', { OB: $("#vt").val() }, function (result) {
+            $("#xn,#vt").show();
+            if (result.success) {
+                playSound();
+              
+                alert(result.msg)
+                $("#result").html(result.html);
+                $("#vt").val("");
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#result").html(result.html);
+
+            }
+        }, 'json');
+    }
+</script>

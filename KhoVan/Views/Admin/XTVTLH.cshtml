@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "Xác thực vị trí lấy hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+
+    .colable {
+        font-weight: bold;
+    }
+
+    .txt {
+        width: 99%;
+        height: 25px;
+        text-indent: 10px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+
+    .cf {
+        width: 100px;
+        height: 25px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+</style>
+<script>
+    $(window).load(function () {
+
+        $("#voucherid").focus();
+        $('#voucherid').keypress(function (event) {
+
+            if (event.keyCode === 10 || event.keyCode === 13) {
+
+                $("#pallet").focus();
+
+            }
+        });
+        $('#pallet').keypress(function (event) {
+
+            if (event.keyCode === 10 || event.keyCode === 13) {
+
+                $("#vt").focus();
+
+            }
+        });
+        $('#vt').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+
+                $(".cf").focus();
+
+            }
+        });
+    })
+    $(document).ready(function () {
+        $("#xn").click(function () {
+            $.post('/admin/xnvtlh', { VoucherID: $("#voucherid").val(), PalletID: $("#pallet").val(), Location: $("#vt").val() }, function (result) {
+                if (result.success) {
+                    alert(result.msg);
+                    location = location;
+
+                } else {
+                    $.messager.show({    // show error message
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                }
+            }, 'json');
+        })
+
+    })
+
+</script>
+<h1>
+    Xác thực vị trí lấy hàng
+</h1>
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+
+
+        <td>
+
+            <input type="text" id="voucherid" class="txt" placeholder="Phiếu lấy hàng" name="name" value="" />
+
+        </td>
+    </tr>
+    <tr>
+
+
+        <td>
+
+            <input type="text" id="pallet" class="txt" placeholder="Nhập pallet" name="name" value="" />
+
+        </td>
+    </tr>
+
+    <tr>
+
+
+        <td>
+
+            <input type="text" name="name" class="txt" id="vt" placeholder="Vị trí" value="" />
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center">
+            <input type="button" name="name" class="cf" value="Xác nhận" id="xn" />
+        </td>
+    </tr>
+</table>
+<script>
+    $("#xtvtlh").addClass("menuselect");
+
+</script>

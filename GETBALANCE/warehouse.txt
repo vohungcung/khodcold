@@ -1,0 +1,7 @@
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1100/3006
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1200/3006
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1300/3006
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1400/3006
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1500/3006
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1600/3006
+http://apioder.bitis-corp.com/api/Article/GetListQuantity/1700/3006

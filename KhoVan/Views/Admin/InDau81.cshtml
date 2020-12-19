@@ -1,0 +1,236 @@
+﻿@{
+    /**/
+
+    /**/
+
+    ViewBag.Title = Request.QueryString["id"];
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+<link href="~/css/tv.css?v=@Global.GlobalVariables.Random" rel="stylesheet" />
+<style>
+    html {
+        background-color: #FFF;
+        counter-reset: page-break;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 12px;
+    }
+
+    .clear {
+        clear: both
+    }
+
+    .page-break {
+        display: block;
+        page-break-after: always;
+    }
+</style>
+
+<script>
+    function printall() {
+          open("/admin/indau8?ob="+$.trim($(".an:first").text())+"&id=@Request.QueryString["id"]");
+
+    }
+
+</script>
+<p style="text-align:center">
+
+    <input type="button" name="name" value="In tất cả" onclick="printall()" />
+</p>
+@foreach (System.Data.DataRow item in ViewBag.data)
+{
+    <div id="@item["OB"]" class="an" style="display:none">
+        @item["OB"]
+    </div>
+    <table style="width:100%">
+        <tr>
+            <td style="width:33%" valign="top">@Html.Raw(ViewBag.Division)</td>
+            <td style="width:33%" valign="top">
+                <div style="text-align:center">
+                    <p style="font-weight:bold;font-size:30px;margin-top:0;margin-bottom:0">Phiếu soạn hàng</p>
+                    <h2>@Global.Commons.YMDToDMY(item["PrepaingDate"])</h2>
+                    <p>@ViewBag.date</p> <p>
+                        Số chứng từ:  @item["OB"]
+                    </p>
+                    <p>Chứng từ gốc: @Global.Commons.ConvertToString(item["STO"]).Trim(',')</p>
+                    <div style="width:110px;margin:0 auto">
+                        <p style="text-align:center" outbound="@item["OB"]" class="sp">
+
+                        </p>
+                    </div>
+
+                </div>
+            </td>
+            <td style="width:33%" valign="top"></td>
+        </tr>
+    </table>
+    <table cellpadding="5" cellspacing="0" style="text-align:left;">
+        <tr>
+            <td>Kho</td>
+            <td colspan="3">@item["WH"]</td>
+        </tr>
+        <tr>
+            <td>Khách hàng</td>
+            <td colspan="3">@item["CustomerName"]</td>
+        </tr>
+        <tr>
+            <td>Địa chỉ</td>
+            <td>@item["Address"]</td>
+            <td>Quận huyện</td>
+            <td>@item["District"]</td>
+        </tr>
+
+        <tr>
+            <td>Loại hình</td>
+            <td>@item["KindOf"]</td>
+            <td>Số hợp đồng</td>
+            <td>@item["ContactNo"]</td>
+        </tr>
+
+        <tr>
+            <td>Diễn giải</td>
+            <td colspan="3">@item["ContactDes"]</td>
+        </tr>
+    </table>
+    <div style="text-align:center;margin-left:20px;margin-right:20px">
+        <table cellspacing="0" cellpadding="5" border="1" style="border-collapse:collapse;width:100%;">
+            <tr>
+                <th rowspan="2">TT</th>
+                <th colspan="2">BarCode</th>
+
+                <th colspan="5">
+                    Tên hàng
+                </th>
+                <th rowspan="2">Thực thu</th>
+                <th rowspan="2">
+                    Số lượng
+                </th>
+                <th rowspan="2">
+                    Số lượng xuất
+                </th>
+                <th rowspan="2">
+                    Lệch
+                </th>
+                <th rowspan="2">Ghi chú</th>
+            </tr>
+            <tr>
+                <td>
+                    Mã
+                </td>
+                <td>
+                    MS
+                </td>
+                <td>Tên hàng</td>
+                <td>Màu</td>
+                <td>Cỡ số</td>
+                <td>Đơn giá</td>
+                <td>Chiết khấu(%)</td>
+
+            </tr>
+            @foreach (System.Data.DataRow item1 in Global.Commons.GetChiTietDau8Full(item["OB"].ToString(), Request.QueryString["id"]).Rows)
+            {
+                <tr >
+                    <td class="tt" ob="@item["OB"]"></td>
+
+                    <td class="ma" ma="@(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(7, 5) : "")">
+                        @(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(7, 5) : "")
+                    </td>
+                    <td class="ms" ms="@(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(13, 2) : "")">
+                        @(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(13, 2) : "")
+
+                    </td>
+                    <td>
+                        @item1["ItemID"].ToString().Substring(0, 9)
+                    </td>
+                    <td>
+                        @item1["ItemID"].ToString().Substring(9, 3)
+                    </td>
+                    <td>
+                        @item1["ItemID"].ToString().Substring(12)
+                    </td>
+                    <td style="text-align:right"> @Global.Commons.ConvertToInt(item1["Price"]).ToString("N0")</td>
+                    <td style="text-align:center">@item1["Discount"]</td>
+                    <td></td>
+
+                    <td class="sl" style="text-align:right">
+                        @item1["Quantity"]
+                    </td>
+                    <td class="sl" style="text-align:right">
+                        @item1["ReceiveQuantity"]
+                    </td>
+                    <td>
+                        @(Global.Commons.ConvertToInt(item1["Quantity"]) - Global.Commons.ConvertToInt(item1["ReceiveQuantity"]))
+                    </td>
+                    <td></td>
+                </tr>
+            }
+            <tr style="font-weight:bold;color:#FFF;background-color:navy">
+                <td colspan="9" style="text-align:center">
+                    Tổng cộng:
+                </td>
+
+                <td style="text-align:right"> @item["Quantity"]</td>
+                <td style="text-align:right">@item["ReceiveQuantity"] </td>
+                <td>
+                    @(Global.Commons.ConvertToInt(item["Quantity"]) - Global.Commons.ConvertToInt(item["ReceiveQuantity"]))
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div class="clear"></div>
+    <table style="width:100%;text-align:center;font-weight:bold" cellpadding="10" cellspacing="0">
+        <tr>
+            <td style="width:33%">Người soạn hàng</td>
+            <td style="width:33%">Người quét hàng</td>
+            <td style="width:33%">Người lập biểu</td>
+
+        </tr>
+       
+    </table>
+
+
+
+
+}
+
+    <p style="text-align:center">
+
+        <input type="button" name="name" value="In tất cả" onclick="printall()" />
+    </p>
+<script>
+
+    $(document).ready(function () {
+
+        var bbb = $(".sp").get();
+
+        for (var i = 0; i < bbb.length; i++) {
+            $(bbb[i]).barcode(($(bbb[i]).attr("outbound")),
+                "code128" // type (string)
+            );
+        }
+        var tt = 1;
+        var ob = "";
+        var arr11 = $(".tt").get();
+        for (var i = 0; i < arr11.length; i++) {
+            if (ob != $(arr11[i]).attr("ob")) {
+                tt = 1;
+                ob = $(arr11[i]).attr("ob");
+            }
+
+            $(arr11[i]).html(tt);
+            tt = tt + 1;
+        }
+        $(".page-break:last").remove();
+
+
+
+    });
+
+
+</script>
+

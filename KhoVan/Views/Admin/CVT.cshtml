@@ -1,0 +1,125 @@
+﻿@{
+    ViewBag.Title = "Chuyển vị tri cho vật tư";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<script>
+    $(window).load(function () {
+        $("#cvt").addClass("menuselect");
+        $("#vt").focus();
+    })
+</script>
+<style>
+    input[type=text] {
+        text-transform: uppercase;
+        width: 100%;
+        height: 30px;
+    }
+</style>
+<h1>
+    Chuyển vị trí mới cho vật tư
+</h1>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+
+<table cellpadding="5" cellspacing="0" style="width:100%">
+    <tr>
+        <td style="width:60px">Vị trí mới</td>
+        <td>
+            <input type="text" autocomplete="off" id="vt" value="" />
+        </td>
+    </tr>
+    <tr>
+        <td style="width:60px">Barcode</td>
+        <td>
+            <input type="text" autocomplete="off" value="" id="barcode" />
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <input type="button" name="confirm" value="Xác nhận" id="xn" />
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td id="result"></td>
+    </tr>
+</table>
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    $(document).ready(function () {
+        $('#vt,#barcode').focus(function () {
+            $(this).select();
+
+        });
+        $('#vt').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                if ($('#vt').val() == "") {
+                    playSound1();
+                    alert('Bạn chưa nhập vị trí');
+                    $('#vt').focus();
+                    return;
+                }
+
+                $("#barcode").focus();
+            }
+        });
+        $('#barcode').keypress(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+                updatedata();
+            }
+        });
+        $("#xn").click(function () {
+            updatedata();
+        })
+
+    });
+    function updatedata() {
+
+        if ($('#vt').val() == "") {
+            playSound1();
+            alert('Bạn chưa nhập vị trí');
+            $('#vt').focus();
+            return;
+        }
+        if ($('#barcode').val() == "") {
+            playSound1();
+            alert('Bạn chưa nhập barcode');
+            $('#barcode').focus();
+            return;
+        }
+        $("#xn").hide();
+        //ok co ban
+        $.post('/admin/CVT', { Location: $("#vt").val(), BarCode: $('#barcode').val() }, function (result) {
+            if (result.success) {
+                playSound();
+                var p = "<p>BarCode: <strong style='color:blue'>" + result.BarCode + "</strong> </p>";
+                p += "<p>Mã vật tư: <strong style='color:blue'>" + result.ItemID + "</strong></p>";
+                p += "<p>Tên vật tư: <strong style='color:blue'>" + result.ItemName + "</strong></p>";
+                p += "<p>ĐVT: <strong style='color:blue'>" + result.UnitID + "</strong></p>";
+                p += "<p>Số lượng: <strong style='color:blue'>" + result.Quantity + "</strong></p>";
+                $("#result").html(p);
+                alert(result.msg)
+                $("#xn").show();
+                $("#vt,#barcode").val("");
+
+            } else {
+                playSound1();
+                alert(result.errorMsg);
+                $("#xn").show();
+
+            }
+        }, 'json');
+    }
+</script>
