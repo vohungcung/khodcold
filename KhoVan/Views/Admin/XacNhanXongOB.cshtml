@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Xác nhận đã soạn xong";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    textarea {
+        text-transform: uppercase;
+        width: 300px;
+        height: 200px;
+    }
+    input[type=text]{
+         width: 300px;
+         height:22px;
+    }
+</style>
+<h1>
+   Xác nhận đã soạn xong
+</h1>
+<p>
+    <textarea id="dau8" placeholder="outbound"></textarea>
+</p>
+
+<p id="message">
+
+</p>
+<p>
+    <input type="button" class="bt" name="name" value="Cập nhật" onclick="importtt()" />
+    <input type="button" class="bt" name="name" value="Bỏ qua" onclick="gotoview()" />
+
+
+</p>
+<script>
+    $(window).load(function () {
+        $("#xemtrangthai").addClass("menuselect");
+        $("#dau8").focus();
+    })
+
+</script>
+
+
+<script>
+
+    var url;
+
+    function importtt() {
+        var giatri = $.trim($("#dau8").val());
+        if (giatri == "") {
+            playSound1();
+            alert('bạn chưa nhập đầu 8');
+            $("#dau8").focus();
+            return;
+        }
+        
+        $(".bt").hide();
+        $("#message").text("vui lòng chờ");
+        $.post('/admin/XacnhanXongOB', {
+            ob: giatri
+        }, function (result) {
+            if (result.success) {
+                alert('Cập nhật thành công');
+                playSound();
+                $("#dau8").val("")
+                $(".bt").show();
+                $("#message").text("");
+                location = '/admin/XemTrangThai?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")';
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $(".bt").show();
+                $("#message").text(result.errorMsg);
+            }
+        }, 'json');
+    }
+
+   
+
+
+</script>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function gotoview() {
+        location = '/admin/XemTrangThai?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")';
+    }
+</script>

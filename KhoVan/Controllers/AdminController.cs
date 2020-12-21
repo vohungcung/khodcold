@@ -5619,7 +5619,7 @@ namespace MvcApplication5.Controllers
 
         //neu co ton tai hang nao khong lay duoc thi khong cho lay
         [HttpPost]
-        public ActionResult GetProductsForVoucher1(string VoucherID)
+        public ActionResult GetProductsForVoucher1(string VoucherID, string laychan)
         {
 
             try
@@ -5643,8 +5643,12 @@ namespace MvcApplication5.Controllers
 
                 bool CheckBalance = Commons.ConvertToBool(dt1.Rows[0][0]);
                 string sWrite = "";
-                string ssql = "exec [SP_LayHangVoucherV4] N'" + Commons.Fix(GlobalVariables.DivisionID) + "','" + Commons.Fix(VoucherID) + "'," + GlobalVariables.UserID.ToString("0") + ";";
-              
+                string ssql = "exec [SP_LayHangVoucherV4] N'" + Commons.Fix(GlobalVariables.DivisionID) + "','" + Commons.Fix(VoucherID) + "'," + GlobalVariables.UserID.ToString("0") + ",0;";
+                if (laychan == "1")
+                {
+                    ssql = "exec [SP_LayHangVoucherV4] N'" + Commons.Fix(GlobalVariables.DivisionID) + "','" + Commons.Fix(VoucherID) + "'," + GlobalVariables.UserID.ToString("0") + ",1;";
+
+                }
 
                 DataTable dd = Commons.GetData(ssql);
                 string m = "";
@@ -19235,7 +19239,616 @@ select v.* from (select top 100 percent Row_number () over (order by OB) positio
                         };
             return Json(query);
         }
-        
+
+        public ActionResult ImportTrangThai()
+        {
+
+
+            return View();
+        }
+        public ActionResult ThemTrangThai()
+        {
+
+
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ThemTrangThai(string ob, string nguoisoan, string ghichu)
+        {
+            if (Global.GlobalVariables.UserID == 0)
+            {
+                return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+            }
+
+            if (Commons.CheckPermit("dattrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+
+            string[] list = ob.Split('\n');
+            string loi = "";
+
+            foreach (string item in list)
+            {
+
+                DataTable dt = Commons.GetData("select d.ob from wd d inner join xh x on x.divisionid=d.divisionid and d.voucherid=x.voucherid and d.ob=x.ob where d.ob='" + Fix(item) + "'");
+                if (dt.Rows.Count == 0)
+                {
+                    loi += item + " chưa có pick hàng, ";
+                    //return Json(new { errorMsg = item + " chưa có pick hàng", success = false });
+                }
+                dt = Commons.GetData("select ob from wd where voucherid =(select top 1 d.voucherid from wd d where ob=N'" + Fix(item) + "' and d.divisionid=N'" + Fix(GlobalVariables.DivisionID) + "') and divisionid=N'" + Fix(GlobalVariables.DivisionID) + "' group by ob");
+                if (dt.Rows.Count > 1)
+                {
+                    loi += item + " chưa có tách, ";
+                    //return Json(new { errorMsg = item + " chưa có tách", success = false });
+                }
+                dt = Commons.GetData("select *  from VOBDangSoan  where ob=N'" + Fix(item) + "' ");
+                if (dt.Rows.Count > 0)
+                {
+                    loi += item + " đã phân công rồi, ";
+                    //return Json(new { errorMsg = item + " đã phân công rồi", success = false });
+                }
+                if (GlobalVariables.IsAdmin == false)
+                {
+                    dt = Commons.GetData("select [dbo].[isConfirmOB](N'" + Fix(item) + "',N'" + Fix(GlobalVariables.DivisionID) + "') v");
+                    if (dt.Rows[0][0].ToString() == "1")
+                    {
+                        loi += item + " đã xác nhận lấy hàng rồi, ";
+                        //return Json(new { errorMsg = item + " đã xác nhận lấy hàng rồi", success = false });
+                    }
+                }
+
+            }
+            if (loi != "")
+                return Json(new { errorMsg = loi, success = false });
+            string sWrite = "";
+            foreach (string item in list)
+            {
+                sWrite += "exec SP_giaoviec '" + item + "',N'" + Fix(nguoisoan) + "' ,N'" + Fix(ghichu) + "';";
+            }
+
+            Exception ex = null;
+            bool b = Commons.ExecuteNoneQuery(sWrite, ref ex);
+
+            if (b)
+            {
+                return Json(new { msg = "Thêm thành công", success = true });
+            }
+            return Json(new { errorMsg = ex.Message, success = false });
+        }
+        [HttpPost]
+        public ActionResult SuaTrangThai(string nguoisoan, string ghichu)
+        {
+            if (Global.GlobalVariables.UserID == 0)
+            {
+                return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+            }
+
+            if (Commons.CheckPermit("dattrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+            string dau8 = Commons.ConvertToString(Request.QueryString["id"]);
+            if (DaKhoaTrangThai(dau8))
+            {
+                return Json(new { errorMsg = dau8+" đã bị khóa", success = false });
+            }
+            if (GlobalVariables.IsAdmin == false)
+            {
+                DataTable dt = Commons.GetData("select [dbo].[isConfirmOB](N'" + Fix(dau8) + "',N'" + Fix(GlobalVariables.DivisionID) + "') v");
+                if (dt.Rows[0][0].ToString() == "1")
+                {
+                    return Json(new { errorMsg = dau8 + " đã xác nhận lấy hàng rồi", success = false });
+                }
+                if (DaKhoaTrangThai(dau8))
+                {
+                    return Json(new { errorMsg = dau8 + " đã bị khóa", success = false });
+                }
+            }
+
+            string sWrite = "exec SP_giaoviec '" + dau8 + "',N'" + Fix(nguoisoan) + "' ,N'" + Fix(ghichu) + "','x';";
+            Exception ex = null;
+            bool b = Commons.ExecuteNoneQuery(sWrite, ref ex);
+
+            if (b)
+            {
+                return Json(new { msg = "Cập nhật thành công", success = true });
+            }
+            return Json(new { errorMsg = ex.Message, success = false });
+        }
+        [HttpPost]
+        public ActionResult ImportTrangThai(string dau8)
+        {
+            try
+            {
+                if (Global.GlobalVariables.UserID == 0)
+                {
+                    return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+                }
+
+                if (Commons.CheckPermit("dattrangthaioutbound") == false)
+                {
+                    return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+                }
+                dau8 = dau8.Trim().Trim('\n');
+
+                string[] l = dau8.Split('\n');
+                //kiem tra
+
+
+                foreach (string item in l)
+                {
+                    string[] ds = item.Split('\t');
+                    if (ds.Length < 2)
+                        return Json(new { errorMsg = "dữ liệu không hợp lệ do thiếu cột", success = false });
+
+                    string ob = ds[0], nguoisoan = ds[1];
+
+                    DataTable dt = Commons.GetData("select d.ob from wd d inner join xh x on x.divisionid=d.divisionid and d.voucherid=x.voucherid and d.ob=x.ob where d.ob='" + Fix(ob) + "'");
+                    if (dt.Rows.Count == 0)
+                    {
+                        return Json(new { errorMsg = ob + " chưa có pick hàng", success = false });
+                    }
+                    dt = Commons.GetData("select ob from wd where voucherid =(select top 1 d.voucherid from wd d where ob=N'" + Fix(ob) + "' and d.divisionid=N'" + Fix(GlobalVariables.DivisionID) + "') and divisionid=N'" + Fix(GlobalVariables.DivisionID) + "' group by ob");
+                    if (dt.Rows.Count > 1)
+                    {
+                        return Json(new { errorMsg = ob + " chưa có tách", success = false });
+                    }
+                    dt = Commons.GetData("select [dbo].[isConfirmOB](N'" + Fix(item) + "',N'" + Fix(GlobalVariables.DivisionID) + "') v");
+                    if (dt.Rows[0][0].ToString() == "1")
+                    {
+                        return Json(new { errorMsg = item + " đã xác nhận lấy hàng rồi", success = false });
+                    }
+                    dt = Commons.GetData("select top 1 w.voucherid from wd d inner join w on d.divisionid=w.divisionid and d.voucherid=w.voucherid  where  d.divisionid=N'" + Fix(GlobalVariables.DivisionID) + "' and d.ob=N'" + Fix(ob) + "' and w.dangsoan=1 ");
+                    if (dt.Rows.Count > 0)
+                    {
+                        return Json(new { errorMsg = ob + " đã cập nhật là đang soạn rồi", success = false });
+                    }
+                }
+                string sWrite = "";
+                foreach (string item in l)
+                {
+                    string[] ds = item.Split('\t');
+
+                    string ob = ds[0], nguoisoan = ds[1];
+                    string ghichu = "";
+                    if (ds.Length > 2)
+                        ghichu = ds[2];
+
+                    sWrite += "exec SP_giaoviec '" + ob + "',N'" + Fix(nguoisoan) + "' ,N'" + Fix(ghichu) + "';";
+                }
+                Exception ex = null;
+                bool result = Commons.ExecuteNoneQuery(sWrite, ref ex);
+                if (result)
+                    return Json(new { msg = "Cập nhật thành công", success = true });
+
+                return Json(new { errorMsg = ex.Message, success = false });
+
+
+            }
+
+            catch (Exception ex)
+            {
+                return Json(new { errorMsg = ex.Message, success = false });
+
+            }
+        }
+
+        [HttpPost]
+        public ActionResult BoImportTrangThai(string dau8)
+        {
+            try
+            {
+                if (Global.GlobalVariables.UserID == 0)
+                {
+                    return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+                }
+
+                if (Commons.CheckPermit("dattrangthaioutbound") == false)
+                {
+                    return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+                }
+                dau8 = dau8.Trim().Trim('\n');
+
+                string[] l = dau8.Split('\n');
+                //kiem tra
+
+
+                foreach (string item in l)
+                {
+                    DataTable dt = Commons.GetData("select ob from wd where ob='" + Fix(item) + "'");
+                    if (dt.Rows.Count == 0)
+                    {
+                        return Json(new { errorMsg = item + " chưa có pick hàng", success = false });
+                    }
+                    if (DaKhoaTrangThai(item))
+                    {
+                        return Json(new { errorMsg = item + " đã bị khóa", success = false });
+                    }
+                    if (GlobalVariables.IsAdmin == false)
+                    {
+                        dt = Commons.GetData("select [dbo].[isConfirmOB](N'" + Fix(item) + "',N'" + Fix(GlobalVariables.DivisionID) + "') v");
+                        if (dt.Rows[0][0].ToString() == "1")
+                        {
+                            return Json(new { errorMsg = item + " đã xác nhận lấy hàng rồi", success = false });
+                        }
+
+                    }
+                }
+                string sWrite = "";
+                foreach (string item in l)
+                {
+                    sWrite += "exec SP_xoagiaoviec '" + item + "'; " + Environment.NewLine;
+                }
+                Exception ex = null;
+                bool result = Commons.ExecuteNoneQuery(sWrite, ref ex);
+                if (result)
+                    return Json(new { msg = "Bỏ Import thành công", success = true });
+
+                return Json(new { errorMsg = ex.Message, success = false });
+
+
+            }
+
+            catch (Exception ex)
+            {
+                return Json(new { errorMsg = ex.Message, success = false });
+
+            }
+        }
+        [HttpPost]
+        public ActionResult Get_TrangThai()
+        {
+
+            string from = Commons.ConvertToString(Request.QueryString["from"]).Replace("'", "");
+            string to = Commons.ConvertToString(Request.QueryString["to"]).Replace("'", "");
+
+            int CurrentPage = Commons.ConvertToInt(Request.QueryString["page"], 1);
+            string tukhoa = Commons.ConvertToString(Request.QueryString["key"]);
+            int PAGE_SIZE = 20;
+            if (from == "" || to == "")
+            {
+                from = DateTime.Now.AddDays(-3).ToString("yyyy.MM.dd");
+                to = DateTime.Now.ToString("yyyy.MM.dd");
+            }
+            else
+            {
+                string[] l1 = from.Split('/');
+                from = l1[2] + "." + l1[1] + "." + l1[0];
+                l1 = to.Split('/');
+                to = l1[2] + "." + l1[1] + "." + l1[0];
+
+            }
+
+            string sSQL = "exec SP_dau8dasoan '" + from + "','" + to + "',N'" + Commons.Fix(tukhoa) + "'," + CurrentPage + "," + PAGE_SIZE;
+
+            DataTable dt = Commons.GetData(sSQL);
+            var query = from p in dt.AsEnumerable()
+                        select new
+                        {
+                            dangsoan = p["dangsoan"],
+                            nguoisoan = p["nguoisoan"],
+                            ghichu = p["ghichu"],
+                            ob = p["ob"],
+                            khachhang = p["CustomerName"],
+                            address = p["address"],
+                            hh = Commons.ConvertToDecimal(p["hh"]).ToString("N0"),
+                            tx = Commons.ConvertToDecimal(p["tx"]).ToString("N0"),
+                            ngaysoan = Commons.ConvertToDateTime(p["ngaysoan"]).ToString("dd/MM/yyyy HH:mm"),
+                            ngayxong = (p["ngayxong"] == DBNull.Value ? "" : Commons.ConvertToDateTime(p["ngayxong"]).ToString("dd/MM/yyyy HH:mm")),
+                            trangthai = p["trangthai"]
+
+                        };
+            return Json(query);
+
+        }
+
+        public ActionResult ExportDau8DangSoan()
+        {
+            string from = Commons.ConvertToString(Request.QueryString["from"]).Replace("'", "");
+            string to = Commons.ConvertToString(Request.QueryString["to"]).Replace("'", "");
+            string type = Commons.ConvertToString(Request.QueryString["type"]);
+            string tukhoa = Commons.ConvertToString(Request.QueryString["key"]);
+            if (from == "" || to == "")
+            {
+                from = DateTime.Now.AddDays(-3).ToString("yyyy.MM.dd");
+                to = DateTime.Now.ToString("yyyy.MM.dd");
+            }
+            else
+            {
+                string[] l1 = from.Split('/');
+                from = l1[2] + "." + l1[1] + "." + l1[0];
+                l1 = to.Split('/');
+                to = l1[2] + "." + l1[1] + "." + l1[0];
+
+            }
+
+            string sSQL = "exec ExportDau8DangSoan  '" + from + "','" + to + "',N'" + Commons.Fix(tukhoa) + "','" + Fix(type) + "' ";
+            DataTable dt = Commons.GetData(sSQL);
+            Export d = new Controllers.Export();
+            d.ExportExcel(Response, "ExportDau8Dagiaoviec", dt);
+            return View();
+
+        }
+        public ActionResult XemTrangThai()
+        {
+            if (Commons.CheckPermit("dattrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+            string from = Commons.ConvertToString(Request.QueryString["from"]).Replace("'", "");
+            string to = Commons.ConvertToString(Request.QueryString["to"]).Replace("'", "");
+
+            int CurrentPage = Commons.ConvertToInt(Request.QueryString["page"], 1);
+            string tukhoa = Commons.ConvertToString(Request.QueryString["key"]);
+
+            if (from == "" || to == "")
+            {
+                from = DateTime.Now.AddDays(-3).ToString("yyyy.MM.dd");
+                to = DateTime.Now.ToString("yyyy.MM.dd");
+            }
+            else
+            {
+                string[] l1 = from.Split('/');
+                from = l1[2] + "." + l1[1] + "." + l1[0];
+                l1 = to.Split('/');
+                to = l1[2] + "." + l1[1] + "." + l1[0];
+
+            }
+
+            string sSQL = "exec SP_dau8dasoan_count '" + from + "','" + to + "',N'" + Commons.Fix(tukhoa) + "'";
+
+            DataTable dt = Commons.GetData(sSQL);
+
+            int nTotal = Commons.ConvertToInt(dt.Rows[0][0]);
+            int hh = Commons.ConvertToInt(dt.Rows[0][1]);
+            int tx = Commons.ConvertToInt(dt.Rows[0][2]);
+            int PAGE_SIZE = 20;
+            DataTable dp = new DataTable();
+            dp.Columns.Add("link", "".GetType());
+            dp.Columns.Add("class", "".GetType());
+            dp.Columns.Add("text", "".GetType());
+
+            if (nTotal > 0)
+            {
+
+                ArrayList cactrang = GetPage(nTotal, 10, PAGE_SIZE, CurrentPage);
+                if (cactrang.Count > 0)
+                {
+
+                    foreach (int e in cactrang)
+                    {
+                        DataRow r = dp.NewRow();
+
+                        if (e != CurrentPage)
+                        {
+                            r[0] = "/admin/xemTrangThai?key=" + tukhoa + "&from=" + Commons.ConvertToString(Request.QueryString["from"]) + "&to=" + Commons.ConvertToString(Request.QueryString["to"]) + "&page=" + e;
+
+                            r[1] = "page";
+                            r[2] = e.ToString();
+                        }
+                        else
+                        {
+                            r[0] = "";
+                            r[1] = "selectedpage";
+                            r[2] = e.ToString();
+                        }
+                        dp.Rows.Add(r);
+                    }
+                    DataRow rd = dp.NewRow();
+                    rd[0] = "/admin/xemTrangThai?key=" + tukhoa + "&from=" + Commons.ConvertToString(Request.QueryString["from"]) + "&to=" + Commons.ConvertToString(Request.QueryString["to"]) + "&page=" + 1;
+                    rd[1] = "page";
+                    rd[2] = "Về đầu";
+                    dp.Rows.InsertAt(rd, 0);
+                    DataRow rc = dp.NewRow();
+                    rc[0] = "/admin/xemTrangThai?key=" + tukhoa + "&from=" + Commons.ConvertToString(Request.QueryString["from"]) + "&to=" + Commons.ConvertToString(Request.QueryString["to"]) + "&page=" + Math.Ceiling(nTotal * 1.0 / PAGE_SIZE);
+
+                    rc[1] = "page";
+                    rc[2] = "Về cuối";
+                    dp.Rows.Add(rc);
+
+                }
+            }
+            ViewBag.Paging = dp;
+            ViewBag.Count = nTotal.ToString("N0");
+            ViewBag.hh = hh.ToString("N0");
+            ViewBag.tx = tx.ToString("N0");
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Xoa_TrangThai(string ob)
+        {
+            if (Global.GlobalVariables.UserID == 0)
+            {
+                return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+            }
+
+            if (Commons.CheckPermit("dattrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+            if (DaKhoaTrangThai(ob))
+            {
+                return Json(new { errorMsg = ob + " đã bị khóa", success = false });
+            }
+            if (GlobalVariables.IsAdmin == false)
+            {
+                DataTable dt = Commons.GetData("select [dbo].[isConfirmOB](N'" + Fix(ob) + "',N'" + Fix(GlobalVariables.DivisionID) + "') v");
+                if (dt.Rows[0][0].ToString() == "1")
+                {
+                    return Json(new { errorMsg = ob + " đã xác nhận lấy hàng rồi", success = false });
+                }
+
+            }
+            string sWrite = "exec SP_xoagiaoviec '" + ob + "'; " + Environment.NewLine;
+            Exception ex = null;
+            bool b = Commons.ExecuteNoneQuery(sWrite, ref ex);
+            if (b)
+                return Json(new { msg = "Xóa thành công", success = true });
+
+            return Json(new { errorMsg = ex.Message, success = false });
+        }
+        [HttpPost]
+        public ActionResult Reset_TrangThai(string ob)
+        {
+            if (Global.GlobalVariables.UserID == 0)
+            {
+                return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+            }
+
+            if (Commons.CheckPermit("dattrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+            if (DaKhoaTrangThai(ob))
+            {
+                return Json(new { errorMsg = ob + " đã bị khóa", success = false });
+            }
+            if (GlobalVariables.IsAdmin == false)
+            {
+                DataTable dt = Commons.GetData("select [dbo].[isConfirmOB](N'" + Fix(ob) + "',N'" + Fix(GlobalVariables.DivisionID) + "') v");
+                if (dt.Rows[0][0].ToString() == "1")
+                {
+                    return Json(new { errorMsg = ob + " đã xác nhận lấy hàng rồi", success = false });
+                }
+
+            }
+            string sWrite = "exec SP_Resetgiaoviec '" + ob + "'; " + Environment.NewLine;
+            Exception ex = null;
+            bool b = Commons.ExecuteNoneQuery(sWrite, ref ex);
+            if (b)
+                return Json(new { msg = "Xóa thành công", success = true });
+
+            return Json(new { errorMsg = ex.Message, success = false });
+        }
+        public ActionResult XacnhanXongOB()
+        {
+
+
+            return View();
+        }
+        [HttpPost]
+        public ActionResult XacnhanXongOB(string ob)
+        {
+            if (Global.GlobalVariables.UserID == 0)
+            {
+                return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+            }
+
+            if (Commons.CheckPermit("dattrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+            if (DaKhoaTrangThai(ob))
+            {
+                return Json(new { errorMsg = ob+" đã bị khóa", success = false });
+            }
+            string noidung = "";
+            string[] list = ob.Split('\n');
+            foreach (string item in list)
+            {
+
+                DataTable dt = Commons.GetData("select ob from VOBDangSoan where ob='" + Fix(item) + "'");
+                if (dt.Rows.Count == 0)
+                {
+                    noidung += item + " chưa có soạn hàng không được xác nhận xong, ";
+
+                    //return Json(new { errorMsg = item + " chưa có soạn hàng không được xác nhận xong", success = false });
+                }
+
+
+            }
+            if (noidung != "")
+                return Json(new { errorMsg = noidung, success = false });
+
+            string sWrite = "";
+            foreach (string item in list)
+            {
+                sWrite += "exec SP_xacnhandasoanxong '" + item + "';";
+            }
+
+            Exception ex = null;
+            bool b = Commons.ExecuteNoneQuery(sWrite, ref ex);
+
+            if (b)
+            {
+                return Json(new { msg = "Cập nhật thành công", success = true });
+            }
+            return Json(new { errorMsg = ex.Message, success = false });
+        }
+        [HttpPost]
+        public ActionResult LoadThongBaoSoanHang()
+        {
+
+            string ssql = "select count(ob) c,sum(hh) h,sum(tx) t from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0";
+            DataTable dt = Commons.GetData(ssql);
+            DataRow r = dt.Rows[0];
+
+            int c = Commons.ConvertToInt(r[0]);
+            int h = Commons.ConvertToInt(r[1]);
+            int t = Commons.ConvertToInt(r[2]);
+
+            string m = "";
+            if (c > 0)
+                m += "<p style='color:red;cursor:pointer' onclick='canhbaotrangthaixacnhan()'>Có " + c.ToString("N0") + " đầu 8 đã nhận đơn soạn với tổng " + h.ToString("N0") + " hàng hóa và tổng " + t.ToString("N0") + " túi xốp nhưng chưa được Soạn</p>";
+
+           
+           
+
+            return Json(new { msg = m, success = true });
+
+
+        }
+        public ActionResult canhbaotrangthaixacnhan()
+        {
+            string ssql = "select ob,customername,hh,tx from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0";
+            DataTable dt = Commons.GetData(ssql);
+            ViewBag.data = dt.Rows;
+            return View();
+        }
+        public ActionResult canhbaotrangthaixacnhan_Export()
+        {
+            string ssql = "select ob [Outbound],customername [Khách hàng],hh [SL hàng],tx [SL túi xốp] from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0";
+            DataTable dt = Commons.GetData(ssql);
+            Export e = new Export();
+            e.ExportExcel(Response, "canhbaotrangthaixacnhan_Export", dt);
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult KhoaTrangThaiOB(string ob,string khoa)
+        {
+            if (Global.GlobalVariables.UserID == 0)
+            {
+                return Json(new { errorMsg = "Bạn chưa đăng nhập", success = false });
+            }
+
+            if (Commons.CheckPermit("khoatrangthaioutbound") == false)
+            {
+                return Json(new { errorMsg = "Bạn không có quyền này", success = false });
+            }
+         
+            
+            string sWrite = "";
+            sWrite += "exec SP_KhoaTrangThaiOB '" + Fix(ob) + "','" + Fix(khoa) + "'";
+
+            Exception ex = null;
+            bool b = Commons.ExecuteNoneQuery(sWrite, ref ex);
+
+            if (b)
+            {
+                return Json(new { msg = "Cập nhật thành công", success = true });
+            }
+            return Json(new { errorMsg = ex.Message, success = false });
+        }
+        public bool DaKhoaTrangThai(string ob)
+        {
+            string ssql = "select khoa from VOBDangSoan where OB='"+Fix(ob)+"'";
+            DataTable dt = Commons.GetData(ssql);
+            if (dt.Rows.Count == 0) return false;
+            return Commons.ConvertToBool(dt.Rows[0][0]);
+        }
     }
 }
 

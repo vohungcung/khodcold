@@ -1,0 +1,493 @@
+﻿@{
+    /**/
+
+    /**/
+
+    ViewBag.Title = Request.QueryString["id"];
+    Layout = "~/Views/Shared/SP.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery-barcode.js"></script>
+<link href="~/css/tv.css?v=@Global.GlobalVariables.Random" rel="stylesheet" />
+<style>
+    html {
+        background-color: #FFF;
+        counter-reset: page-break;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 12px;
+    }
+
+    .clear {
+        clear: both
+    }
+
+    .page-break {
+        display: block;
+        page-break-after: always;
+    }
+
+    .sumf {
+        background-color: navy;
+        color: #FFF;
+    }
+</style>
+
+
+@foreach (System.Data.DataRow item in ViewBag.data)
+{
+
+    <table style="width:100%">
+        <tr>
+            <td style="width:33%" valign="top">
+                @Html.Raw(ViewBag.Division)
+
+
+            </td>
+            <td style="width:33%" valign="top">
+                <div style="text-align:center">
+                    <p style="font-weight:bold;font-size:30px;margin-top:0;margin-bottom:0">Phiếu soạn hàng</p>
+                    <h2>@Global.Commons.YMDToDMY(item["PrepaingDate"])</h2>
+                    <p>@ViewBag.date</p> <p>
+                        Số chứng từ:  @item["OB"]
+                    </p>
+                    <p>Chứng từ gốc: @Global.Commons.ConvertToString(item["STO"]).Trim(',')</p>
+                    <div style="width:110px;margin:0 auto">
+                        <p style="text-align:center" outbound="@item["OB"]" class="sp">
+
+                        </p>
+                    </div>
+
+                </div>
+            </td>
+            <td style="width:33%" valign="top"></td>
+        </tr>
+    </table>
+    <table cellpadding="5" cellspacing="0" style="text-align:left;">
+        <tr>
+            <td>Kho</td>
+            <td colspan="3">@item["WH"]</td>
+        </tr>
+        <tr>
+            <td>Khách hàng</td>
+            <td colspan="3">@item["CustomerName"]</td>
+        </tr>
+        <tr>
+            <td>Địa chỉ</td>
+            <td>@item["Address"]</td>
+            <td>Quận huyện</td>
+            <td>@item["District"]</td>
+        </tr>
+
+        <tr>
+            <td>Loại hình</td>
+            <td>@item["KindOf"]</td>
+            <td>Số hợp đồng</td>
+            <td>@item["ContactNo"]</td>
+        </tr>
+
+        <tr>
+            <td>Diễn giải</td>
+            <td colspan="3">@item["ContactDes"]</td>
+        </tr>
+    </table>
+    <div style="text-align:center;margin-left:20px;margin-right:20px">
+        <table cellspacing="0" cellpadding="5" border="1" style="border-collapse:collapse;width:100%;">
+            <tr>
+                <th rowspan="2">TT</th>
+                <th colspan="2">BarCode</th>
+
+                <th colspan="5">
+                    Tên hàng
+                </th>
+                <th rowspan="2">Thực thu</th>
+                <th rowspan="2">
+                    Số lượng
+                </th>
+                <th rowspan="2">
+                    Số lượng xuất
+                </th>
+                <th rowspan="2">
+                    Lệch
+                </th>
+                <th rowspan="2">Ghi chú</th>
+            </tr>
+            <tr>
+                <td>
+                    Mã
+                </td>
+                <td>
+                    MS
+                </td>
+                <td>Tên hàng</td>
+                <td>Màu</td>
+                <td>Cỡ số</td>
+                <td>Đơn giá</td>
+                <td>Chiết khấu(%)</td>
+
+            </tr>
+            @foreach (System.Data.DataRow item1 in Global.Commons.GetChiTietDau8Full(item["OB"].ToString(), Request.QueryString["id"]).Rows)
+            {
+                <tr class="datarow" itemgroupid="@item1["ItemGroupID"]" itemid="@item1["ItemID"].ToString().Substring(0, 9)">
+                    <td class="tt" ob="@item["OB"]"></td>
+
+                    <td class="ma" itemid="@item1["ItemID"].ToString().Substring(0, 9)" ma="@(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(7, 5) : "")">
+                        @(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(7, 5) : "")
+                    </td>
+                    <td class="ms" itemid="@item1["ItemID"].ToString().Substring(0, 9)" ms="@(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(13, 2) : "")">
+                        @(Global.Commons.ConvertToString(item1["BarCode"]).Length > 17 ? Global.Commons.ConvertToString(item1["BarCode"]).Substring(13, 2) : "")
+
+                    </td>
+                    <td class="itemid" itemid="@item1["ItemID"].ToString().Substring(0, 9)">
+                        @item1["ItemID"].ToString().Substring(0, 9)
+                    </td>
+                    <td class="itemcolor" itemid="@item1["ItemID"].ToString().Substring(0, 9)">
+                        @item1["ItemID"].ToString().Substring(9, 3)
+                    </td>
+                    <td class="itemsize" itemid="@item1["ItemID"].ToString().Substring(0, 12)" >
+                        @item1["ItemID"].ToString().Substring(12)
+                    </td>
+                    <td style="text-align:right" class="unitprice"> @Global.Commons.ConvertToInt(item1["Price"]).ToString("N0")</td>
+                    <td style="text-align:center" class="chietkhau">@item1["Discount"]</td>
+                    <td class="trigia totalamount" style="text-align:right"></td>
+
+                    <td class="sl quantity" style="text-align:right">
+                        @item1["Quantity"]
+                    </td>
+                    <td class="sl danhan" style="text-align:right">
+                        @item1["ReceiveQuantity"]
+                    </td>
+                    <td class="lech" style="text-align:right">
+                        @(Global.Commons.ConvertToInt(item1["Quantity"]) - Global.Commons.ConvertToInt(item1["ReceiveQuantity"]))
+                    </td>
+                    <td></td>
+                </tr>
+            }
+            <tr style="font-weight:bold;color:#FFF;background-color:navy">
+                <td colspan="9" style="text-align:center">
+                    Tổng cộng:
+                </td>
+
+                <td style="text-align:right" class="quantity"> @item["Quantity"]</td>
+                <td style="text-align:right">@item["ReceiveQuantity"] </td>
+                <td style="text-align:right">
+                    @(Global.Commons.ConvertToInt(item["Quantity"]) - Global.Commons.ConvertToInt(item["ReceiveQuantity"]))
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div class="clear"></div>
+    <table style="width:100%;text-align:center;font-weight:bold" cellpadding="10" cellspacing="0">
+        <tr>
+            <td style="width:33%">Người soạn hàng</td>
+            <td style="width:33%">Người quét hàng</td>
+            <td style="width:33%">Người lập biểu</td>
+
+        </tr>
+
+    </table>
+
+
+
+
+}
+
+
+<script>
+
+    $(document).ready(function () {
+
+        var bbb = $(".sp").get();
+
+        for (var i = 0; i < bbb.length; i++) {
+            $(bbb[i]).barcode(($(bbb[i]).attr("outbound")),
+                "code128" // type (string)
+            );
+        }
+        var tt = 1;
+        var ob = "";
+        var arr = $(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            if (ob != $(arr[i]).attr("ob")) {
+                tt = 1;
+                ob = $(arr[i]).attr("ob");
+            }
+
+            $(arr[i]).html(tt);
+            tt = tt + 1;
+        }
+        $(".page-break:last").remove();
+        groupbyitem();
+        
+        print();
+
+        var oblist = "@ViewBag.OBList";
+        var ob = "@Request.QueryString["ob"]";
+        var voucherid = "@Request.QueryString["id"]";
+        if (ob != "") {
+            arr = oblist.split('.');
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] == ob) {
+                    if (i < arr.length - 1) {
+                        var n = "@Request.QueryString["n"]";
+                        if (n == "1")
+                            ;
+                        else
+                        location = '/admin/indau8?id=' + voucherid + "&ob=" + arr[i + 1];
+                    }
+
+                    else
+                        close();
+
+                    break;
+                }
+            }
+        }
+
+    });
+
+
+
+    function groupbyitem() {
+
+        var olditemid = "";
+        var arr = $(".itemid").get();
+        for (var i = 0; i < arr.length; i++) {
+            var newitemid = $.trim($(arr[i]).html());
+            if (newitemid != olditemid)
+                olditemid = newitemid;
+            else
+                $(arr[i]).html("");
+        }
+
+        olditemid = "";
+        arr = $(".itemcolor").get();
+        for (var i = 0; i < arr.length; i++) {
+            var newitemid = $.trim($(arr[i]).attr("itemid") + $(arr[i]).html());
+            if (newitemid != olditemid)
+                olditemid = newitemid;
+            else
+                $(arr[i]).html("");
+        }
+        arr = $(".ma").get();
+        for (var i = 0; i < arr.length; i++) {
+            var newitemid = $.trim($(arr[i]).attr("itemid") + $(arr[i]).html());
+            if (newitemid != olditemid)
+                olditemid = newitemid;
+            else
+                $(arr[i]).html("");
+        }
+        arr = $(".ms").get();
+        for (var i = 0; i < arr.length; i++) {
+            var newitemid = $.trim($(arr[i]).attr("itemid") + $(arr[i]).html());
+            if (newitemid != olditemid)
+                olditemid = newitemid;
+            else
+                $(arr[i]).html("");
+        }
+        //fixsize();
+
+        arr = $(".datarow").get();
+        for (var i = 0; i < arr.length; i++) {
+            var unitprice = val($(".datarow .unitprice:eq(" + i + ")").html());
+            var quantity = val($(".datarow .quantity:eq(" + i + ")").html());
+            var danhan = val($(".datarow .danhan:eq(" + i + ")").html());
+
+            $(".datarow .trigia:eq(" + i + ")").html(formatnumber(unitprice * danhan));
+
+        }
+
+
+        var tongsoluong = 0;
+        var tongsonhan = 0;
+        var tonglech = 0;
+        olditemid = "";
+        arr = $(".datarow").get();
+
+        for (var i = 0; i < arr.length; i++) {
+            var newitemid = $(arr[i]).attr("itemid");
+            if (olditemid == "")
+                olditemid = newitemid;
+
+            var soluong = val($(".datarow:eq(" + i + ") .quantity").html());
+            var danhan = val($(".datarow:eq(" + i + ") .danhan").html());
+            var lech = val($(".datarow:eq(" + i + ") .lech").html());
+
+
+            if (olditemid != newitemid) {
+
+
+
+                    var p = "<tr class='sumf'>";
+                    p += "<td  style='text-align:center' colspan='9'>Cộng mã " + olditemid + "</td>";
+                    p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsoluong) + "</td>";
+                    p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsonhan) + "</td>";
+                    p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tonglech) + "</td>";
+                    p += "<td></td>";
+                    p += "</tr>";
+
+                $(p).insertBefore($(".datarow:eq(" + i + ")"));
+
+                tongsoluong = 0;
+                tongsonhan = 0;
+                tonglech = 0;
+
+                tongsoluong += soluong;
+                tongsonhan += danhan;
+                tonglech += lech;
+                olditemid=  newitemid
+            }
+            else {
+                tongsoluong += soluong;
+                tongsonhan += danhan;
+                tonglech += lech;
+
+            }
+        }
+
+
+        var p = "<tr class='sumf'>";
+        p += "<td  style='text-align:center' colspan='9'>Cộng mã " + olditemid + "</td>";
+        p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsoluong) + "</td>";
+        p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsonhan) + "</td>";
+        p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tonglech) + "</td>";
+        p += "<td></td>";
+        p += "</tr>";
+
+
+        $(p).insertAfter($(".datarow:last"));
+
+        arr = $(".tt").get();
+        for (var i = 0; i < arr.length; i++) {
+            $(arr[i]).html(i + 1);
+        }
+
+
+    }
+    function fixsize() {
+
+     var   arr = $(".itemsize").get();
+        var i = 0;
+        while (i < arr.length - 1) {
+            var i1 = parseInt($.trim($(arr[i]).html()));
+            var item1 = $(arr[i]).attr("itemid");
+            var min = i1;
+            for (var j = i + 1; j < arr.length; j++) {
+                var i2 = parseInt($.trim($(arr[j]).html()));
+                var item2 = $(arr[j]).attr("itemid");
+
+                if (item1 == item2) {
+                    if (i1 + 1 == i2) {
+                        $(arr[i]).html(min + "->" + i2);
+                        $(arr[j]).html("");
+                        i1 = i2;
+                    } else {
+                        i = j;
+                        break;
+                    }
+                }
+
+                else {
+                    i = j;
+                    break;
+
+
+                }
+            }
+            i++;
+
+
+
+        }
+
+    }
+
+    function groupbygroup() {
+        var tongsoluong = 0;
+        var tongsonhan = 0;
+        var tonglech = 0;
+        olditemid = "";
+        arr = $(".datarow").get();
+
+        for (var i = 0; i < arr.length; i++) {
+            var newitemid = $(arr[i]).attr("itemgroupid");
+            if (olditemid == "")
+                olditemid = newitemid;
+
+            var soluong = val($(".datarow:eq(" + i + ") .quantity").html());
+            var danhan = val($(".datarow:eq(" + i + ") .danhan").html());
+            var lech = val($(".datarow:eq(" + i + ") .lech").html());
+
+
+            if (olditemid != newitemid) {
+
+
+
+                var p = "<tr class='sumf'>";
+                p += "<td  style='text-align:center' colspan='9'>Cộng mã " + olditemid + "</td>";
+                p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsoluong) + "</td>";
+                p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsonhan) + "</td>";
+                p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tonglech) + "</td>";
+                p += "<td></td>";
+                p += "</tr>";
+
+                $(p).insertBefore($(".datarow:eq(" + i + ")"));
+
+                tongsoluong = 0;
+                tongsonhan = 0;
+                tonglech = 0;
+
+                tongsoluong += soluong;
+                tongsonhan += danhan;
+                tonglech += lech;
+                olditemid = newitemid
+            }
+            else {
+                tongsoluong += soluong;
+                tongsonhan += danhan;
+                tonglech += lech;
+
+            }
+        }
+
+
+        var p = "<tr class='sumf'>";
+        p += "<td  style='text-align:center' colspan='9'>Cộng mã " + olditemid + "</td>";
+        p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsoluong) + "</td>";
+        p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tongsonhan) + "</td>";
+        p += "<td style='text-align:right;font-weight:bold'>" + formatnumber(tonglech) + "</td>";
+        p += "<td></td>";
+        p += "</tr>";
+
+
+        $(p).insertAfter($(".datarow:last"));
+    }
+    function val(e) {
+        var b = $.trim(e) + "";
+        while (b.indexOf(",") >= 0)
+            b = b.replace(",", "");
+        return parseFloat(b);
+    }
+    function formatnumber(e) {
+
+        e = e + "";
+        while (e.indexOf(",") >= 0)
+            e = e.replace(",", "");
+
+        var len = (e + "").length;
+        var result = "";
+        var c = 0;
+        for (var i = len - 1; i >= 0; i--) {
+
+            result = e[i] + result;
+            if (c == 2 && i > 0 && i < len - 1)
+                result = "," + result;
+            c = (c + 1) % 3;
+        }
+        return result;
+    }
+</script>
+

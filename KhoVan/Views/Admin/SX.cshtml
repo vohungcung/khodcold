@@ -95,7 +95,7 @@
 
 
     var gbd = "";
-    function getproducts1() {
+    function getproducts1(chan) {
         $("#mm").hide();
         if (confirm("Sau khi tính vị trí này xong phiếu này bạn sẽ không thể thêm xóa sửa được. Bạn có chắc là muốn thực hiện điều này? ") == false) {
             return;
@@ -107,7 +107,8 @@
         var batdau = dt.getHours() * 3600 + dt.getMinutes() * 60 + dt.getSeconds();
 
         $.post('/admin/getproductsforvoucher1', {
-            VoucherID: '@Request.QueryString["id"]'
+            VoucherID: '@Request.QueryString["id"]',
+            laychan: chan
         }, function (result) {
             HideWaitting();
             if (result.success) {
@@ -409,8 +410,9 @@
 
 
 
-        <input type="button" class="ud" name="name" value="Lấy hàng" onclick="getproducts1()" />
-     
+        <input type="button" class="ud" name="name" value="Lấy hàng" onclick="getproducts1(0)" />
+        <input type="button" class="ud" name="name" value="Lấy hàng từ vị trí chẳn" onclick="getproducts1(1)" />
+
 
         @if (Global.GlobalVariables.IsAdmin)
         {

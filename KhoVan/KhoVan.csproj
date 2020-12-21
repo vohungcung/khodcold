@@ -1703,6 +1703,7 @@
     <Content Include="Views\Admin\GoToPallet.cshtml" />
     <Content Include="Views\Admin\ID8.cshtml" />
     <Content Include="Views\Admin\ImportInputData.cshtml" />
+    <Content Include="Views\Admin\InDau8 - Copy.cshtml" />
     <Content Include="Views\Admin\InDau8.cshtml" />
     <Content Include="Views\Admin\InDau81.cshtml" />
     <Content Include="Views\Admin\InDau8ThieuHang.cshtml" />
@@ -1794,6 +1795,11 @@
     <Content Include="Views\Admin\chuaracong.cshtml" />
     <Content Include="Views\Admin\UpdateAllItem.cshtml" />
     <Content Include="Views\Admin\ViewOBLoaiTru.cshtml" />
+    <Content Include="Views\Admin\ImportTrangThai.cshtml" />
+    <Content Include="Views\Admin\XemTrangThai.cshtml" />
+    <Content Include="Views\Admin\ThemTrangThai.cshtml" />
+    <Content Include="Views\Admin\XacNhanXongOB.cshtml" />
+    <Content Include="Views\Admin\canhbaotrangthaixacnhan.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Code\" />

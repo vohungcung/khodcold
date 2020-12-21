@@ -163,8 +163,8 @@
             @if (Global.GlobalVariables.IsAdmin)
             {<div class="menu-e" id="backup" group="Hệ thống">
 
-                @Html.ActionLink("Backup", "ViewBackups", "Admin")
-            </div>
+                    @Html.ActionLink("Backup", "ViewBackups", "Admin")
+                </div>
 
                 <div class="menu-e" id="account" group="Hệ thống">
 
@@ -244,7 +244,13 @@
                 </div>
 
             }
-
+            @if (Global.Commons.CheckPermit("dattrangthaioutbound"))
+            {
+                
+                <div class="menu-e" id="xemtrangthai" group="Scanner">
+                    <a href="/admin/xemtrangthai?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")">Xem trạng thái đầu 8</a>
+                </div>
+            }
             @if (Global.Commons.CheckPermit("thietlaphethong"))
             {
 
@@ -279,8 +285,8 @@
             }
             @if (Global.Commons.CheckPermit("dihangtheoma"))
             {<div class="menu-e" id="dihangtheoma" group="Di hàng">
-                <a href="/admin/dihangtheoma">Di hàng theo mã</a>
-            </div>
+                    <a href="/admin/dihangtheoma">Di hàng theo mã</a>
+                </div>
             }
             @if (Global.Commons.CheckPermit("xemdihang"))
             {
@@ -651,24 +657,24 @@
     $(document).ready(function () {
 
         //if (isadmin == 'True') {
-        if ($(window).width() > 600)
-            fixmenu();
-        else {
-            $(".menugroup,.grouptotal").remove();
-            $(".menu-e").removeAttr("style");
-        }
-
-        $(".menu-e").hover(function () {
-
-            if ($(this).hasClass("grouptotal") == false) {
-                $(".menugroup").remove();
+            if ($(window).width() > 600)
+                fixmenu();
+            else {
+                $(".menugroup,.grouptotal").remove();
+                $(".menu-e").removeAttr("style");
             }
-        });
-        $(".main").click(function () {
-            $(".menugroup").remove();
-        });
-        //if (isadmin == 'True')
-        setTimeout(bookmarkgroup, 1000);
+
+            $(".menu-e").hover(function () {
+
+                if ($(this).hasClass("grouptotal") == false) {
+                    $(".menugroup").remove();
+                }
+            });
+            $(".main").click(function () {
+                $(".menugroup").remove();
+            });
+            //if (isadmin == 'True')
+                setTimeout(bookmarkgroup, 1000);
 
         //}
         var userid = '@Global.GlobalVariables.UserID';

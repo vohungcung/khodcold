@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Import bảng phân công";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    textarea {
+        text-transform: uppercase;
+        width: 300px;
+        height: 200px;
+    }
+</style>
+<h1>
+    Import bảng phân công
+</h1>
+<p>
+    <textarea id="dau8" placeholder="outbound | người soạn | ghi chú"></textarea>
+</p>
+<p id="message">
+   
+</p>
+<p>
+    <input type="button" class="bt" name="name" value="Cập nhật" onclick="importtt()" />
+    <input type="button" class="bt" name="name" value="Bỏ qua" onclick="gotoview()" />
+
+
+</p>
+<script>
+    $(window).load(function () {
+        $("#xemtrangthai").addClass("menuselect");
+
+    })
+  
+</script>
+
+
+<script>
+
+    var url;
+
+    function importtt() {
+        var giatri = $.trim($("#dau8").val());
+        if (giatri == "") {
+            playSound1();
+            alert('bạn chưa nhập nội dung');
+         
+            return;
+        }
+        $(".bt").hide();
+        $("#message").text("vui lòng chờ");
+        $.post('/admin/ImportTrangThai', {
+            dau8: giatri
+        }, function (result) {
+            if (result.success) {
+                alert('Import thành công');
+                playSound();
+                $("#dau8").val("")
+                $(".bt").show();
+                $("#message").text("");
+                location = '/admin/XemTrangThai?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")';
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $(".bt").show();
+                $("#message").text("");
+            }
+        }, 'json');
+    }
+
+    function boimporttt() {
+        var giatri =$.trim( $("#dau8").val());
+        if (giatri == "") {
+            playSound1();
+            alert('bạn chưa nhập nội dung');
+          
+            return;
+        }
+
+        $(".bt").hide();
+        $("#message").text("vui lòng chờ");
+        $.post('/admin/BoImportTrangThai', {
+            dau8: giatri
+        }, function (result) {
+            if (result.success) {
+                alert('Bỏ thành công');
+                playSound();
+                $("#dau8").val("")
+                $(".bt").show();
+                $("#message").text("");
+            } else {
+                $.messager.show({    // show error message
+                    title: 'Error',
+                    msg: result.errorMsg
+                });
+                playSound1();
+                $(".bt").show();
+                $("#message").text("");
+            }
+        }, 'json');
+    }
+
+
+</script>
+
+<audio id="audio" src="/sound/beep-07.wav" autostart="false"></audio>
+<audio id="audio1" src="/sound/error.wav" autostart="false"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("audio");
+        sound.play();
+    }
+    function playSound1() {
+        var sound = document.getElementById("audio1");
+        sound.play();
+    }
+    function gotoview() {
+        location = '/admin/XemTrangThai?from=@DateTime.Now.ToString("dd/MM/yyyy")&to=@DateTime.Now.ToString("dd/MM/yyyy")';
+    }
+</script>
