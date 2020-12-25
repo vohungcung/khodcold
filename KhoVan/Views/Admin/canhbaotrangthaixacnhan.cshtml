@@ -52,6 +52,14 @@
             <th align="right">
                Túi xốp
             </th>
+            <th>
+                Người soạn
+
+            </th>
+            <th>
+                Ngày soạn
+
+            </th>
         </tr>
         @foreach (System.Data.DataRow item in ViewBag.data)
         {
@@ -62,6 +70,8 @@
                 @item["OB"]
 
                 </td>
+               
+
                 <td >
                 @item["CustomerName"]
                 </td>
@@ -72,6 +82,12 @@
                 <td align="right">
 
                     @Global.Commons.ConvertToDecimal(item["TX"]).ToString("N0")
+                </td>
+                <td>
+                    @item["nguoisoan"]
+                </td>
+                <td>
+                    @Global.Commons.ConvertToDateTime(item["ngaysoan"]).ToString("dd/MM/yyyy HH:mm")
                 </td>
             </tr>
         }

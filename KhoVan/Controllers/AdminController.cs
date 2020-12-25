@@ -19802,14 +19802,14 @@ select v.* from (select top 100 percent Row_number () over (order by OB) positio
         }
         public ActionResult canhbaotrangthaixacnhan()
         {
-            string ssql = "select ob,customername,hh,tx from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0";
+            string ssql = "select ob,customername,hh,tx,nguoisoan,ngaysoan from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0 order by ngaysoan ";
             DataTable dt = Commons.GetData(ssql);
             ViewBag.data = dt.Rows;
             return View();
         }
         public ActionResult canhbaotrangthaixacnhan_Export()
         {
-            string ssql = "select ob [Outbound],customername [Khách hàng],hh [SL hàng],tx [SL túi xốp] from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0";
+            string ssql = "select ob [Outbound],customername [Khách hàng],hh [SL hàng],tx [SL túi xốp],nguoisoan [Người soạn],ngaysoan [Ngày soạn] from VOBDangSoan where isnull(daxong,0)=0 and dapickhang=0 order by ngaysoan ";
             DataTable dt = Commons.GetData(ssql);
             Export e = new Export();
             e.ExportExcel(Response, "canhbaotrangthaixacnhan_Export", dt);
